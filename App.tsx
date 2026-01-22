@@ -1,0 +1,312 @@
+
+import React, { useState, useRef, useEffect } from 'react';
+import { Message, KnowledgeItem } from './types';
+import { sendMessageWithSearch } from './services/geminiService';
+import KnowledgeManager from './components/KnowledgeManager';
+import { getFullKnowledge, saveKnowledge, removeKnowledge } from './services/storageService';
+
+const App: React.FC = () => {
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: 'model',
+      content: 'Chào mừng bạn đến với **Hệ thống Trợ lý ảo PCCC Phú Thọ**. 🛡️\n\nTôi đã được nạp đầy đủ các văn bản pháp quy mới nhất và sẵn sàng hỗ trợ bạn giải đáp các thủ tục, quy định về an toàn cháy nổ.\n\nBạn cần tôi tư vấn vấn đề gì?',
+      timestamp: new Date()
+    }
+  ]);
+  const [knowledgeBase, setKnowledgeBase] = useState<KnowledgeItem[]>([]);
+  const [input, setInput] = useState('');
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isAdminMode, setIsAdminMode] = useState(false);
+  
+  const [showPasswordOverlay, setShowPasswordOverlay] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
+  const [visualClickCount, setVisualClickCount] = useState(0);
+  const clickCountRef = useRef(0);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    const loadStoredData = async () => {
+      try {
+        const stored = await getFullKnowledge();
+        setKnowledgeBase(stored);
+        if (stored.length > 0) {
+          setMessages([{
+            role: 'model',
+            content: `Hệ thống đã sẵn sàng với **${stored.length} tài liệu chuyên sâu** về PCCC được nạp sẵn. 📚\n\nBạn muốn tra cứu quy định hay thủ tục nào?`,
+            timestamp: new Date()
+          }]);
+        }
+      } catch (e) {
+        console.error("Storage load error:", e);
+      }
+    };
+    loadStoredData();
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isStreaming]);
+
+  const handleLogoClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    clickCountRef.current += 1;
+    setVisualClickCount(clickCountRef.current);
+    
+    if (timerRef.current) clearTimeout(timerRef.current);
+
+    if (clickCountRef.current >= 5) {
+      clickCountRef.current = 0;
+      setVisualClickCount(0);
+      setShowPasswordOverlay(true);
+    } else {
+      timerRef.current = setTimeout(() => {
+        clickCountRef.current = 0;
+        setVisualClickCount(0);
+      }, 4000);
+    }
+  };
+
+  const verifyAdmin = () => {
+    if (adminPassword === "adminPCCC") {
+      setIsAdminMode(true);
+      setIsSidebarOpen(true);
+      setShowPasswordOverlay(false);
+      setAdminPassword('');
+    } else {
+      alert("Mật mã không chính xác!");
+      setAdminPassword('');
+    }
+  };
+
+  const handleSend = async () => {
+    if (!input.trim() || isStreaming) return;
+
+    const currentInput = input;
+    const userMsg: Message = {
+      role: 'user',
+      content: currentInput,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMsg]);
+    setInput('');
+    setIsStreaming(true);
+
+    try {
+      const result = await sendMessageWithSearch([...messages, userMsg], knowledgeBase);
+      setMessages(prev => [...prev, {
+        role: 'model',
+        content: result.text,
+        sources: result.sources,
+        timestamp: new Date()
+      }]);
+    } catch (err) {
+      console.error(err);
+      setMessages(prev => [...prev, {
+        role: 'model',
+        content: "Xin lỗi, tôi gặp chút gián đoạn. Vui lòng thử lại sau.",
+        timestamp: new Date()
+      }]);
+    } finally {
+      setIsStreaming(false);
+    }
+  };
+
+  return (
+    <div className="flex h-screen bg-[#f8fafc] overflow-hidden font-sans relative">
+      
+      {showPasswordOverlay && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
+          <div className="bg-white rounded-[2rem] p-8 w-full max-w-sm shadow-2xl border border-slate-100 animate-fadeIn">
+            <div className="text-center mb-8">
+              <div className="w-20 h-20 bg-red-50 text-red-600 rounded-3xl flex items-center justify-center mx-auto mb-4 rotate-3 shadow-inner">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8-0v4h8z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-black text-slate-800 tracking-tight">Cổng Quản Trị</h2>
+              <p className="text-sm text-slate-500 mt-2 font-medium">Nhập mật mã để tiếp tục</p>
+            </div>
+            
+            <input 
+              autoFocus
+              type="password"
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && verifyAdmin()}
+              className="w-full px-6 py-5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-red-500 focus:ring-4 focus:ring-red-50 outline-none transition-all text-center text-xl font-bold tracking-[0.5em] placeholder:text-slate-300 placeholder:tracking-normal"
+              placeholder="Mật mã"
+            />
+            
+            <div className="flex gap-4 mt-8">
+              <button 
+                onClick={() => { setShowPasswordOverlay(false); setAdminPassword(''); }}
+                className="flex-1 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl font-bold transition-all active:scale-95"
+              >
+                Hủy bỏ
+              </button>
+              <button 
+                onClick={verifyAdmin}
+                className="flex-1 py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-bold shadow-xl shadow-red-200 transition-all active:scale-95"
+              >
+                Xác nhận
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isAdminMode && (
+        <div className={`fixed inset-y-0 left-0 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:translate-x-0 transition-all duration-500 ease-in-out z-[100] w-80 lg:w-[400px] flex-shrink-0 shadow-2xl border-r border-slate-200`}>
+          <KnowledgeManager 
+            onAdd={(item) => {
+              setKnowledgeBase(prev => [...prev, item]);
+              saveKnowledge(item);
+            }} 
+            knowledgeBase={knowledgeBase} 
+            onDelete={(id) => {
+              setKnowledgeBase(prev => prev.filter(i => i.id !== id));
+              removeKnowledge(id);
+            }} 
+          />
+          <button 
+            onClick={() => { setIsAdminMode(false); setIsSidebarOpen(false); }}
+            className="absolute bottom-6 left-6 right-6 py-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-black text-xs uppercase tracking-[0.2em] transition-all shadow-lg"
+          >
+            Đóng Quản trị
+          </button>
+        </div>
+      )}
+
+      <main className="flex-1 flex flex-col min-w-0 bg-white relative">
+        <header className="bg-white/95 backdrop-blur-md border-b border-slate-100 px-6 py-4 flex items-center justify-between sticky top-0 z-40">
+          <div className="flex items-center gap-5">
+            <div 
+              className="flex items-center gap-4 cursor-pointer select-none group relative p-1 rounded-2xl active:scale-95 transition-transform" 
+              onClick={handleLogoClick}
+            >
+              <div className="relative">
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg transition-all duration-200 ${
+                  visualClickCount > 0 
+                    ? 'bg-red-500 scale-110 ring-4 ring-red-100' 
+                    : 'bg-gradient-to-tr from-red-600 to-orange-500 ring-4 ring-red-50'
+                }`}>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.99 7.99 0 0120 13a7.98 7.98 0 01-2.343 5.657z" />
+                  </svg>
+                </div>
+                {visualClickCount >= 3 && (
+                  <div className="absolute -top-6 left-0 text-[10px] font-black text-red-600 animate-bounce uppercase whitespace-nowrap">
+                    Admin? ({visualClickCount}/5)
+                  </div>
+                )}
+              </div>
+              <div className="hidden sm:block">
+                <h1 className="font-black text-slate-800 text-lg md:text-xl tracking-tight leading-none">AI PCCC PHÚ THỌ</h1>
+                <p className="text-[10px] md:text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                  Hệ thống trực tuyến
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            {isAdminMode && (
+              <div className="hidden md:block px-4 py-2 bg-red-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-md">
+                Chế độ quản trị
+              </div>
+            )}
+          </div>
+        </header>
+
+        <section className="flex-1 overflow-y-auto px-4 py-8 md:px-10 lg:px-20 space-y-8 bg-gradient-to-b from-white to-slate-50/50 scrollbar-hide">
+          <div className="max-w-4xl mx-auto space-y-10">
+            {messages.map((msg, idx) => (
+              <div key={`msg-${idx}`} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn`}>
+                <div className={`group relative max-w-[90%] md:max-w-[80%] rounded-[2rem] p-6 md:p-8 shadow-sm border transition-all ${
+                  msg.role === 'user' 
+                    ? 'bg-slate-900 border-slate-800 text-white rounded-tr-none shadow-xl' 
+                    : 'bg-white border-slate-200 text-slate-800 rounded-tl-none ring-1 ring-slate-100'
+                }`}>
+                  <div className="prose prose-slate max-w-none whitespace-pre-wrap leading-relaxed text-sm md:text-[16px] font-medium">
+                    {msg.content}
+                  </div>
+                  {msg.sources && msg.sources.length > 0 && (
+                    <div className="mt-8 pt-6 border-t border-slate-100">
+                      <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-4">Nguồn dữ liệu:</p>
+                      <div className="flex flex-wrap gap-2.5">
+                        {msg.sources.map((source, sIdx) => (
+                          <a key={`source-${sIdx}`} href={source.uri} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2.5 px-4 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 rounded-xl text-xs text-slate-700 hover:text-red-700 font-bold transition-all">
+                            <span className="max-w-[200px] truncate">{source.title}</span>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <div className={`mt-5 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 ${msg.role === 'user' ? 'text-right' : ''}`}>
+                    {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {msg.role === 'user' ? 'Công dân' : 'Trợ lý ảo'}
+                  </div>
+                </div>
+              </div>
+            ))}
+            {isStreaming && (
+              <div className="flex justify-start animate-fadeIn">
+                <div className="bg-white border border-slate-200 rounded-[2rem] rounded-tl-none p-8 shadow-sm ring-1 ring-slate-100">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex space-x-1.5">
+                      <div className="w-2 h-2 bg-red-600 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-red-600 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="w-2 h-2 bg-red-600 rounded-full animate-bounce [animation-delay:-0.5s]"></div>
+                    </div>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">AI đang xử lý quy định...</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={chatEndRef} />
+          </div>
+        </section>
+
+        <footer className="p-6 md:p-10 bg-white/80 backdrop-blur-md border-t border-slate-100">
+          <div className="max-w-4xl mx-auto">
+            <div className={`relative flex items-center gap-4 bg-white border-2 border-slate-200 rounded-[2.5rem] p-2.5 pl-8 focus-within:border-red-600 shadow-2xl transition-all ${isStreaming ? 'opacity-50 pointer-events-none' : ''}`}>
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
+                placeholder="Hỏi về quy định, thủ tục PCCC tại đây..."
+                rows={1}
+                className="flex-1 resize-none border-none focus:ring-0 text-sm md:text-[16px] py-4 bg-transparent max-h-40 font-medium"
+              />
+              <button
+                onClick={handleSend}
+                disabled={!input.trim() || isStreaming}
+                className={`w-14 h-14 rounded-full flex items-center justify-center transition-all ${
+                  !input.trim() || isStreaming ? 'bg-slate-100 text-slate-300' : 'bg-red-600 text-white hover:bg-red-700 shadow-lg'
+                }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 rotate-45" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </footer>
+      </main>
+    </div>
+  );
+};
+
+export default App;
