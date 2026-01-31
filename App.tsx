@@ -26,6 +26,9 @@ const App: React.FC = () => {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
+  // Kiểm tra nếu đang ở chế độ nhúng (URL có ?embed=true)
+  const isEmbedded = new URLSearchParams(window.location.search).get('embed') === 'true';
+
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -54,6 +57,7 @@ const App: React.FC = () => {
   }, [messages, isStreaming]);
 
   const handleLogoClick = (e: React.MouseEvent) => {
+    if (isEmbedded) return; // Không cho phép mở admin ở chế độ nhúng trừ khi cần thiết
     e.stopPropagation();
     clickCountRef.current += 1;
     setVisualClickCount(clickCountRef.current);
@@ -82,6 +86,13 @@ const App: React.FC = () => {
       alert("Mật mã không chính xác!");
       setAdminPassword('');
     }
+  };
+
+  const copyEmbedCode = () => {
+    const currentUrl = window.location.href.split('?')[0];
+    const embedCode = `<iframe src="${currentUrl}?embed=true" width="100%" height="700px" frameborder="0" style="border:1px solid #e2e8f0; border-radius:12px;"></iframe>`;
+    navigator.clipboard.writeText(embedCode);
+    alert("Đã sao chép mã nhúng vào bộ nhớ tạm!");
   };
 
   const handleSend = async () => {
@@ -119,7 +130,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#f8fafc] overflow-hidden font-sans relative">
+    <div className={`flex h-screen overflow-hidden font-sans relative ${isEmbedded ? 'bg-white' : 'bg-[#f8fafc]'}`}>
       
       {showPasswordOverlay && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
@@ -164,73 +175,88 @@ const App: React.FC = () => {
 
       {isAdminMode && (
         <div className={`fixed inset-y-0 left-0 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:translate-x-0 transition-all duration-500 ease-in-out z-[100] w-80 lg:w-[400px] flex-shrink-0 shadow-2xl border-r border-slate-200`}>
-          <KnowledgeManager 
-            onAdd={(item) => {
-              setKnowledgeBase(prev => [...prev, item]);
-              saveKnowledge(item);
-            }} 
-            knowledgeBase={knowledgeBase} 
-            onDelete={(id) => {
-              setKnowledgeBase(prev => prev.filter(i => i.id !== id));
-              removeKnowledge(id);
-            }} 
-          />
-          <button 
-            onClick={() => { setIsAdminMode(false); setIsSidebarOpen(false); }}
-            className="absolute bottom-6 left-6 right-6 py-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-black text-xs uppercase tracking-[0.2em] transition-all shadow-lg"
-          >
-            Đóng Quản trị
-          </button>
+          <div className="h-full flex flex-col">
+            <KnowledgeManager 
+              onAdd={(item) => {
+                setKnowledgeBase(prev => [...prev, item]);
+                saveKnowledge(item);
+              }} 
+              knowledgeBase={knowledgeBase} 
+              onDelete={(id) => {
+                setKnowledgeBase(prev => prev.filter(i => i.id !== id));
+                removeKnowledge(id);
+              }} 
+            />
+            <div className="p-4 bg-slate-900 border-t border-slate-800 space-y-3">
+              <button 
+                onClick={copyEmbedCode}
+                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-2"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Lấy mã nhúng Iframe
+              </button>
+              <button 
+                onClick={() => { setIsAdminMode(false); setIsSidebarOpen(false); }}
+                className="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg"
+              >
+                Đóng Quản trị
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
-      <main className="flex-1 flex flex-col min-w-0 bg-white relative">
-        <header className="bg-white/95 backdrop-blur-md border-b border-slate-100 px-6 py-4 flex items-center justify-between sticky top-0 z-40">
-          <div className="flex items-center gap-5">
-            <div 
-              className="flex items-center gap-4 cursor-pointer select-none group relative p-1 rounded-2xl active:scale-95 transition-transform" 
-              onClick={handleLogoClick}
-            >
-              <div className="relative">
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg transition-all duration-200 ${
-                  visualClickCount > 0 
-                    ? 'bg-red-500 scale-110 ring-4 ring-red-100' 
-                    : 'bg-gradient-to-tr from-red-600 to-orange-500 ring-4 ring-red-50'
-                }`}>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.99 7.99 0 0120 13a7.98 7.98 0 01-2.343 5.657z" />
-                  </svg>
-                </div>
-                {visualClickCount >= 3 && (
-                  <div className="absolute -top-6 left-0 text-[10px] font-black text-red-600 animate-bounce uppercase whitespace-nowrap">
-                    Admin? ({visualClickCount}/5)
+      <main className={`flex-1 flex flex-col min-w-0 bg-white relative ${isEmbedded ? 'h-full' : ''}`}>
+        {!isEmbedded && (
+          <header className="bg-white/95 backdrop-blur-md border-b border-slate-100 px-6 py-4 flex items-center justify-between sticky top-0 z-40">
+            <div className="flex items-center gap-5">
+              <div 
+                className="flex items-center gap-4 cursor-pointer select-none group relative p-1 rounded-2xl active:scale-95 transition-transform" 
+                onClick={handleLogoClick}
+              >
+                <div className="relative">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg transition-all duration-200 ${
+                    visualClickCount > 0 
+                      ? 'bg-red-500 scale-110 ring-4 ring-red-100' 
+                      : 'bg-gradient-to-tr from-red-600 to-orange-500 ring-4 ring-red-50'
+                  }`}>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.99 7.99 0 0120 13a7.98 7.98 0 01-2.343 5.657z" />
+                    </svg>
                   </div>
-                )}
-              </div>
-              <div className="hidden sm:block">
-                <h1 className="font-black text-slate-800 text-lg md:text-xl tracking-tight leading-none">AI PCCC PHÚ THỌ</h1>
-                <p className="text-[10px] md:text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                  Hệ thống trực tuyến
-                </p>
+                  {visualClickCount >= 3 && (
+                    <div className="absolute -top-6 left-0 text-[10px] font-black text-red-600 animate-bounce uppercase whitespace-nowrap">
+                      Admin? ({visualClickCount}/5)
+                    </div>
+                  )}
+                </div>
+                <div className="hidden sm:block">
+                  <h1 className="font-black text-slate-800 text-lg md:text-xl tracking-tight leading-none">AI PCCC PHÚ THỌ</h1>
+                  <p className="text-[10px] md:text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                    Hệ thống trực tuyến
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            {isAdminMode && (
-              <div className="hidden md:block px-4 py-2 bg-red-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-md">
-                Chế độ quản trị
-              </div>
-            )}
-          </div>
-        </header>
+            
+            <div className="flex items-center gap-4">
+              {isAdminMode && (
+                <div className="hidden md:block px-4 py-2 bg-red-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-md">
+                  Chế độ quản trị
+                </div>
+              )}
+            </div>
+          </header>
+        )}
 
-        <section className="flex-1 overflow-y-auto px-4 py-8 md:px-10 lg:px-20 space-y-8 bg-gradient-to-b from-white to-slate-50/50 scrollbar-hide">
+        <section className={`flex-1 overflow-y-auto px-4 py-8 md:px-10 space-y-8 scrollbar-hide ${isEmbedded ? 'bg-white' : 'bg-gradient-to-b from-white to-slate-50/50'}`}>
           <div className="max-w-4xl mx-auto space-y-10">
             {messages.map((msg, idx) => (
               <div key={`msg-${idx}`} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn`}>
-                <div className={`group relative max-w-[90%] md:max-w-[80%] rounded-[2rem] p-6 md:p-8 shadow-sm border transition-all ${
+                <div className={`group relative max-w-[95%] md:max-w-[85%] rounded-[2rem] p-5 md:p-7 shadow-sm border transition-all ${
                   msg.role === 'user' 
                     ? 'bg-slate-900 border-slate-800 text-white rounded-tr-none shadow-xl' 
                     : 'bg-white border-slate-200 text-slate-800 rounded-tl-none ring-1 ring-slate-100'
@@ -238,18 +264,6 @@ const App: React.FC = () => {
                   <div className="prose prose-slate max-w-none whitespace-pre-wrap leading-relaxed text-sm md:text-[16px] font-medium">
                     {msg.content}
                   </div>
-                  {msg.sources && msg.sources.length > 0 && (
-                    <div className="mt-8 pt-6 border-t border-slate-100">
-                      <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-4">Nguồn dữ liệu:</p>
-                      <div className="flex flex-wrap gap-2.5">
-                        {msg.sources.map((source, sIdx) => (
-                          <a key={`source-${sIdx}`} href={source.uri} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2.5 px-4 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 rounded-xl text-xs text-slate-700 hover:text-red-700 font-bold transition-all">
-                            <span className="max-w-[200px] truncate">{source.title}</span>
-                          </a>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                   <div className={`mt-5 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 ${msg.role === 'user' ? 'text-right' : ''}`}>
                     {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {msg.role === 'user' ? 'Công dân' : 'Trợ lý ảo'}
                   </div>
@@ -258,14 +272,14 @@ const App: React.FC = () => {
             ))}
             {isStreaming && (
               <div className="flex justify-start animate-fadeIn">
-                <div className="bg-white border border-slate-200 rounded-[2rem] rounded-tl-none p-8 shadow-sm ring-1 ring-slate-100">
+                <div className="bg-white border border-slate-200 rounded-[2rem] rounded-tl-none p-6 shadow-sm ring-1 ring-slate-100">
                   <div className="flex items-center space-x-4">
                     <div className="flex space-x-1.5">
                       <div className="w-2 h-2 bg-red-600 rounded-full animate-bounce"></div>
                       <div className="w-2 h-2 bg-red-600 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
                       <div className="w-2 h-2 bg-red-600 rounded-full animate-bounce [animation-delay:-0.5s]"></div>
                     </div>
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">AI đang xử lý quy định...</span>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">AI đang xử lý...</span>
                   </div>
                 </div>
               </div>
@@ -274,9 +288,9 @@ const App: React.FC = () => {
           </div>
         </section>
 
-        <footer className="p-6 md:p-10 bg-white/80 backdrop-blur-md border-t border-slate-100">
+        <footer className={`p-4 md:p-8 border-t border-slate-100 bg-white/80 backdrop-blur-md sticky bottom-0`}>
           <div className="max-w-4xl mx-auto">
-            <div className={`relative flex items-center gap-4 bg-white border-2 border-slate-200 rounded-[2.5rem] p-2.5 pl-8 focus-within:border-red-600 shadow-2xl transition-all ${isStreaming ? 'opacity-50 pointer-events-none' : ''}`}>
+            <div className={`relative flex items-center gap-3 bg-white border-2 border-slate-200 rounded-[2rem] p-1.5 pl-6 focus-within:border-red-600 shadow-xl transition-all ${isStreaming ? 'opacity-50 pointer-events-none' : ''}`}>
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -286,22 +300,27 @@ const App: React.FC = () => {
                     handleSend();
                   }
                 }}
-                placeholder="Hỏi về quy định, thủ tục PCCC tại đây..."
+                placeholder="Nhập câu hỏi tại đây..."
                 rows={1}
-                className="flex-1 resize-none border-none focus:ring-0 text-sm md:text-[16px] py-4 bg-transparent max-h-40 font-medium"
+                className="flex-1 resize-none border-none focus:ring-0 text-sm md:text-[16px] py-3 bg-transparent max-h-32 font-medium"
               />
               <button
                 onClick={handleSend}
                 disabled={!input.trim() || isStreaming}
-                className={`w-14 h-14 rounded-full flex items-center justify-center transition-all ${
+                className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
                   !input.trim() || isStreaming ? 'bg-slate-100 text-slate-300' : 'bg-red-600 text-white hover:bg-red-700 shadow-lg'
                 }`}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 rotate-45" viewBox="0 0 20 20" fill="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 rotate-45" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
                 </svg>
               </button>
             </div>
+            {isEmbedded && (
+              <div className="text-center mt-3">
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Cung cấp bởi AI PCCC Phú Thọ</p>
+              </div>
+            )}
           </div>
         </footer>
       </main>

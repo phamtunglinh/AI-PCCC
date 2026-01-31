@@ -1,57 +1,49 @@
 
 import { GoogleGenAI } from "@google/genai";
 import { Message, KnowledgeItem } from "../types";
-import { SYSTEM_DOCUMENTS } from "./systemKnowledge";
 
-// Initialize Gemini API
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Lấy API Key từ môi trường hoặc yêu cầu cấu hình
+const API_KEY = process.env.API_KEY;
 
 const SYSTEM_INSTRUCTION = `
 BẠN LÀ: Trợ lý ảo AI chuyên trách tư vấn Pháp luật Phòng cháy chữa cháy (PCCC) tỉnh Phú Thọ.
 
-NGUỒN DỮ LIỆU:
-Bạn sẽ nhận được một thư viện các tài liệu (PDF, Word, Văn bản). Hãy tổng hợp và trả lời chính xác dựa trên toàn bộ dữ liệu này.
-
-QUY TẮC QUAN TRỌNG VỀ BIỂU MẪU & LINK TẢI:
-- Khi người dân hỏi về: link tải, mẫu đơn, biểu mẫu, tờ khai, file mẫu, tải ở đâu...
-- TUYỆT ĐỐI KHÔNG tự cung cấp link trực tiếp hoặc file.
-- HÃY TRẢ LỜI CỐ ĐỊNH: "Để đảm bảo sử dụng đúng mẫu biểu mới nhất theo quy định hiện hành, vui lòng quay lại trang chủ, truy cập vào mục 'VĂN BẢN' trên Trang thông tin điện tử PCCC Phú Thọ để tìm kiếm và tải về."
-
-QUY TẮC PHẢN HỒI:
-1. Nếu có nhiều tài liệu cùng nói về một vấn đề, hãy tổng hợp thông tin từ tài liệu có ngày ban hành mới nhất.
-2. Trích dẫn rõ Điều, Khoản và tên văn bản quy phạm pháp luật.
-3. Nếu thông tin không có trong dữ liệu được cung cấp, hãy hướng dẫn người dân liên hệ trực tiếp với cơ quan PCCC gần nhất để được hướng dẫn cụ thể.
-4. Ngôn ngữ: Lễ phép, chuyên nghiệp, chính xác.
+QUY TẮC CỐT LÕI (TUÂN THỦ TUYỆT ĐỐI):
+1. NGUỒN TRI THỨC DUY NHẤT: Bạn chỉ được phép sử dụng thông tin từ [DỮ LIỆU BỔ SUNG TỪ TỆP] do Quản trị viên tải lên được cung cấp trong ngữ cảnh này. Tuyệt đối không sử dụng bất kỳ kiến thức bên ngoài nào khác.
+2. CÂU TRẢ LỜI KHI THIẾU THÔNG TIN: Nếu câu hỏi không thể được giải đáp từ tài liệu đã tải lên, trả lời: "Hiện tại thông tin bạn thắc mắc đang được cập nhật, hãy liên hệ tới cán bộ quản lý về PCCC để có câu trả lời cụ thể hơn!"
+3. QUY TẮC CÓ/KHÔNG: Phải khẳng định rõ ràng là "CÓ" hoặc "KHÔNG" ngay đầu câu trả lời nếu là câu hỏi xác nhận.
+4. DẪN CHỨNG PHÁP LÝ: Phải đi kèm dẫn chứng: "Căn cứ theo Điều... Khoản... của [Tên văn bản]".
 `;
 
 export async function sendMessageWithSearch(
   messages: Message[],
   userKnowledge: KnowledgeItem[]
 ) {
+  if (!API_KEY) {
+    return { 
+      text: "Lỗi: Hệ thống chưa được cấu hình API Key. Vui lòng kiểm tra lại cấu hình host.", 
+      sources: [] 
+    };
+  }
+
+  const ai = new GoogleGenAI({ apiKey: API_KEY });
   const parts: any[] = [];
   
-  // Load fixed system knowledge
-  const systemTextContext = SYSTEM_DOCUMENTS
-    .map(doc => `[HỆ THỐNG]: ${doc.title}\n${doc.content}`)
-    .join('\n\n');
-  parts.push({ text: `KIẾN THỨC NỀN TẢNG:\n${systemTextContext}` });
+  if (userKnowledge.length === 0) {
+    parts.push({ text: "LƯU Ý: Hiện chưa có tài liệu nghiệp vụ nào được Admin tải lên." });
+  }
 
-  // Load all user knowledge (PDFs as inline data, others as text)
   userKnowledge.forEach(item => {
     if (item.mimeType === 'application/pdf' && item.fileData) {
       parts.push({
-        inlineData: {
-          data: item.fileData,
-          mimeType: 'application/pdf'
-        }
+        inlineData: { data: item.fileData, mimeType: 'application/pdf' }
       });
-      parts.push({ text: `Nội dung từ tài liệu: ${item.title}` });
+      parts.push({ text: `[TÀI LIỆU: ${item.title}]` });
     } else if (item.content) {
       parts.push({ text: `[TÀI LIỆU: ${item.title}]:\n${item.content}` });
     }
   });
 
-  // Prepare chat history for context
   const history = messages.slice(0, -1).map(msg => ({
     role: msg.role === 'user' ? 'user' : 'model',
     parts: [{ text: msg.content }]
@@ -64,28 +56,17 @@ export async function sendMessageWithSearch(
       model: 'gemini-3-flash-preview',
       contents: [
         ...history,
-        { role: 'user', parts: [...parts, { text: `CÂU HỎI HIỆN TẠI: ${userQuery}` }] }
+        { role: 'user', parts: [...parts, { text: `CÂU HỎI: ${userQuery}` }] }
       ],
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
-        tools: [{ googleSearch: {} }],
         temperature: 0.1,
       },
     });
 
-    const text = response.text || "Tôi không tìm thấy thông tin phù hợp trong dữ liệu.";
-    const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
-    const sources = groundingChunks?.map((chunk: any) => ({
-      title: chunk.web?.title || 'Tham khảo Web',
-      uri: chunk.web?.uri
-    })).filter((s: any) => s.uri) || [];
-
-    return { text, sources };
+    return { text: response.text || "Xin lỗi, tôi không tìm thấy thông tin phù hợp.", sources: [] };
   } catch (error: any) {
-    console.error("Lỗi Gemini:", error);
-    return { 
-      text: "Xin lỗi, hệ thống đang gặp khó khăn khi truy xuất kho dữ liệu văn bản. Vui lòng thử lại sau giây lát.", 
-      sources: [] 
-    };
+    console.error("Gemini Error:", error);
+    return { text: "Hệ thống đang bận, vui lòng thử lại sau.", sources: [] };
   }
 }
