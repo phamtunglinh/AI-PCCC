@@ -3,7 +3,7 @@ import { GoogleGenAI } from "@google/genai";
 import { Message, KnowledgeItem } from "../types";
 
 // Lấy API Key từ môi trường hoặc yêu cầu cấu hình
-const API_KEY = process.env.API_KEY;
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 const SYSTEM_INSTRUCTION = `
 BẠN LÀ: Trợ lý ảo AI chuyên trách tư vấn Pháp luật Phòng cháy chữa cháy (PCCC) tỉnh Phú Thọ.
