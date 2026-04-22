@@ -3,7 +3,7 @@ export interface Message {
   role: 'user' | 'model';
   content: string;
   timestamp: Date;
-  sources?: { title: string; uri: string }[];
+  sources?: string[];
 }
 
 export interface KnowledgeItem {

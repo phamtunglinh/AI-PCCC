@@ -36,7 +36,7 @@ DANH SÁCH CÁC GIỎ TÀI LIỆU VÀ BẢN CHẤT CỦA CHÚNG:
    - Hành động: BẮT BUỘC CHỌN [QCVN 06].
 
 6. GIỎ KỸ THUẬT - LẮP ĐẶT THIẾT BỊ PCCC (QCVN 10):
-   - Bản chất: Các yếu tố "mềm" lắp thêm vào công trình: Cảm biến báo cháy, bình chữa cháy, đầu phun Sprinkler, máy bơm, bể nước, họng nước vách tường, trụ cấp nước.
+   - Bản chất: Các yếu tố "mềm" lắp thêm vào công trình: Cảm biến báo cháy, bình chữa cháy, đầu phun Sprinkler, máy bơm, bể nước, họng nước vách tường, trụ cấp nước, mặt nạ lọc độc, dây cứu người, dụng cụ phá dỡ, định mức trang bị.
    - Hành động: BẮT BUỘC CHỌN [QCVN 10].
 
 7. GIỎ CHIẾN THUẬT & QUÂN ĐỘI:
@@ -60,14 +60,16 @@ VAI TRÒ: Trợ lý AI về PCCC và CNCH - Phòng PC07 Phú Thọ.
 3. TUYỆT ĐỐI KHÔNG sử dụng kiến thức có sẵn trên mạng (như NĐ 136 cũ hay Luật cũ). CHỈ ĐƯỢC PHÉP lấy thông tin và căn cứ từ văn bản được cung cấp.
 4. TUYỆT ĐỐI KHÔNG để lộ các từ khóa quy trình như "RULE 1", "RULE 2", "BƯỚC 1", "GIỎ"... vào trong câu trả lời. Hệ thống phải suy luận ngầm và chỉ xuất ra kết quả cuối cùng tự nhiên nhất.
 
-🔴 RULE 1: XÁC ĐỊNH THẨM QUYỀN QUẢN LÝ (QUAN TRỌNG - THEO NĐ 105/2025):
-   BẮT BUỘC thực hiện đúng 2 BƯỚC sau:
-   - BƯỚC 1: ĐỐI CHIẾU PHỤ LỤC I và PHỤ LỤC II (Nghị định 105/2025/NĐ-CP).
-     + So sánh các chỉ số: Số tầng, Khối tích, Diện tích với Phụ lục I và Phụ lục II.
-   - BƯỚC 2: KẾT LUẬN (QUY TẮC ƯU TIÊN TUYỆT ĐỐI):
-     + Nếu cơ sở đạt tiêu chí Phụ lục II -> PHÒNG CẢNH SÁT PCCC & CNCH (PC07) quản lý.
-     + Lưu ý đặc biệt: Dù diện tích nhỏ (thuộc Phụ lục I) nhưng Số tầng cao (thuộc Phụ lục II) -> Vẫn là PC07 quản lý.
-     + Chỉ khi nào KHÔNG đạt Phụ lục II mà CHỈ đạt Phụ lục I -> Mới do UBND CẤP XÃ quản lý.
+🔴 RULE 1: XÁC ĐỊNH THẨM QUYỀN QUẢN LÝ (QUY TẮC CHỐT CHẶN - THEO NĐ 105/2025):
+   ⚠️ LỆNH CẤM TUYỆT ĐỐI (KIỂM SOÁT THẨM QUYỀN):
+   - CHỈ ĐƯỢC PHÉP liệt kê 2 cấp quản lý duy nhất: **1. Phòng Cảnh sát PCCC & CNCH (PC07)** và **2. UBND cấp xã**.
+   - TUYỆT ĐỐI KHÔNG được nhắc đến "Công an cấp huyện" trong bất kỳ câu trả lời nào về thẩm quyền quản lý cơ sở.
+   - TUYỆT ĐỐI KHÔNG TỰ BỊA SỐ MỤC.
+   
+   BẮT BUỘC thực hiện đúng logic sau:
+   - **TRƯỜNG HỢP 1 (CÓ TÊN RIÊNG CỤ THỂ):** Nếu tìm thấy tên chính xác của cơ sở trong Phụ lục I hoặc II -> Trả lời thẩm quyền theo quy mô (PC07 hoặc UBND xã).
+   - **TRƯỜNG HỢP 2 (KHÔNG CÓ TÊN TRONG PHỤ LỤC):** Nếu đã quét kỹ Phụ lục I và II mà không thấy tên cơ sở đó -> Trả lời ngay là: **"KHÔNG. Cơ sở này không thuộc danh mục quản lý về PCCC theo Nghị định 105/2025/NĐ-CP."**
+   - **TRƯỜNG HỢP 3 (CƠ SỞ SẢN XUẤT, KINH DOANH KHÁC):** Chỉ đưa thông tin về nhóm này dưới dạng **THAM KHẢO**. BẮT BUỘC có dòng nhắc: *"Người dùng cần xem xét kỹ thực tế tính chất hoạt động của cơ sở để xác định có thuộc diện 'Cơ sở sản xuất, kinh doanh khác' hay không."*
 
 🔴 RULE 2: XỬ LÝ / XỬ PHẠT VI PHẠM (NĐ 106 + 189):
    - KHI NGƯỜI DÙNG HỎI: "Xử lý như nào", "Bị sao", "Phạt bao nhiêu", "Lỗi này thế nào"... -> HIỂU NGAY LÀ HỎI VỀ XỬ PHẠT HÀNH CHÍNH.
@@ -115,9 +117,10 @@ VAI TRÒ: Trợ lý AI về PCCC và CNCH - Phòng PC07 Phú Thọ.
      Khi trả lời QCVN 06, BẮT BUỘC: 1. Trích dẫn ĐẦY ĐỦ nguyên văn nội dung. 2. Ghi CHÍNH XÁC Mục/Điều/Bảng. Không được tóm tắt.
 
    - ⚠️ ĐỊNH DẠNG BẮT BUỘC ĐỐI VỚI QCVN 10:2025/BCA (CẤM VIẾT THÀNH ĐOẠN VĂN):
-     Mọi hệ thống/phương tiện BẮT BUỘC phải trình bày theo đúng 3 dòng sau, không được sai lệch:
+     Mọi hệ thống/phương tiện BẮT BUỘC phải trình bày theo đúng 4 dòng sau, không được sai lệch:
      [Tên hệ thống/phương tiện]:
      - Yêu cầu: [Chỉ ghi "Phải trang bị" HOẶC "Không thuộc diện phải trang bị"]
+     - Định mức trang bị: [Số lượng cụ thể hoặc ghi "N/A" nếu không phải trang bị]
      - Căn cứ: [Trích dẫn rõ ràng Bảng, Mục tương ứng. Ghi rõ số liệu điều kiện nếu có]
 
    - ⚠️ LỆNH CHỐNG ẢO GIÁC ĐỐI VỚI "HỆ THỐNG CẤP NƯỚC CHỮA CHÁY NGOÀI NHÀ" (BẢNG C.1):
@@ -147,7 +150,7 @@ function backupRetrieve(prompt: string, knowledge: KnowledgeItem[]): KnowledgeIt
     const isMilitary = ["quân đội", "chi viện"].some(kw => promptLower.includes(kw));
     
     // 1. QCVN 10
-    const isTech10 = ["trang bị", "lắp đặt", "hệ thống", "10", "qc10", "phương tiện", "báo cháy", "chữa cháy", "đèn", "chỉ dẫn", "bình", "bơm", "sprinkler"].some(kw => promptLower.includes(kw)) && !isPenalty && !promptLower.includes("phương án");
+    const isTech10 = ["trang bị", "lắp đặt", "hệ thống", "10", "qc10", "phương tiện", "báo cháy", "chữa cháy", "đèn", "chỉ dẫn", "bình", "bơm", "sprinkler", "mặt nạ", "dây cứu", "phá dỡ", "dụng cụ", "định mức"].some(kw => promptLower.includes(kw)) && !isPenalty && !promptLower.includes("phương án");
     
     // 2. QCVN 06
     let isTech06 = ["khoảng cách", "ngăn cháy", "thông gió", "hút khói", "chống cháy lan", "đường", "bãi đỗ", "vật liệu", "kích thước", "lối", "cầu thang", "hành lang", "cửa", "06", "qc06"].some(kw => promptLower.includes(kw)) && !isPenalty;
@@ -179,15 +182,14 @@ function backupRetrieve(prompt: string, knowledge: KnowledgeItem[]): KnowledgeIt
   return results;
 }
 
-export async function sendMessageWithSearch(
+export async function streamMessageWithSearch(
   messages: Message[],
-  userKnowledge: KnowledgeItem[]
+  userKnowledge: KnowledgeItem[],
+  onChunk: (text: string) => void
 ) {
   if (!API_KEY) {
-    return { 
-      text: "Lỗi: Hệ thống chưa được cấu hình API Key. Vui lòng kiểm tra lại cấu hình host.", 
-      sources: [] 
-    };
+    onChunk("Lỗi: Hệ thống chưa được cấu hình API Key.");
+    return { sources: [] };
   }
 
   const ai = new GoogleGenAI({ apiKey: API_KEY });
@@ -248,7 +250,7 @@ export async function sendMessageWithSearch(
   }));
 
   try {
-    const response = await ai.models.generateContent({
+    const stream = await ai.models.generateContentStream({
       model: 'gemini-3-flash-preview',
       contents: [
         ...history,
@@ -260,12 +262,21 @@ export async function sendMessageWithSearch(
       },
     });
 
+    let fullText = "";
+    for await (const chunk of stream) {
+      const chunkText = chunk.text;
+      if (chunkText) {
+        fullText += chunkText;
+        onChunk(fullText);
+      }
+    }
+
     return { 
-      text: response.text || "Xin lỗi, tôi không tìm thấy thông tin phù hợp.", 
       sources: selectedKnowledge.map(k => k.title) 
     };
   } catch (error: any) {
     console.error("Gemini Error:", error);
-    return { text: "Hệ thống đang bận, vui lòng thử lại sau.", sources: [] };
+    onChunk("Hệ thống đang bận, vui lòng thử lại sau.");
+    return { sources: [] };
   }
 }
