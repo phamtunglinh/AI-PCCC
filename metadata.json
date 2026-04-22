@@ -1,5 +1,6 @@
 {
   "name": "Chatbot AI về PCCC",
   "description": "Hệ thống chatbot thông minh tư vấn pháp luật về Phòng cháy chữa cháy",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "majorCapabilities": []
 }
