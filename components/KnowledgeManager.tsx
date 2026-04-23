@@ -77,6 +77,18 @@ const KnowledgeManager: React.FC<KnowledgeManagerProps> = ({ onAdd, knowledgeBas
     item.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (isUploading) return;
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processFiles(e.dataTransfer.files);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
   return (
     <div className="flex flex-col h-full bg-slate-900 text-white overflow-hidden shadow-2xl">
       <div className="p-6 bg-gradient-to-br from-slate-800 to-slate-900 border-b border-white/5">
@@ -92,8 +104,11 @@ const KnowledgeManager: React.FC<KnowledgeManagerProps> = ({ onAdd, knowledgeBas
       </div>
 
       <div className="flex-1 overflow-y-auto p-5 space-y-6 scrollbar-hide">
-        {/* Upload Area */}
-        <label className={`relative group flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-dashed transition-all cursor-pointer ${
+        {/* Upload Area with Drag & Drop */}
+        <label 
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          className={`relative group flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-dashed transition-all cursor-pointer ${
           isUploading ? 'bg-slate-800/50 border-red-500/50 animate-pulse' : 'bg-slate-800/30 border-slate-700 hover:border-red-500 hover:bg-slate-800/50'
         }`}>
           <input 

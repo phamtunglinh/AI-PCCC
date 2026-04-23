@@ -268,14 +268,17 @@ export async function streamMessageWithSearch(
       if (!instance || retries < 0) return null;
 
       try {
+        // Sử dụng model 1.5-flash cho router vì tốc độ nhanh và hạn mức (quota) cao hơn 3.0-preview
         const routerResult = await instance.ai.models.generateContent({
-          model: 'gemini-3-flash-preview',
+          model: 'gemini-1.5-flash',
           contents: [{ role: 'user', parts: [{ text: routerPrompt }] }],
           config: { temperature: 0 }
         });
         return routerResult.text?.trim() || "";
       } catch (e) {
         console.warn(`Router failed with key ending in ...${instance.key.slice(-5)}. Retrying...`);
+        // Chờ 1 chút trước khi thử lại để tránh dính tiếp rate limit
+        await new Promise(r => setTimeout(r, 500));
         return tryRouter(retries - 1, [...failedKeys, instance.key]);
       }
     };
@@ -314,23 +317,28 @@ export async function streamMessageWithSearch(
   }));
 
   // Bước 2: Streaming Response với cơ chế luân phiên Key nếu gặp lỗi
-  const executeStream = async (retries = 3, usedKeys: string[] = []) => {
+  const executeStream = async (retries = 5, usedKeys: string[] = []) => {
     const instance = getAIInstance(usedKeys);
     if (!instance) {
-      onChunk("Tất cả các kết nối AI đều đang bận hoặc quá tải. Vui lòng thử lại sau ít phút.");
+      if (usedKeys.length > 0 && retries > 0) {
+        // Nếu đã thử hết các key mà vẫn còn lượt retry, cho phép thử lại từ đầu sau 1 khoảng nghỉ
+        await new Promise(r => setTimeout(r, 1000));
+        return executeStream(retries - 1, []);
+      }
+      onChunk("Tất cả các kết nối AI đều đang bận do lưu lượng truy cập cao. Vui lòng quay lại sau 30 giây.");
       return { sources: [] };
     }
 
     try {
       const stream = await instance.ai.models.generateContentStream({
-        model: 'gemini-3-flash-preview',
+        model: 'gemini-1.5-flash', // Chuyển sang 1.5-flash để ổn định và quota cao hơn
         contents: [
           ...history,
           { role: 'user', parts: [...parts, { text: `CÂU HỎI: ${userQuery}` }] }
         ],
         config: {
           systemInstruction: SYSTEM_INSTRUCTION,
-          temperature: 0.1,
+          temperature: 0.2,
         },
       });
 
@@ -347,12 +355,38 @@ export async function streamMessageWithSearch(
     } catch (error: any) {
       console.error(`Gemini Error (Key ...${instance.key.slice(-5)}):`, error);
       
+      const isRateLimit = error?.message?.includes("429") || error?.message?.includes("quota") || error?.message?.includes("limit");
+
       if (retries > 0) {
-        // Nếu lỗi do giới hạn hoặc nghẽn, đổi key ngay lập tức
+        // Tăng thời gian chờ nếu gặp lỗi rate limit
+        const delay = isRateLimit ? 1000 : 500;
+        await new Promise(r => setTimeout(r, delay));
+        
         onChunk("\n⚡ Hệ thống đang tự động tối ưu đường truyền để tránh tắc nghẽn...");
         return executeStream(retries - 1, [...usedKeys, instance.key]);
       } else {
-        onChunk("\n\n⚠️ Hệ thống đang quá tải cực độ. Vui lòng quay lại sau vài giây.");
+        // Thử lượt cuối cùng bằng Non-streaming nếu Streaming liên tục lỗi (vẫn dùng luân phiên key)
+        const finalInstance = getAIInstance([]);
+        if (finalInstance) {
+          try {
+            const finalResult = await finalInstance.ai.models.generateContent({
+              model: 'gemini-1.5-flash',
+              contents: [
+                ...history,
+                { role: 'user', parts: [...parts, { text: `CÂU HỎI: ${userQuery}` }] }
+              ],
+              config: { systemInstruction: SYSTEM_INSTRUCTION, temperature: 0.2 },
+            });
+            const text = finalResult.text;
+            if (text) {
+              onChunk(text);
+              return { sources: selectedKnowledge.map(k => k.title) };
+            }
+          } catch (finalErr) {
+             console.error("Final fallback failed:", finalErr);
+          }
+        }
+        onChunk("\n\n⚠️ Hệ thống đang quá tải cực độ. Vui lòng quay lại sau ít phút.");
         return { sources: [] };
       }
     }
