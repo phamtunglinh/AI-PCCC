@@ -43,7 +43,7 @@ const App: React.FC = () => {
     const loadStoredData = async () => {
       try {
         // Load chat history
-        const savedMsgs = localStorage.getItem('pccc_chat_messages');
+        const savedMsgs = sessionStorage.getItem('pccc_chat_messages');
         if (savedMsgs) {
           const parsed = JSON.parse(savedMsgs).map((m: any) => ({
             ...m,
@@ -72,7 +72,7 @@ const App: React.FC = () => {
   // Save chat history
   useEffect(() => {
     if (messages.length > 0) {
-      localStorage.setItem('pccc_chat_messages', JSON.stringify(messages));
+      sessionStorage.setItem('pccc_chat_messages', JSON.stringify(messages));
     }
   }, [messages]);
 
@@ -84,7 +84,7 @@ const App: React.FC = () => {
         timestamp: new Date()
       };
       setMessages([initialMsg]);
-      localStorage.setItem('pccc_chat_messages', JSON.stringify([initialMsg]));
+      sessionStorage.setItem('pccc_chat_messages', JSON.stringify([initialMsg]));
     }
   };
 

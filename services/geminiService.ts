@@ -268,9 +268,8 @@ export async function streamMessageWithSearch(
       if (!instance || retries < 0) return null;
 
       try {
-        // Sử dụng model 1.5-flash cho router vì tốc độ nhanh và hạn mức (quota) cao hơn 3.0-preview
         const routerResult = await instance.ai.models.generateContent({
-          model: 'gemini-1.5-flash',
+          model: 'models/gemini-1.5-flash',
           contents: [{ role: 'user', parts: [{ text: routerPrompt }] }],
           config: { temperature: 0 }
         });
@@ -331,7 +330,7 @@ export async function streamMessageWithSearch(
 
     try {
       const stream = await instance.ai.models.generateContentStream({
-        model: 'gemini-1.5-flash', // Chuyển sang 1.5-flash để ổn định và quota cao hơn
+        model: 'models/gemini-1.5-flash',
         contents: [
           ...history,
           { role: 'user', parts: [...parts, { text: `CÂU HỎI: ${userQuery}` }] }
@@ -370,7 +369,7 @@ export async function streamMessageWithSearch(
         if (finalInstance) {
           try {
             const finalResult = await finalInstance.ai.models.generateContent({
-              model: 'gemini-1.5-flash',
+              model: 'models/gemini-1.5-flash',
               contents: [
                 ...history,
                 { role: 'user', parts: [...parts, { text: `CÂU HỎI: ${userQuery}` }] }
