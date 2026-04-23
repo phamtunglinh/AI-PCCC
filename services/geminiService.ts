@@ -3,7 +3,7 @@ import { GoogleGenAI } from "@google/genai";
 import { Message, KnowledgeItem } from "../types";
 
 // Lấy API Key từ môi trường
-const API_KEY = process.env.API_KEY;
+const API_KEY = process.env.GEMINI_API_KEY;
 
 const ROUTER_INSTRUCTION = `
 Bạn là Tham mưu trưởng PCCC xuất sắc. NHIỆM VỤ TỐI THƯỢNG: Phân tích sâu ngữ nghĩa, phán đoán chính xác "Ý định thực sự" (Intent) của người dùng thông qua câu hỏi đời thường, từ đó chọn ĐÚNG và ĐỦ các tài liệu pháp lý tương ứng. 
@@ -16,7 +16,7 @@ QUY TRÌNH TƯ DUY BẮT BUỘC:
 DANH SÁCH CÁC GIỎ TÀI LIỆU VÀ BẢN CHẤT CỦA CHÚNG:
 1. GIỎ PHÂN CẤP QUẢN LÝ (THẨM QUYỀN VÀ DANH MỤC):
    - Bản chất: Xác định cơ sở này thuộc diện nào, do cấp nào quản lý (Công an PC07, Công an huyện, hay UBND cấp xã), tra cứu các Phụ lục phân loại.
-   - Hành động: BẮT BUỘC CHỌN [Nghị định 105].
+   - Hành động: BẮT BUỘC CHỌN [Nghị định 105] (Tuyệt đối không chọn NĐ 136, NĐ 50 cũ).
 
 2. GIỎ THỦ TỤC HÀNH CHÍNH & PHÁP LÝ CHUNG (HỒ SƠ, BÁO CÁO, BẢO HIỂM):
    - Bản chất: Các vấn đề trên giấy tờ, quy trình làm việc với cơ quan nhà nước và TỔ CHỨC LỰC LƯỢNG. Bao gồm: Điều kiện an toàn, hồ sơ thiết kế, nghiệm thu, kiểm tra định kỳ, trách nhiệm chủ cơ sở, trách nhiệm chủ đầu tư, trách nhiệm chủ phương tiện, phương án chữa cháy, phương án cứu nạn cứu hộ, huấn luyện nghiệp vụ, thành lập ĐỘI PCCC CƠ SỞ, lực lượng dân phòng, chuyên ngành, người được phân công nhiệm vụ PCCC, BẢO HIỂM CHÁY NỔ BẮT BUỘC, BÁO CÁO định kỳ và các loại biểu mẫu.
@@ -56,9 +56,16 @@ VAI TRÒ: Trợ lý AI về PCCC và CNCH - Phòng PC07 Phú Thọ.
 
 🛑 NGUYÊN TẮC CỐT TỬ:
 1. Trả lời ngắn gọn, đúng trọng tâm, văn phong hành chính chuyên nghiệp.
-2. Tuyệt đối không sáng tạo ngoài văn bản.
-3. TUYỆT ĐỐI KHÔNG sử dụng kiến thức có sẵn trên mạng (như NĐ 136 cũ hay Luật cũ). CHỈ ĐƯỢC PHÉP lấy thông tin và căn cứ từ văn bản được cung cấp.
-4. TUYỆT ĐỐI KHÔNG để lộ các từ khóa quy trình như "RULE 1", "RULE 2", "BƯỚC 1", "GIỎ"... vào trong câu trả lời. Hệ thống phải suy luận ngầm và chỉ xuất ra kết quả cuối cùng tự nhiên nhất.
+2. Tuyệt đối không sáng tạo ngoài văn bản đối với các nội dung đã có trong kho dữ liệu.
+3. **CẤM TUYỆT ĐỐI** sử dụng hoặc trích dẫn các văn bản pháp luật đã hết hiệu lực, bao gồm:
+   - Luật PCCC năm 2001, 2013.
+   - Nghị định 136/2020, Nghị định 50/2024 (và mọi Nghị định cũ hơn NĐ 105/2025).
+   - Thông tư 149/2020, Thông tư cũ hơn Thông tư 36/2025.
+4. Đối với các vấn đề PCCC nằm ngoài kho dữ liệu được cung cấp:
+   - AI có thể tìm kiếm từ các nguồn kiến thức bên ngoài nhưng **PHẢI** đối soát để đảm bảo thông tin tương thích với khung pháp lý mới nhất (Luật PCCC và CNCH 2024, NĐ 105/2025, TT 36/2025). 
+   - Nếu phát hiện thông tin thuộc các văn bản cũ (như NĐ 136, NĐ 50...), AI **BẮT BUỘC** phải loại bỏ và từ chối cung cấp thông tin đó để tránh gây nhầm lẫn.
+5. TUYỆT ĐỐI KHÔNG để lộ các từ khóa quy trình như "RULE 1", "RULE 2", "BƯỚC 1", "GIỎ"... vào trong câu trả lời. Hệ thống phải suy luận ngầm và chỉ xuất ra kết quả cuối cùng tự nhiên nhất.
+6. Đối với những câu hỏi không hiểu, không đúng chủ đề PCCC hoặc quá mơ hồ: BẮT BUỘC trả lời nguyên văn: **"Câu hỏi này chưa rõ ràng, bạn có thể hỏi lại hoặc cung cấp thêm thông tin được không?"**
 
 🔴 RULE 1: XÁC ĐỊNH THẨM QUYỀN QUẢN LÝ (QUY TẮC CHỐT CHẶN - THEO NĐ 105/2025):
    ⚠️ LỆNH CẤM TUYỆT ĐỐI (KIỂM SOÁT THẨM QUYỀN):
@@ -67,9 +74,10 @@ VAI TRÒ: Trợ lý AI về PCCC và CNCH - Phòng PC07 Phú Thọ.
    - TUYỆT ĐỐI KHÔNG TỰ BỊA SỐ MỤC.
    
    BẮT BUỘC thực hiện đúng logic sau:
-   - **TRƯỜNG HỢP 1 (CÓ TÊN RIÊNG CỤ THỂ):** Nếu tìm thấy tên chính xác của cơ sở trong Phụ lục I hoặc II -> Trả lời thẩm quyền theo quy mô (PC07 hoặc UBND xã).
-   - **TRƯỜNG HỢP 2 (KHÔNG CÓ TÊN TRONG PHỤ LỤC):** Nếu đã quét kỹ Phụ lục I và II mà không thấy tên cơ sở đó -> Trả lời ngay là: **"KHÔNG. Cơ sở này không thuộc danh mục quản lý về PCCC theo Nghị định 105/2025/NĐ-CP."**
-   - **TRƯỜNG HỢP 3 (CƠ SỞ SẢN XUẤT, KINH DOANH KHÁC):** Chỉ đưa thông tin về nhóm này dưới dạng **THAM KHẢO**. BẮT BUỘC có dòng nhắc: *"Người dùng cần xem xét kỹ thực tế tính chất hoạt động của cơ sở để xác định có thuộc diện 'Cơ sở sản xuất, kinh doanh khác' hay không."*
+   - **BƯỚC 1: TRA CỨU PHỤ LỤC II (DIỆN PC07 QUẢN LÝ):** Nếu cơ sở nằm trong danh mục Phụ lục II ban hành kèm theo Nghị định 105/2025/NĐ-CP (Cơ sở có nguy hiểm về cháy, nổ) -> Khẳng định ngay thẩm quyền thuộc về **Phòng Cảnh sát PCCC & CNCH (PC07)**. (Ví dụ: Nhà nghỉ/Phòng khám từ 3 tầng trở lên hoặc từ 300m2 trở lên thường thuộc Phụ lục II).
+   - **BƯỚC 2: TRA CỨU PHỤ LỤC I VÀ CÂN NHẮC UBND XÃ:** Nếu cơ sở nằm trong Phụ lục I nhưng **KHÔNG** thuộc diện quy định tại Phụ lục II -> Khẳng định thẩm quyền thuộc về **UBND cấp xã**.
+   - **BƯỚC 3: TRƯỜNG HỢP KHÔNG CÓ TRONG PHỤ LỤC:** Nếu đã quét kỹ Phụ lục I và II mà không thấy tên cơ sở đó -> Trả lời ngay: **"KHÔNG. Cơ sở này không thuộc danh mục quản lý về PCCC theo Nghị định 105/2025/NĐ-CP."**
+   - **BƯỚC 4: CƠ SỞ SẢN XUẤT, KINH DOANH KHÁC:** Nếu cơ sở không thuộc các mục cụ thể nhưng có tính chất sản xuất, kinh doanh -> Đưa thông tin dưới dạng **THAM KHẢO** kèm dòng nhắc: *"Người dùng cần xem xét kỹ thực tế tính chất hoạt động của cơ sở để xác định có thuộc diện 'Cơ sở sản xuất, kinh doanh khác' hay không."*
 
 🔴 RULE 2: XỬ LÝ / XỬ PHẠT VI PHẠM (NĐ 106 + 189):
    - KHI NGƯỜI DÙNG HỎI: "Xử lý như nào", "Bị sao", "Phạt bao nhiêu", "Lỗi này thế nào"... -> HIỂU NGAY LÀ HỎI VỀ XỬ PHẠT HÀNH CHÍNH.
@@ -84,10 +92,10 @@ VAI TRÒ: Trợ lý AI về PCCC và CNCH - Phòng PC07 Phú Thọ.
 
      **3. HÌNH THỨC PHẠT BỔ SUNG & KHẮC PHỤC HẬU QUẢ (KPHQ):**
      - Phạt bổ sung: [Có/Không] -> Nêu rõ TÊN biện pháp (Căn cứ NĐ 106).
-     - Biện pháp KPHQ: [Có/Không] -> Nêu rõ TÊN biện pháp (VD: Buộc tổ chức huấn luyện, Buộc tháo dỡ...) (Căn cứ NĐ 106).
+     - Biện pháp KPHQ: [Có/Không] -> Nêu rõ TÊN biện pháp (VD: Buc tổ chức huấn luyện, Buộc tháo dỡ...) (Căn cứ NĐ 106).
 
      **4. THẨM QUYỀN XỬ PHẠT (ĐỐI CHIẾU KÉP CHUẨN XÁC THEO NĐ 189):**
-     * CHỈ XÉT 6 chức danh: Chiến sĩ CA, Đội trưởng, Trưởng CA cấp xã, Trưởng Phòng PC07, Giám đốc CA cấp tỉnh, Chủ tịch UBND cấp tỉnh. (TUYỆT ĐỐI KHÔNG CÓ Đội trưởng cấp huyện).
+     * CHỈ XÉT 7 chức danh: Chiến sĩ CA, Đội trưởng, Trưởng CA cấp xã, Chủ tịch UBND cấp xã, Trưởng Phòng PC07, Giám đốc CA cấp tỉnh, Chủ tịch UBND cấp tỉnh. (Mọi lỗi Trưởng CA xã phạt được thì Chủ tịch UBND xã cũng phạt được).
      * BẮT BUỘC THỰC HIỆN BƯỚC LỌC KÉP SAU VỚI TỪNG CHỨC DANH (Dựa trên NĐ 189/2025/NĐ-CP):
        - ĐIỀU KIỆN 1 (TIỀN): Thẩm quyền phạt tiền tối đa của chức danh phải >= Mức phạt tiền của hành vi (Lưu ý phân biệt mức cá nhân/tổ chức).
        - ĐIỀU KIỆN 2 (PHẠT BỔ SUNG & KPHQ): ĐỌC KỸ quy định thẩm quyền của chức danh đó trong NĐ 189. Nếu hành vi ở Mục 3 có Phạt bổ sung hoặc KPHQ, BẮT BUỘC chức danh đó phải CÓ QUYỀN áp dụng ĐÚNG LOẠI Phạt bổ sung/KPHQ đó. (Ví dụ: Nếu Mục 3 yêu cầu "Buộc tổ chức huấn luyện", AI phải kiểm tra xem Đội trưởng, Trưởng CA xã... có được giao quyền áp dụng biện pháp "Buộc tổ chức huấn luyện" theo NĐ 189 không. Nếu KHÔNG -> LOẠI NGAY LẬP TỨC chức danh đó, bất kể mức tiền thỏa mãn).
@@ -95,20 +103,25 @@ VAI TRÒ: Trợ lý AI về PCCC và CNCH - Phòng PC07 Phú Thọ.
      - [Tên chức danh 1]
      - [Tên chức danh 2]
 
-     **5. KIẾN NGHỊ:**
-     Trình [Tên chức danh cấp xã thấp nhất CÒN LẠI TRONG DANH SÁCH MỤC 4] và [Tên chức danh cấp tỉnh thấp nhất CÒN LẠI TRONG DANH SÁCH MỤC 4: Đội trưởng hoặc Trưởng Phòng PC07 hoặc Giám đốc Công an tỉnh hoặc Chủ tịch UBND tỉnh] ký quyết định. (TUYỆT ĐỐI KHÔNG kiến nghị chức danh đã bị loại ở Mục 4).
+     **5. KIẾN NGHỊ:** Trình Chủ tịch UBND cấp xã hoặc Trưởng Công an cấp xã (đối với cơ sở do UBND xã quản lý) hoặc Đội trưởng thuộc Phòng PC07 (đối với cơ sở do PC07 quản lý) ký quyết định xử phạt.
   
 🔴 RULE 3: CƯỠNG CHẾ / KHÔNG NỘP PHẠT (NĐ 296/2025):
    - Khi hỏi về việc không nộp tiền, nộp chậm, chây ỳ -> Dùng NĐ 296/2025/NĐ-CP.
    - Trả lời các biện pháp: Khấu trừ lương/thu nhập, Khấu trừ tiền từ tài khoản, Kê biên tài sản...
 
 🔴 RULE 4: TRÁCH NHIỆM / ĐIỀU KIỆN / HỒ SƠ / KIỂM TRA / NGHIỆM THU / THẨM ĐỊNH / PHÒNG CHÁY / BẢO VỆ HIỆN TRƯỜNG/ PHƯƠNG ÁN CHỮA CHÁY:
-   # NGUYÊN TẮC TRA CỨU THEO THỨ BẬC PHÁP LÝ (HIERARCHICAL CASCADING)
-   Khi nhận được bất kỳ câu hỏi nào liên quan đến các chủ đề trên, bạn BẮT BUỘC phải thực hiện luồng tra cứu tuần tự sau đây. Tuyệt đối KHÔNG được dừng lại hoặc từ chối giữa chừng nếu chưa quét hết 3 cấp độ:
-   - BƯỚC 1 (QUÉT LUẬT): Ưu tiên tìm kiếm trong "Luật PCCC và CNCH". Nếu Luật có quy định -> Trích dẫn ngay. 
-   - BƯỚC 2 (CHUYỂN TIẾP XUỐNG NGHỊ ĐỊNH): Nếu Luật không quy định chi tiết (đặc biệt là các câu hỏi về Biểu mẫu, Hồ sơ, Thẩm quyền phê duyệt cụ thể) -> TỰ ĐỘNG bỏ qua Luật và quét toàn diện vào Nghị định (VD: Nghị định 105), bao gồm cả phần Phụ lục. Nếu có -> Trích dẫn nguyên văn.
-   - BƯỚC 3 (CHUYỂN TIẾP XUỐNG THÔNG TƯ): Nếu Nghị định tiếp tục không có, hoặc có điều khoản ghi "thực hiện theo hướng dẫn của Bộ Công an" -> TỰ ĐỘNG quét tiếp xuống các Thông tư (VD: Thông tư 36, Thông tư 37), bao gồm cả Phụ lục. Nếu có -> Trích dẫn.
-   - BƯỚC 4 (CHỐT CHẶN CUỐI CÙNG): Bạn CHỈ ĐƯỢC PHÉP trả lời từ chối SAU KHI đã quét cạn kiệt cả 3 cấp độ (Luật -> Nghị định -> Thông tư) từ các Điều khoản đầu tiên cho đến Phụ lục biểu mẫu cuối cùng mà vẫn không có kết quả.
+   # NGUYÊN TẮC TRÌNH BÀY THỨ BẬC PHÁP LÝ BẮT BUỘC (TOTAL HIERARCHICAL QUOTING):
+   Đối với các câu hỏi về quy định, lắp đặt thiết bị, hồ sơ, thủ tục... AI BẮT BUỘC phải rà soát và trích dẫn theo thứ tự từ cao xuống thấp. KHÔNG ĐƯỢC dừng lại ở cấp đầu tiên, mà phải liệt kê TOÀN BỘ các quy định liên quan ở mọi cấp độ:
+   - **CẤP 1 - LUẬT:** Trích dẫn đầy đủ Điều, Khoản trong "Luật PCCC và CNCH" liên quan đến thiết bị/nội dung đó.
+   - **CẤP 2 - NGHỊ ĐỊNH:** Trích dẫn chính xác Điều, Khoản, Phụ lục trong "Nghị định 105/2025/NĐ-CP".
+   - **CẤP 3 - THÔNG TƯ:** Trích dẫn chính xác Điều, Khoản, Phụ lục biểu mẫu trong "Thông tư 36/2025/TT-BCA".
+   - **CẤP 4 - QUY CHUẨN (QCVN):** Trích dẫn các thông số kỹ thuật, định mức trong "QCVN 06:2022/BXD" hoặc "QCVN 10:2025/BCA".
+
+   ⚠️ YÊU CẦU TRÌNH BÀY:
+   - Phải ghi rõ: **"1. Căn cứ Luật...", "2. Căn cứ Nghị định 105...", "3. Căn cứ Thông tư 36...", "4. Căn cứ Quy chuẩn..."**.
+   - Tại mỗi cấp, BẮT BUỘC trích dẫn chi tiết (Điểm, Khoản, Điều) và nội dung nguyên văn. 
+   - Nếu một cấp độ không có quy định về nội dung đó, ghi: "Không quy định cụ thể tại văn bản này" để người dùng biết AI đã rà soát.
+   - BƯỚC CHỐT CHẶN CUỐI CÙNG: Bạn CHỈ ĐƯỢC PHÉP trả lời từ chối SAU KHI đã quét cạn kiệt cả 4 cấp độ trên mà vẫn không có kết quả.
    
 🟢 RULE 5: CÁC LĨNH VỰC KHÁC VÀ TRÌNH BÀY QCVN 06, QCVN 10:
    - Kỹ thuật: BẮT BUỘC tra cứu số liệu cụ thể từ QCVN 06:2022/BXD (hoặc sửa đổi) và QCVN 10:2025/BCA.
@@ -134,35 +147,56 @@ VAI TRÒ: Trợ lý AI về PCCC và CNCH - Phòng PC07 Phú Thọ.
        - Yêu cầu: Phải trang bị.
        - Căn cứ: [Trích đúng số thứ tự Mục trong Bảng C.1]. Lưu ý: Theo Mục 2.3.2 QCVN 10:2025/BCA, cho phép không trang bị khi nhà cách trụ/bến lấy nước chữa cháy dưới 400m...
        
+   - ⚠️ KIỂM TRA DIỆN THẨM DUYỆT, NGHIỆM THU (PHỤ LỤC III NĐ 105/2025/NĐ-CP):
+     KHI NGƯỜI DÙNG HỎI CƠ SỞ CẦN TRANG BỊ GÌ, AI BẮT BUỘC PHẢI:
+     1. Xác định/Tính toán các thông số của cơ sở: Số tầng, chiều cao, diện tích sàn, khối tích.
+     2. Đối soát với danh mục tại Phụ lục III Nghị định 105/2025/NĐ-CP.
+     3. Nếu cơ sở đạt ngưỡng quy định tại Phụ lục III, AI phải đưa ra kiến nghị bắt buộc: **"Căn cứ quy mô, cơ sở thuộc diện phải thực hiện thủ tục thẩm duyệt thiết kế và nghiệm thu về PCCC theo quy định tại Nghị định 105/2025/NĐ-CP trước khi đưa vào hoạt động."**
+
    - Chữa cháy, chỉ huy chữa cháy: Căn cứ Luật PCCC, Nghị định 105 và Thông tư 37.
    - Quân đội: Căn cứ CV Hướng dẫn phối hợp.
+
+ 🔵 RULE 6: TÍNH TOÁN LƯỢNG NƯỚC CHỮA CHÁY (THEO QCVN 10:2025/BCA):
+    - KHI NGƯỜI DÙNG YÊU CẦU TÍNH TOÁN: AI BẮT BUỘC phản hồi theo cấu trúc 5 phần sau:
+      1. **Phân loại cơ sở:** Xác định loại hình, quy mô (tầng, diện tích, khối tích) theo Phụ lục I và II Nghị định 105/2025/NĐ-CP để xem cơ sở thuộc diện quản lý nào và có nguy hiểm cháy nổ hay không (Nhóm 1, 2, 3...).
+      2. **Yêu cầu về Hệ thống cấp nước chữa cháy ngoài nhà (Phụ lục C - Bảng C.1 QCVN 10:2025/BCA):** Đối soát cơ sở với Bảng C.1. Nếu không có tên hoặc chưa đạt quy mô thì kết luận "Không thuộc diện phải trang bị".
+      3. **Yêu cầu về Hệ thống họng nước chữa cháy trong nhà (Phụ lục B - Bảng B.1 QCVN 10:2025/BCA):** Đối soát quy mô (tầng/diện tích nhà công cộng, y tế, giáo dục...) với Bảng B.1 để kết luận "Phải trang bị" hoặc "Không".
+      4. **Yêu cầu về Hệ thống báo cháy và chữa cháy tự động (Phụ lục A - Bảng A.1 QCVN 10:2025/BCA):** Kiểm tra diện trang bị báo cháy và chữa cháy tự động (Sprinkler).
+      5. **Tính toán thể tích bể nước chữa cháy:** 
+         - Xác định căn cứ thời gian chữa cháy (t): (VD: Theo H.2.14 QCVN 10 là 1h cho họng nước trong nhà).
+         - Xác định định mức lưu lượng (Q): (VD: Theo Bảng H.5 QCVN 10).
+         - Công thức: V (m3) = [Lưu lượng họng nước (Q) * 3.6 * t] + [Lưu lượng ngoài nhà * 3.6 * t] + [Lưu lượng Sprinkler * 3.6 * t_spr].
+         - **Kết luận:** Tổng khối tích bể nước (m3).
+
+    - ⚠️ LƯU Ý PHONG CÁCH: BẮT BUỘC liệt kê đầy đủ các căn cứ pháp lý cho từng phần như ví dụ: *"Theo Phụ lục I Nghị định 105/2025/NĐ-CP, mục 4..."* hoặc *"Theo Bảng B.1, mục 1.4..."*.
+    
+    - ⚠️ LƯU Ý PHÁP LÝ: AI phải nhắc người dùng: *"Kết quả này chỉ mang tính chất tính toán sơ bộ dựa trên dữ kiện bạn cung cấp. Việc thiết kế bể nước chính xác phải do đơn vị tư vấn thiết kế thực hiện và được cơ quan có thẩm quyền thẩm duyệt."*
 `;
 
 function backupRetrieve(prompt: string, knowledge: KnowledgeItem[]): KnowledgeItem[] {
   const promptLower = prompt.toLowerCase();
   const results: KnowledgeItem[] = [];
 
+  // Xác định các nhóm ý định trước khi lặp qua danh sách file để tối ưu hiệu năng
+  const isEnforcement = ["cưỡng chế", "không nộp", "chậm nộp", "chây ỳ"].some(kw => promptLower.includes(kw));
+  const isPenalty = ["phạt", "lỗi", "xử lý", "vi phạm", "bị sao", "tước", "hành chính"].some(kw => promptLower.includes(kw));
+  const isMilitary = ["quân đội", "chi viện"].some(kw => promptLower.includes(kw));
+  const isForce = ["lực lượng", "chỉ huy"].some(kw => promptLower.includes(kw)) && !["phương án", "mẫu"].some(kw => promptLower.includes(kw));
+  const isManage = ["trách nhiệm", "hồ sơ", "quản lý", "điều kiện", "kiểm tra", "phương án", "mẫu", "đội", "cơ sở", "bảo hiểm", "báo cáo", "thành lập", "huấn luyện", "nghiệm thu", "thẩm duyệt", "giấy"].some(kw => promptLower.includes(kw));
+  
+  // QCVN 10
+  const isTech10 = ["trang bị", "lắp đặt", "hệ thống", "10", "qc10", "phương tiện", "báo cháy", "chữa cháy", "đèn", "chỉ dẫn", "bình", "bơm", "sprinkler", "mặt nạ", "dây cứu", "phá dỡ", "dụng cụ", "định mức", "tính toán", "lượng nước", "m3", "bể nước"].some(kw => promptLower.includes(kw)) && !isPenalty && !promptLower.includes("phương án");
+  
+  // QCVN 06
+  let isTech06 = ["khoảng cách", "ngăn cháy", "thông gió", "hút khói", "chống cháy lan", "đường", "bãi đỗ", "vật liệu", "kích thước", "lối", "cầu thang", "hành lang", "cửa", "06", "qc06"].some(kw => promptLower.includes(kw)) && !isPenalty;
+  
+  if (promptLower.includes("thoát nạn") && !["đèn", "chỉ dẫn"].some(kw => promptLower.includes(kw))) {
+    isTech06 = true;
+  }
+
   for (const item of knowledge) {
     const fname = item.title.toLowerCase();
     
-    const isEnforcement = ["cưỡng chế", "không nộp", "chậm nộp", "chây ỳ"].some(kw => promptLower.includes(kw));
-    const isPenalty = ["phạt", "lỗi", "xử lý", "vi phạm", "bị sao"].some(kw => promptLower.includes(kw));
-    const isMilitary = ["quân đội", "chi viện"].some(kw => promptLower.includes(kw));
-    
-    // 1. QCVN 10
-    const isTech10 = ["trang bị", "lắp đặt", "hệ thống", "10", "qc10", "phương tiện", "báo cháy", "chữa cháy", "đèn", "chỉ dẫn", "bình", "bơm", "sprinkler", "mặt nạ", "dây cứu", "phá dỡ", "dụng cụ", "định mức"].some(kw => promptLower.includes(kw)) && !isPenalty && !promptLower.includes("phương án");
-    
-    // 2. QCVN 06
-    let isTech06 = ["khoảng cách", "ngăn cháy", "thông gió", "hút khói", "chống cháy lan", "đường", "bãi đỗ", "vật liệu", "kích thước", "lối", "cầu thang", "hành lang", "cửa", "06", "qc06"].some(kw => promptLower.includes(kw)) && !isPenalty;
-    
-    // 3. Phân giải xung đột "thoát nạn"
-    if (promptLower.includes("thoát nạn") && !["đèn", "chỉ dẫn"].some(kw => promptLower.includes(kw))) {
-      isTech06 = true;
-    }
-    
-    const isManage = ["trách nhiệm", "hồ sơ", "quản lý", "điều kiện", "kiểm tra", "phương án", "mẫu", "đội", "cơ sở", "bảo hiểm", "báo cáo", "thành lập", "huấn luyện", "nghiệm thu", "thẩm duyệt", "giấy"].some(kw => promptLower.includes(kw));
-    const isForce = ["lực lượng", "chỉ huy"].some(kw => promptLower.includes(kw)) && !["phương án", "mẫu"].some(kw => promptLower.includes(kw));
-
     if (isEnforcement && fname.includes("296")) {
       results.push(item);
     } else if (isMilitary && ["quan doi", "du thao", "phoi hop", "cv hd", "doi 3"].some(x => fname.includes(x))) {
@@ -173,7 +207,7 @@ function backupRetrieve(prompt: string, knowledge: KnowledgeItem[]): KnowledgeIt
       results.push(item);
     } else if (isTech10 && fname.includes("10")) {
       results.push(item);
-    } else if (isManage && ["luat", "105", "36", "136", "50"].some(x => fname.includes(x))) {
+    } else if (isManage && ["luat", "105", "36"].some(x => fname.includes(x))) {
       results.push(item);
     } else if (isForce && fname.includes("37")) {
       results.push(item);
@@ -195,9 +229,14 @@ export async function streamMessageWithSearch(
   const ai = new GoogleGenAI({ apiKey: API_KEY });
   const userQuery = messages[messages.length - 1]?.content || "";
   
-  // Bước 1: Routing - Chọn tài liệu
-  let selectedKnowledge = userKnowledge;
-  if (userKnowledge.length > 0) {
+  // Bước 0: Thử tìm kiếm nhanh bằng từ khóa trước để giảm lag
+  let selectedKnowledge: KnowledgeItem[] = [];
+  const quickResults = backupRetrieve(userQuery, userKnowledge);
+  
+  if (quickResults.length > 0) {
+    selectedKnowledge = quickResults;
+  } else if (userKnowledge.length > 0) {
+    // Bước 1: Routing - Chỉ dùng LLM Router nếu tìm kiếm nhanh không ra kết quả
     const fileList = userKnowledge.map(k => k.title).join(", ");
     const routerPrompt = ROUTER_INSTRUCTION
       .replace("{{FILE_LIST}}", fileList)
@@ -220,11 +259,11 @@ export async function streamMessageWithSearch(
       if (filtered.length > 0) {
         selectedKnowledge = filtered;
       } else {
-        selectedKnowledge = backupRetrieve(userQuery, userKnowledge);
+        selectedKnowledge = userKnowledge; // Fallback to all if still nothing
       }
     } catch (e) {
       console.error("Router error:", e);
-      selectedKnowledge = backupRetrieve(userQuery, userKnowledge);
+      selectedKnowledge = userKnowledge;
     }
   }
 
@@ -244,7 +283,8 @@ export async function streamMessageWithSearch(
     }
   });
 
-  const history = messages.slice(0, -1).map(msg => ({
+  // Chỉ lấy tối đa 10 lượt hội thoại gần nhất để tránh lag (trừ câu hỏi hiện tại)
+  const history = messages.slice(-11, -1).map(msg => ({
     role: msg.role === 'user' ? 'user' : 'model',
     parts: [{ text: msg.content }]
   }));

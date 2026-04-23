@@ -1,6 +1,7 @@
 {
-  "name": "Chatbot AI về PCCC",
-  "description": "Hệ thống chatbot thông minh tư vấn pháp luật về Phòng cháy chữa cháy",
-  "requestFramePermissions": [],
-  "majorCapabilities": []
+  "name": "AI PCCC PHÚ THỌ",
+  "description": "Trợ lý ảo PCCC và CNCH do Đại úy Phạm Tùng Linh - Phòng PC07 Phú Thọ phát triển. Hỗ trợ tra cứu luật, thủ tục hành chính và tính toán bể nước chữa cháy.",
+  "requestFramePermissions": [
+    "clipboard-write"
+  ]
 }

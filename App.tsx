@@ -9,15 +9,17 @@ import KnowledgeManager from './components/KnowledgeManager';
 import { getFullKnowledge, saveKnowledge, removeKnowledge } from './services/storageService';
 
 const App: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: 'model',
-      content: 'Chào mừng bạn đến với **Hệ thống Trợ lý ảo PCCC Phú Thọ**. 🛡️\n\nTôi đã được nạp đầy đủ các văn bản pháp quy mới nhất và sẵn sàng hỗ trợ bạn giải đáp các thủ tục, quy định về an toàn cháy nổ.\n\nBạn cần tôi tư vấn vấn đề gì?',
-      timestamp: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [knowledgeBase, setKnowledgeBase] = useState<KnowledgeItem[]>([]);
   const [input, setInput] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [input]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAdminMode, setIsAdminMode] = useState(false);
@@ -36,24 +38,55 @@ const App: React.FC = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Load knowledge and messages
   useEffect(() => {
     const loadStoredData = async () => {
       try {
+        // Load chat history
+        const savedMsgs = localStorage.getItem('pccc_chat_messages');
+        if (savedMsgs) {
+          const parsed = JSON.parse(savedMsgs).map((m: any) => ({
+            ...m,
+            timestamp: new Date(m.timestamp)
+          }));
+          setMessages(parsed);
+        } else {
+          setMessages([
+            {
+              role: 'model',
+              content: 'Xin chào! Tôi là trợ lý AI về PCCC và CNCH do **Đại úy Phạm Tùng Linh - Phòng PC07 Phú Thọ** phát triển. Hãy đặt câu hỏi để tôi trả lời!',
+              timestamp: new Date()
+            }
+          ]);
+        }
+
         const stored = await getFullKnowledge();
         setKnowledgeBase(stored);
-        if (stored.length > 0) {
-          setMessages([{
-            role: 'model',
-            content: `Hệ thống đã sẵn sàng với **${stored.length} tài liệu chuyên sâu** về PCCC được nạp sẵn. 📚\n\nBạn muốn tra cứu quy định hay thủ tục nào?`,
-            timestamp: new Date()
-          }]);
-        }
       } catch (e) {
         console.error("Storage load error:", e);
       }
     };
     loadStoredData();
   }, []);
+
+  // Save chat history
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem('pccc_chat_messages', JSON.stringify(messages));
+    }
+  }, [messages]);
+
+  const clearHistory = () => {
+    if (confirm("Bạn có chắc chắn muốn xóa toàn bộ lịch sử trò chuyện?")) {
+      const initialMsg = {
+        role: 'model' as const,
+        content: 'Lịch sử đã được xóa. Tôi có thể giúp gì tiếp cho bạn?',
+        timestamp: new Date()
+      };
+      setMessages([initialMsg]);
+      localStorage.setItem('pccc_chat_messages', JSON.stringify([initialMsg]));
+    }
+  };
 
   useEffect(() => {
     scrollToBottom();
@@ -279,6 +312,16 @@ const App: React.FC = () => {
             </div>
             
             <div className="flex items-center gap-4">
+              <button 
+                id="clear-history-btn"
+                onClick={clearHistory}
+                title="Xóa lịch sử trò chuyện"
+                className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
               {isAdminMode && (
                 <div id="admin-badge" className="hidden md:block px-4 py-2 bg-red-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-md">
                   Chế độ quản trị
@@ -317,29 +360,6 @@ const App: React.FC = () => {
                     </ReactMarkdown>
                   </div>
                   
-                  {msg.sources && msg.sources.length > 0 && (
-                    <div className="mt-4 pt-4 border-t border-slate-100/10">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                        </svg>
-                        Nguồn trích lục
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {msg.sources.map((source, sIdx) => (
-                          <span 
-                            key={`source-${sIdx}`}
-                            className={`px-2 py-1 rounded-md text-[9px] font-bold ${
-                              msg.role === 'user' ? 'bg-white/10 text-white/60' : 'bg-slate-100 text-slate-500'
-                            }`}
-                          >
-                            {source}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
                   <div className={`mt-5 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 ${msg.role === 'user' ? 'text-right' : ''}`}>
                     {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {msg.role === 'user' ? 'Công dân' : 'Trợ lý ảo'}
                   </div>
@@ -389,6 +409,7 @@ const App: React.FC = () => {
             <div className={`relative flex items-center gap-3 bg-white border-2 border-slate-200 rounded-[2rem] p-1.5 pl-6 focus-within:border-red-600 shadow-xl transition-all ${isStreaming ? 'opacity-50' : 'hover:border-slate-300'}`}>
               <textarea
                 id="user-input-box"
+                ref={textareaRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
