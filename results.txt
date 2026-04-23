@@ -1,0 +1,30 @@
+4415:        'systemInstruction',
+4418:        setValueByPath(parentObject, ['systemInstruction'], contentToMldev$4(tContent(fromSystemInstruction)));
+5288:            if (requestDict['systemInstruction']) {
+5289:                const systemInstructionValue = requestDict['systemInstruction'];
+5290:                delete requestDict['systemInstruction'];
+5292:                requestContent['systemInstruction'] = systemInstructionValue;
+5812:        'systemInstruction',
+5815:        setValueByPath(parentObject, ['systemInstruction'], contentToMldev$3(tContent(fromSystemInstruction)));
+5861:        'systemInstruction',
+5864:        setValueByPath(parentObject, ['systemInstruction'], contentToVertex$2(tContent(fromSystemInstruction)));
+6590:     *    'systemInstruction': 'What is the sum of the two pdfs?',
+8155:        'systemInstruction',
+8158:        setValueByPath(parentObject, ['setup', 'systemInstruction'], contentToMldev$2(tContent(fromSystemInstruction)));
+8284:        'systemInstruction',
+8287:        setValueByPath(parentObject, ['setup', 'systemInstruction'], contentToVertex$1(tContent(fromSystemInstruction)));
+9181:    if (getValueByPath(fromObject, ['systemInstruction']) !== undefined) {
+9182:        throw new Error('systemInstruction parameter is not supported in Gemini API.');
+9195:        'systemInstruction',
+9198:        setValueByPath(parentObject, ['systemInstruction'], contentToVertex(tContent(fromSystemInstruction)));
+9872:        'systemInstruction',
+9875:        setValueByPath(parentObject, ['systemInstruction'], contentToMldev$1(tContent(fromSystemInstruction)));
+10039:        'systemInstruction',
+10042:        setValueByPath(parentObject, ['systemInstruction'], contentToVertex(tContent(fromSystemInstruction)));
+16359:        'systemInstruction',
+16362:        setValueByPath(parentObject, ['setup', 'systemInstruction'], contentToMldev(tContent(fromSystemInstruction)));
+16799:     *           'systemInstruction': 'Always answer in English.',
+16807:     * // responseModalities, systemInstruction, temperature in this example) when
+16816:     *           'systemInstruction': 'Always answer in English.',
+16825:     * // responseModalities, systemInstruction in this example) when using the
+16834:     *           'systemInstruction': 'Always answer in English.',

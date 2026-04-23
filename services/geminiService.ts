@@ -269,7 +269,7 @@ export async function streamMessageWithSearch(
 
       try {
         const routerResult = await instance.ai.models.generateContent({
-          model: 'models/gemini-1.5-flash',
+          model: 'gemini-flash-latest',
           contents: [{ role: 'user', parts: [{ text: routerPrompt }] }],
           config: { temperature: 0 }
         });
@@ -330,7 +330,7 @@ export async function streamMessageWithSearch(
 
     try {
       const stream = await instance.ai.models.generateContentStream({
-        model: 'models/gemini-1.5-flash',
+        model: 'gemini-flash-latest',
         contents: [
           ...history,
           { role: 'user', parts: [...parts, { text: `CÂU HỎI: ${userQuery}` }] }
@@ -369,7 +369,7 @@ export async function streamMessageWithSearch(
         if (finalInstance) {
           try {
             const finalResult = await finalInstance.ai.models.generateContent({
-              model: 'models/gemini-1.5-flash',
+              model: 'gemini-flash-latest',
               contents: [
                 ...history,
                 { role: 'user', parts: [...parts, { text: `CÂU HỎI: ${userQuery}` }] }

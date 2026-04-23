@@ -367,10 +367,10 @@ const App: React.FC = () => {
               >
                 <div className={`group relative max-w-[92%] md:max-w-[85%] rounded-[2.5rem] p-6 md:p-8 transition-all ${
                   msg.role === 'user' 
-                    ? 'bg-slate-800 border border-slate-700 text-white rounded-tr-none shadow-xl' 
+                    ? 'bg-sky-50 border border-sky-100 text-slate-800 rounded-tr-none shadow-sm' 
                     : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none shadow-sm'
                 }`}>
-                  <div className={`markdown-body max-w-none prose prose-p:my-2 ${msg.role === 'user' ? 'prose-invert opacity-90' : 'prose-slate'}`}>
+                  <div className={`markdown-body max-w-none prose prose-p:my-2 ${msg.role === 'user' ? 'opacity-90' : 'prose-slate'}`}>
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                       {msg.content || (msg.role === 'model' && isStreaming && idx === messages.length - 1 ? "..." : "")}
                     </ReactMarkdown>
