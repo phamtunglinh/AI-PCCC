@@ -2,8 +2,29 @@
 import { GoogleGenAI } from "@google/genai";
 import { Message, KnowledgeItem } from "../types";
 
-// Lấy API Key từ môi trường
-const API_KEY = process.env.GEMINI_API_KEY;
+// Lấy danh sách API Keys có sẵn từ môi trường
+const getAvailableKeys = () => {
+  const keys = [
+    process.env.GEMINI_API_KEY,
+    process.env.GEMINI_API_KEY_1,
+    process.env.GEMINI_API_KEY_2,
+    process.env.GEMINI_API_KEY_3,
+    process.env.GEMINI_API_KEY_4,
+    process.env.GEMINI_API_KEY_5
+  ].filter(key => key && key.trim() !== "");
+  return keys;
+};
+
+// Hàm lấy một AI instance ngẫu nhiên từ các key còn dùng được
+function getAIInstance(excludeKeys: string[] = []) {
+  const allKeys = getAvailableKeys();
+  const validKeys = allKeys.filter(k => !excludeKeys.includes(k));
+  
+  if (validKeys.length === 0) return null;
+  
+  const randomKey = validKeys[Math.floor(Math.random() * validKeys.length)];
+  return { ai: new GoogleGenAI({ apiKey: randomKey }), key: randomKey };
+}
 
 const ROUTER_INSTRUCTION = `
 Bạn là Tham mưu trưởng PCCC xuất sắc. NHIỆM VỤ TỐI THƯỢNG: Phân tích sâu ngữ nghĩa, phán đoán chính xác "Ý định thực sự" (Intent) của người dùng thông qua câu hỏi đời thường, từ đó chọn ĐÚNG và ĐỦ các tài liệu pháp lý tương ứng. 
@@ -221,48 +242,52 @@ export async function streamMessageWithSearch(
   userKnowledge: KnowledgeItem[],
   onChunk: (text: string) => void
 ) {
-  if (!API_KEY) {
-    onChunk("Lỗi: Hệ thống chưa được cấu hình API Key.");
+  const availableKeys = getAvailableKeys();
+  if (availableKeys.length === 0) {
+    onChunk("Lỗi: Hệ thống chưa được cấu hình API Key. Vui lòng kiểm tra lại cài đặt Vercel.");
     return { sources: [] };
   }
 
-  const ai = new GoogleGenAI({ apiKey: API_KEY });
   const userQuery = messages[messages.length - 1]?.content || "";
+  let selectedKnowledge: KnowledgeItem[] = [];
   
   // Bước 0: Thử tìm kiếm nhanh bằng từ khóa trước để giảm lag
-  let selectedKnowledge: KnowledgeItem[] = [];
   const quickResults = backupRetrieve(userQuery, userKnowledge);
   
   if (quickResults.length > 0) {
     selectedKnowledge = quickResults;
   } else if (userKnowledge.length > 0) {
-    // Bước 1: Routing - Chỉ dùng LLM Router nếu tìm kiếm nhanh không ra kết quả
+    // Bước 1: Routing - Thử dùng LLM Router với cơ chế Retry nếu key bị nghẽn
     const fileList = userKnowledge.map(k => k.title).join(", ");
     const routerPrompt = ROUTER_INSTRUCTION
       .replace("{{FILE_LIST}}", fileList)
       .replace("{{USER_QUERY}}", userQuery);
 
-    try {
-      const routerResult = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: [{ role: 'user', parts: [{ text: routerPrompt }] }],
-        config: { temperature: 0 }
-      });
-      
-      const routerOutput = routerResult.text?.trim() || "";
+    const tryRouter = async (retries = 2, failedKeys: string[] = []) => {
+      const instance = getAIInstance(failedKeys);
+      if (!instance || retries < 0) return null;
+
+      try {
+        const routerResult = await instance.ai.models.generateContent({
+          model: 'gemini-3-flash-preview',
+          contents: [{ role: 'user', parts: [{ text: routerPrompt }] }],
+          config: { temperature: 0 }
+        });
+        return routerResult.text?.trim() || "";
+      } catch (e) {
+        console.warn(`Router failed with key ending in ...${instance.key.slice(-5)}. Retrying...`);
+        return tryRouter(retries - 1, [...failedKeys, instance.key]);
+      }
+    };
+
+    const routerOutput = await tryRouter();
+    if (routerOutput) {
       const selectedFilnames = routerOutput.split(",").map(f => f.trim().toLowerCase());
-      
       const filtered = userKnowledge.filter(k => 
         selectedFilnames.some(sf => k.title.toLowerCase().includes(sf))
       );
-      
-      if (filtered.length > 0) {
-        selectedKnowledge = filtered;
-      } else {
-        selectedKnowledge = userKnowledge; // Fallback to all if still nothing
-      }
-    } catch (e) {
-      console.error("Router error:", e);
+      selectedKnowledge = filtered.length > 0 ? filtered : userKnowledge;
+    } else {
       selectedKnowledge = userKnowledge;
     }
   }
@@ -283,40 +308,55 @@ export async function streamMessageWithSearch(
     }
   });
 
-  // Chỉ lấy tối đa 10 lượt hội thoại gần nhất để tránh lag (trừ câu hỏi hiện tại)
   const history = messages.slice(-11, -1).map(msg => ({
     role: msg.role === 'user' ? 'user' : 'model',
     parts: [{ text: msg.content }]
   }));
 
-  try {
-    const stream = await ai.models.generateContentStream({
-      model: 'gemini-3-flash-preview',
-      contents: [
-        ...history,
-        { role: 'user', parts: [...parts, { text: `CÂU HỎI: ${userQuery}` }] }
-      ],
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        temperature: 0.1,
-      },
-    });
-
-    let fullText = "";
-    for await (const chunk of stream) {
-      const chunkText = chunk.text;
-      if (chunkText) {
-        fullText += chunkText;
-        onChunk(fullText);
-      }
+  // Bước 2: Streaming Response với cơ chế luân phiên Key nếu gặp lỗi
+  const executeStream = async (retries = 3, usedKeys: string[] = []) => {
+    const instance = getAIInstance(usedKeys);
+    if (!instance) {
+      onChunk("Tất cả các kết nối AI đều đang bận hoặc quá tải. Vui lòng thử lại sau ít phút.");
+      return { sources: [] };
     }
 
-    return { 
-      sources: selectedKnowledge.map(k => k.title) 
-    };
-  } catch (error: any) {
-    console.error("Gemini Error:", error);
-    onChunk("Hệ thống đang bận, vui lòng thử lại sau.");
-    return { sources: [] };
-  }
+    try {
+      const stream = await instance.ai.models.generateContentStream({
+        model: 'gemini-3-flash-preview',
+        contents: [
+          ...history,
+          { role: 'user', parts: [...parts, { text: `CÂU HỎI: ${userQuery}` }] }
+        ],
+        config: {
+          systemInstruction: SYSTEM_INSTRUCTION,
+          temperature: 0.1,
+        },
+      });
+
+      let fullText = "";
+      for await (const chunk of stream) {
+        const chunkText = chunk.text;
+        if (chunkText) {
+          fullText += chunkText;
+          onChunk(fullText);
+        }
+      }
+
+      return { sources: selectedKnowledge.map(k => k.title) };
+    } catch (error: any) {
+      console.error(`Gemini Error (Key ...${instance.key.slice(-5)}):`, error);
+      
+      if (retries > 0) {
+        // Nếu lỗi do giới hạn hoặc nghẽn, đổi key ngay lập tức
+        onChunk("\n⚡ Hệ thống đang tự động tối ưu đường truyền để tránh tắc nghẽn...");
+        return executeStream(retries - 1, [...usedKeys, instance.key]);
+      } else {
+        onChunk("\n\n⚠️ Hệ thống đang quá tải cực độ. Vui lòng quay lại sau vài giây.");
+        return { sources: [] };
+      }
+    }
+  };
+
+  return executeStream();
 }

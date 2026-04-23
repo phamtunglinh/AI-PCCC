@@ -13,44 +13,53 @@ const KnowledgeManager: React.FC<KnowledgeManagerProps> = ({ onAdd, knowledgeBas
   const [uploadProgress, setUploadProgress] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const processFile = async (file: File) => {
-    if (file.size === 0) return;
+  const processFiles = async (files: FileList) => {
+    if (files.length === 0) return;
     setIsUploading(true);
-    setUploadProgress('Đang xử lý...');
+    let processedCount = 0;
     
     try {
-      const fileNameLower = file.name.toLowerCase();
-
-      if (fileNameLower.endsWith('.pdf')) {
-        const base64 = await new Promise<string>((resolve) => {
-          const r = new FileReader();
-          r.onload = () => resolve((r.result as string).split(',')[1]);
-          r.readAsDataURL(file);
-        });
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.size === 0) continue;
         
-        onAdd({ 
-          id: Math.random().toString(36).substr(2, 9), 
-          title: file.name, 
-          content: '', 
-          fileData: base64, 
-          mimeType: 'application/pdf', 
-          size: file.size 
-        });
-      } else if (fileNameLower.endsWith('.docx')) {
-        const arrayBuffer = await file.arrayBuffer();
-        // @ts-ignore
-        const result = await window.mammoth.extractRawText({ arrayBuffer });
-        onAdd({ 
-          id: Math.random().toString(36).substr(2, 9), 
-          title: file.name, 
-          content: result.value, 
-          mimeType: 'text/plain', 
-          size: file.size 
-        });
+        setUploadProgress(`Đang xử lý ${i + 1}/${files.length}: ${file.name}`);
+        
+        const fileNameLower = file.name.toLowerCase();
+
+        if (fileNameLower.endsWith('.pdf')) {
+          const base64 = await new Promise<string>((resolve) => {
+            const r = new FileReader();
+            r.onload = () => resolve((r.result as string).split(',')[1]);
+            r.readAsDataURL(file);
+          });
+          
+          onAdd({ 
+            id: Math.random().toString(36).substr(2, 9), 
+            title: file.name, 
+            content: '', 
+            fileData: base64, 
+            mimeType: 'application/pdf', 
+            size: file.size 
+          });
+          processedCount++;
+        } else if (fileNameLower.endsWith('.docx')) {
+          const arrayBuffer = await file.arrayBuffer();
+          // @ts-ignore
+          const result = await window.mammoth.extractRawText({ arrayBuffer });
+          onAdd({ 
+            id: Math.random().toString(36).substr(2, 9), 
+            title: file.name, 
+            content: result.value, 
+            mimeType: 'text/plain', 
+            size: file.size 
+          });
+          processedCount++;
+        }
       }
     } catch (error) {
       console.error(error);
-      alert("Lỗi khi nạp tài liệu.");
+      alert("Có lỗi xảy ra khi nạp một số tài liệu.");
     } finally {
       setIsUploading(false);
       setUploadProgress('');
@@ -87,7 +96,14 @@ const KnowledgeManager: React.FC<KnowledgeManagerProps> = ({ onAdd, knowledgeBas
         <label className={`relative group flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-dashed transition-all cursor-pointer ${
           isUploading ? 'bg-slate-800/50 border-red-500/50 animate-pulse' : 'bg-slate-800/30 border-slate-700 hover:border-red-500 hover:bg-slate-800/50'
         }`}>
-          <input type="file" className="hidden" accept=".pdf,.docx" onChange={(e) => e.target.files?.[0] && processFile(e.target.files[0])} disabled={isUploading} />
+          <input 
+            type="file" 
+            className="hidden" 
+            accept=".pdf,.docx" 
+            multiple 
+            onChange={(e) => e.target.files && processFiles(e.target.files)} 
+            disabled={isUploading} 
+          />
           <div className="text-center">
             {isUploading ? (
               <div className="flex flex-col items-center gap-2">
