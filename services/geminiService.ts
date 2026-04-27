@@ -211,10 +211,10 @@ function backupRetrieve(prompt: string, knowledge: KnowledgeItem[]): KnowledgeIt
   const isManage = ["trách nhiệm", "hồ sơ", "quản lý", "điều kiện", "kiểm tra", "phương án", "mẫu", "đội", "cơ sở", "bảo hiểm", "báo cáo", "thành lập", "huấn luyện", "nghiệm thu", "thẩm duyệt", "giấy"].some(kw => promptLower.includes(kw));
   
   // QCVN 10
-  const isTech10 = ["trang bị", "lắp đặt", "hệ thống", "10", "qc10", "phương tiện", "báo cháy", "chữa cháy", "đèn", "chỉ dẫn", "bình", "bơm", "sprinkler", "mặt nạ", "dây cứu", "phá dỡ", "dụng cụ", "định mức", "tính toán", "lượng nước", "m3", "bể nước", "họng nước", "sprinh", "đầu phun"].some(kw => promptLower.includes(kw)) && !isPenalty && !promptLower.includes("phương án");
+  const isTech10 = ["trang bị", "lắp đặt", "hệ thống", "10", "qc10", "phương tiện", "báo cháy", "chữa cháy", "đèn", "chỉ dẫn", "bình", "bơm", "sprinkler", "mặt nạ", "dây cứu", "phá dỡ", "dụng cụ", "định mức", "tính toán", "lượng nước", "m3", "bể nước", "họng nước", "sprinh", "đầu phun", "vách tường", "trụ"].some(kw => promptLower.includes(kw)) && !isPenalty && !promptLower.includes("phương án");
   
   // QCVN 06
-  let isTech06 = ["khoảng cách", "ngăn cháy", "thông gió", "hút khói", "chống cháy lan", "đường", "bãi đỗ", "vật liệu", "kích thước", "lối", "cầu thang", "hành lang", "cửa", "06", "qc06", "bậc chịu lửa"].some(kw => promptLower.includes(kw)) && !isPenalty;
+  let isTech06 = ["khoảng cách", "ngăn cháy", "thông gió", "hút khói", "chống cháy lan", "đường", "bãi đỗ", "vật liệu", "kích thước", "lối", "cầu thang", "hành lang", "cửa", "06", "qc06", "bậc chịu lửa", "thoát nạn", "giới hạn"].some(kw => promptLower.includes(kw)) && !isPenalty;
   
   if (promptLower.includes("thoát nạn") && !["đèn", "chỉ dẫn"].some(kw => promptLower.includes(kw))) {
     isTech06 = true;
@@ -305,18 +305,23 @@ export async function streamMessageWithSearch(
       .replace("{{FILE_LIST}}", fileList)
       .replace("{{USER_QUERY}}", userQuery);
 
-    const tryRouter = async (retries = 2, failedKeys: string[] = []) => {
+    const tryRouter = async (retries = 1, failedKeys: string[] = []) => {
       if (abortSignal?.aborted) return null;
       const instance = getAIInstance(failedKeys);
       if (!instance || retries < 0) return null;
 
       try {
-        const routerResult = await instance.ai.models.generateContent({
-          model: 'gemini-3-flash-preview',
-          contents: [{ role: 'user', parts: [{ text: routerPrompt }] }],
-          config: { temperature: 0, maxOutputTokens: 100 }
+        const model = instance.ai.getGenerativeModel({
+          model: 'gemini-1.5-flash',
+          generationConfig: { 
+            temperature: 0, 
+            maxOutputTokens: 50,
+            topP: 0.1,
+            topK: 1
+          }
         });
-        return routerResult.text?.trim() || "";
+        const routerResult = await model.generateContent(routerPrompt);
+        return routerResult.response.text()?.trim() || "";
       } catch (e) {
         return tryRouter(retries - 1, [...failedKeys, instance.key]);
       }
@@ -371,22 +376,23 @@ export async function streamMessageWithSearch(
     }
 
     try {
-      const stream = await instance.ai.models.generateContentStream({
-        model: 'gemini-3-flash-preview',
+      const stream = await instance.ai.getGenerativeModel({
+        model: 'gemini-1.5-flash',
+        systemInstruction: SYSTEM_INSTRUCTION,
+        generationConfig: {
+          temperature: 0.1,
+        }
+      }).generateContentStream({
         contents: [
           ...history,
           { role: 'user', parts: [...parts, { text: `CÂU HỎI: ${userQuery}` }] }
         ],
-        config: {
-          systemInstruction: SYSTEM_INSTRUCTION,
-          temperature: 0.1,
-        },
       });
 
       let fullText = "";
-      for await (const chunk of stream) {
+      for await (const chunk of stream.stream) {
         if (abortSignal?.aborted) break;
-        const chunkText = chunk.text;
+        const chunkText = chunk.text();
         if (chunkText) {
           fullText += chunkText;
           onChunk(cleanAIResponse(fullText));
@@ -412,15 +418,18 @@ export async function streamMessageWithSearch(
         const finalInstance = getAIInstance([]);
         if (finalInstance && !abortSignal?.aborted) {
           try {
-            const finalResult = await finalInstance.ai.models.generateContent({
-              model: 'gemini-3-flash-preview',
+            const finalModel = finalInstance.ai.getGenerativeModel({
+              model: 'gemini-1.5-flash',
+              systemInstruction: SYSTEM_INSTRUCTION,
+              generationConfig: { temperature: 0.2 },
+            });
+            const finalResult = await finalModel.generateContent({
               contents: [
                 ...history,
                 { role: 'user', parts: [...parts, { text: `CÂU HỎI: ${userQuery}` }] }
               ],
-              config: { systemInstruction: SYSTEM_INSTRUCTION, temperature: 0.2 },
             });
-            const text = finalResult.text;
+            const text = finalResult.response.text();
             if (text) {
               onChunk(cleanAIResponse(text));
               return { sources: selectedKnowledge.map(k => k.title) };
