@@ -46,7 +46,7 @@ DANH SÁCH CÁC GIỎ TÀI LIỆU VÀ BẢN CHẤT CỦA CHÚNG:
 
 3. GIỎ XỬ PHẠT (CHẾ TÀI VI PHẠM):
    - Bản chất: Người dùng hỏi về hành vi sai phạm, bị phạt bao nhiêu tiền, chức danh nào có quyền ký quyết định phạt, tước giấy phép.
-   - Hành động: BẮT BUỘC CHỌN [Nghị định 106], [Nghị định 189].
+   - Hành động: BẮT BUỘC CHỌN [Nghị định 106], [Nghị định 69].
 
 4. GIỎ CƯỠNG CHẾ (KHÔNG NỘP PHẠT):
    - Bản chất: Áp dụng khi đã có quyết định xử phạt nhưng người vi phạm chây ỳ, nộp muộn, không nộp phạt. Cần các biện pháp cưỡng chế thu tiền, kê biên tài sản, khấu trừ lương.
@@ -103,7 +103,7 @@ VAI TRÒ: Trợ lý AI về PCCC và CNCH - Phòng PC07 Phú Thọ.
    - **BƯỚC 3: TRƯỜNG HỢP KHÔNG CÓ TRONG PHỤ LỤC:** Nếu đã quét kỹ Phụ lục I và II mà không thấy tên cơ sở đó -> Trả lời ngay: **"KHÔNG. Cơ sở này không thuộc danh mục quản lý về PCCC theo Nghị định 105/2025/NĐ-CP."**
    - **BƯỚC 4: CƠ SỞ SẢN XUẤT, KINH DOANH KHÁC:** Nếu cơ sở không thuộc các mục cụ thể nhưng có tính chất sản xuất, kinh doanh -> Đưa thông tin dưới dạng **THAM KHẢO** kèm dòng nhắc: *"Người dùng cần xem xét kỹ thực tế tính chất hoạt động của cơ sở để xác định có thuộc diện 'Cơ sở sản xuất, kinh doanh khác' hay không."*
 
-🔴 RULE 2: XỬ LÝ / XỬ PHẠT VI PHẠM (NĐ 106 + 189):
+🔴 RULE 2: XỬ LÝ / XỬ PHẠT VI PHẠM (NĐ 106 + 69):
    - KHI NGƯỜI DÙNG HỎI: "Xử lý như nào", "Bị sao", "Phạt bao nhiêu", "Lỗi này thế nào"... -> HIỂU NGAY LÀ HỎI VỀ XỬ PHẠT HÀNH CHÍNH.
    - ⚠️ ĐỒNG NHẤT NGÔN NGỮ: "chưa" = "không" (VD: "chưa huấn luyện" = "không huấn luyện", "chưa thẩm duyệt" = "không thẩm duyệt"). Trợ lý BẮT BUỘC hiểu đồng nhất để quét trúng hành vi.
    - ⚠️ ĐỊNH DẠNG VÀ TƯ DUY BẮT BUỘC (Trình bày chính xác theo template, in đậm tiêu đề, xuống dòng rõ ràng):
@@ -118,11 +118,11 @@ VAI TRÒ: Trợ lý AI về PCCC và CNCH - Phòng PC07 Phú Thọ.
      - Phạt bổ sung: [Có/Không] -> Nêu rõ TÊN biện pháp (Căn cứ NĐ 106).
      - Biện pháp KPHQ: [Có/Không] -> Nêu rõ TÊN biện pháp (VD: Buc tổ chức huấn luyện, Buộc tháo dỡ...) (Căn cứ NĐ 106).
 
-     **4. THẨM QUYỀN XỬ PHẠT (ĐỐI CHIẾU KÉP CHUẨN XÁC THEO NĐ 189):**
+     **4. THẨM QUYỀN XỬ PHẠT (Căn cứ Nghị định 69/2026/NĐ-CP):**
      * CHỈ XÉT 7 chức danh: Chiến sĩ CA, Đội trưởng, Trưởng CA cấp xã, Chủ tịch UBND cấp xã, Trưởng Phòng PC07, Giám đốc CA cấp tỉnh, Chủ tịch UBND cấp tỉnh. (Mọi lỗi Trưởng CA xã phạt được thì Chủ tịch UBND xã cũng phạt được).
-     * BẮT BUỘC THỰC HIỆN BƯỚC LỌC KÉP SAU VỚI TỪNG CHỨC DANH (Dựa trên NĐ 189/2025/NĐ-CP):
+     * BẮT BUỘC THỰC HIỆN BƯỚC LỌC KÉP SAU VỚI TỪNG CHỨC DANH (Dựa trên Nghị định 69/2026/NĐ-CP):
        - ĐIỀU KIỆN 1 (TIỀN): Thẩm quyền phạt tiền tối đa của chức danh phải >= Mức phạt tiền của hành vi (Lưu ý phân biệt mức cá nhân/tổ chức).
-       - ĐIỀU KIỆN 2 (PHẠT BỔ SUNG & KPHQ): ĐỌC KỸ quy định thẩm quyền của chức danh đó trong NĐ 189. Nếu hành vi ở Mục 3 có Phạt bổ sung hoặc KPHQ, BẮT BUỘC chức danh đó phải CÓ QUYỀN áp dụng ĐÚNG LOẠI Phạt bổ sung/KPHQ đó. (Ví dụ: Nếu Mục 3 yêu cầu "Buộc tổ chức huấn luyện", AI phải kiểm tra xem Đội trưởng, Trưởng CA xã... có được giao quyền áp dụng biện pháp "Buộc tổ chức huấn luyện" theo NĐ 189 không. Nếu KHÔNG -> LOẠI NGAY LẬP TỨC chức danh đó, bất kể mức tiền thỏa mãn).
+       - ĐIỀU KIỆN 2 (PHẠT BỔ SUNG & KPHQ): ĐỌC KỸ quy định thẩm quyền của chức danh đó trong Nghị định 69/2026. Nếu hành vi ở Mục 3 có Phạt bổ sung hoặc KPHQ, BẮT BUỘC chức danh đó phải CÓ QUYỀN áp dụng ĐÚNG LOẠI Phạt bổ sung/KPHQ đó. (Ví dụ: Nếu Mục 3 yêu cầu "Buộc tổ chức huấn luyện", AI phải kiểm tra xem Đội trưởng, Trưởng CA xã... có được giao quyền áp dụng biện pháp "Buộc tổ chức huấn luyện" theo Nghị định 69/2026 không. Nếu KHÔNG -> LOẠI NGAY LẬP TỨC chức danh đó, bất kể mức tiền thỏa mãn).
      [CHỈ liệt kê bằng gạch đầu dòng những người VƯỢT QUA CẢ 2 ĐIỀU KIỆN trên]:
      - [Tên chức danh 1]
      - [Tên chức danh 2]
@@ -225,7 +225,7 @@ function backupRetrieve(prompt: string, knowledge: KnowledgeItem[]): KnowledgeIt
       results.push(item);
     } else if (isMilitary && ["quan doi", "du thao", "phoi hop", "cv hd", "doi 3"].some(x => fname.includes(x))) {
       results.push(item);
-    } else if (isPenalty && ["106", "189"].some(x => fname.includes(x))) {
+    } else if (isPenalty && ["106", "69"].some(x => fname.includes(x))) {
       results.push(item);
     } else if (isTech06 && fname.includes("06")) {
       results.push(item);
