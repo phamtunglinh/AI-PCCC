@@ -354,7 +354,7 @@ const App: React.FC = () => {
                     {msg.role === 'model' && (
                       <div className="flex gap-1.5 mr-1">
                         <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
-                        <span className="text-slate-500">Phòng PC07</span>
+                        <span className="text-slate-500">Chat bot AI</span>
                       </div>
                     )}
                     <span>{msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
