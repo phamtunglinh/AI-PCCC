@@ -10,11 +10,13 @@
   },
   "dependencies": {
     "@google/genai": "^1.35.0",
+    "@tailwindcss/vite": "^4.2.4",
     "motion": "^12.38.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-markdown": "^10.1.0",
-    "remark-gfm": "^4.0.1"
+    "remark-gfm": "^4.0.1",
+    "tailwindcss": "^4.2.4"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

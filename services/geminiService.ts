@@ -246,11 +246,16 @@ function cleanAIResponse(text: string): string {
   return text
     .replace(/\$m\^2\$/g, "m2")
     .replace(/\$m\^3\$/g, "m3")
+    .replace(/\$m\^\{2\}\$/g, "m2")
+    .replace(/\$m\^\{3\}\$/g, "m3")
     .replace(/m\^2/g, "m2")
     .replace(/m\^3/g, "m3")
+    .replace(/m\^\{2\}/g, "m2")
+    .replace(/m\^\{3\}/g, "m3")
     .replace(/\$m2\$/g, "m2")
     .replace(/\$m3\$/g, "m3")
-    .replace(/\$([a-zA-Z]+)\^([0-9]+)\$/g, "$1$2");
+    .replace(/\$([a-zA-Z]+)\^([0-9]+)\$/g, "$1$2")
+    .replace(/\$([a-zA-Z]+)\^\{([0-9]+)\}\$/g, "$1$2");
 }
 
 export async function streamMessageWithSearch(
