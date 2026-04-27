@@ -21,6 +21,7 @@ const App: React.FC = () => {
     }
   }, [input]);
   const [isStreaming, setIsStreaming] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAdminMode, setIsAdminMode] = useState(false);
   
@@ -131,6 +132,13 @@ const App: React.FC = () => {
     alert("Đã sao chép mã nhúng vào bộ nhớ tạm!");
   };
 
+  const handleStop = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      setIsStreaming(false);
+    }
+  };
+
   const handleSend = async () => {
     if (!input.trim() || isStreaming) return;
 
@@ -144,6 +152,9 @@ const App: React.FC = () => {
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setIsStreaming(true);
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
     const modelMsg: Message = {
       role: 'model',
@@ -163,26 +174,37 @@ const App: React.FC = () => {
             newMsgs[newMsgs.length - 1].content = chunkText;
             return newMsgs;
           });
-        }
+        },
+        controller.signal
       );
       
-      setMessages(prev => {
-        const newMsgs = [...prev];
-        newMsgs[newMsgs.length - 1].sources = result.sources;
-        return newMsgs;
-      });
+      if (!controller.signal.aborted) {
+        setMessages(prev => {
+          const newMsgs = [...prev];
+          newMsgs[newMsgs.length - 1].sources = result.sources;
+          return newMsgs;
+        });
+      }
 
     } catch (err) {
-      console.error(err);
-      setMessages(prev => {
-        const newMsgs = [...prev];
-        newMsgs[newMsgs.length - 1].content = "Xin lỗi, tôi gặp chút gián đoạn. Vui lòng thử lại sau.";
-        return newMsgs;
-      });
+      if ((err as any).name === 'AbortError') {
+        console.log("Stream aborted");
+      } else {
+        console.error(err);
+        setMessages(prev => {
+          const newMsgs = [...prev];
+          newMsgs[newMsgs.length - 1].content = "Xin lỗi, tôi gặp chút gián đoạn. Vui lòng thử lại sau.";
+          return newMsgs;
+        });
+      }
     } finally {
       setIsStreaming(false);
+      abortControllerRef.current = null;
     }
   };
+
+  // ... UI layout update below
+
 
   return (
     <div id="app-root" className={`flex h-screen overflow-hidden font-sans relative ${isEmbedded ? 'bg-white' : 'bg-[#f8fafc]'}`}>
@@ -419,18 +441,31 @@ const App: React.FC = () => {
                 className="flex-1 resize-none border-none focus:ring-0 text-slate-900 text-[14px] md:text-[15px] py-1.5 pl-4 pr-1 bg-transparent max-h-32 font-medium placeholder:text-slate-400"
                 disabled={isStreaming}
               />
-              <button
-                id="send-message-btn"
-                onClick={handleSend}
-                disabled={!input.trim() || isStreaming}
-                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                  !input.trim() || isStreaming ? 'bg-slate-100 text-slate-300' : 'bg-red-600 text-white hover:bg-red-700 shadow-md shadow-red-100 active:scale-95'
-                }`}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
-                </svg>
-              </button>
+              {isStreaming ? (
+                <button
+                  id="stop-generation-btn"
+                  onClick={handleStop}
+                  className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-900 text-white hover:bg-slate-800 shadow-md active:scale-95 transition-all"
+                  title="Dừng tạo câu trả lời"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <rect x="6" y="6" width="8" height="8" />
+                  </svg>
+                </button>
+              ) : (
+                <button
+                  id="send-message-btn"
+                  onClick={handleSend}
+                  disabled={!input.trim()}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                    !input.trim() ? 'bg-slate-100 text-slate-300' : 'bg-red-600 text-white hover:bg-red-700 shadow-md shadow-red-100 active:scale-95'
+                  }`}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                  </svg>
+                </button>
+              )}
             </div>
             
             <div className="mt-2.5 flex flex-col sm:flex-row items-center justify-between gap-2 px-4">

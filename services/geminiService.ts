@@ -121,13 +121,13 @@ VAI TRÒ: Trợ lý AI về PCCC và CNCH - Phòng PC07 Phú Thọ.
      **4. THẨM QUYỀN XỬ PHẠT (Căn cứ Nghị định 69/2026/NĐ-CP):**
      * CHỈ XÉT 7 chức danh: Chiến sĩ CA, Đội trưởng, Trưởng CA cấp xã, Chủ tịch UBND cấp xã, Trưởng Phòng PC07, Giám đốc CA cấp tỉnh, Chủ tịch UBND cấp tỉnh. (Mọi lỗi Trưởng CA xã phạt được thì Chủ tịch UBND xã cũng phạt được).
      * BẮT BUỘC THỰC HIỆN BƯỚC LỌC KÉP SAU VỚI TỪNG CHỨC DANH (Dựa trên Nghị định 69/2026/NĐ-CP):
-       - ĐIỀU KIỆN 1 (TIỀN): Thẩm quyền phạt tiền tối đa của chức danh phải >= Mức phạt tiền của hành vi (Lưu ý phân biệt mức cá nhân/tổ chức).
+       - ĐIỀU KIỆN 1 (TIỀN): Thẩm quyền phạt tiền tối đa của chức danh (luôn xét ở mức cá nhân) phải >= Mức phạt tiền của hành vi áp dụng đối với CÁ NHÂN. (Lưu ý: Đối với tổ chức dù mức phạt nhân đôi nhưng thẩm quyền xử phạt của các chức danh vẫn chỉ đối soát dựa trên mức phạt cá nhân của hành vi đó).
        - ĐIỀU KIỆN 2 (PHẠT BỔ SUNG & KPHQ): ĐỌC KỸ quy định thẩm quyền của chức danh đó trong Nghị định 69/2026. Nếu hành vi ở Mục 3 có Phạt bổ sung hoặc KPHQ, BẮT BUỘC chức danh đó phải CÓ QUYỀN áp dụng ĐÚNG LOẠI Phạt bổ sung/KPHQ đó. (Ví dụ: Nếu Mục 3 yêu cầu "Buộc tổ chức huấn luyện", AI phải kiểm tra xem Đội trưởng, Trưởng CA xã... có được giao quyền áp dụng biện pháp "Buộc tổ chức huấn luyện" theo Nghị định 69/2026 không. Nếu KHÔNG -> LOẠI NGAY LẬP TỨC chức danh đó, bất kể mức tiền thỏa mãn).
-     [CHỈ liệt kê bằng gạch đầu dòng những người VƯỢT QUA CẢ 2 ĐIỀU KIỆN trên]:
+     [CHỈ LIỆT KÊ TÊN CHỨC DANH, TUYỆT ĐỐI KHÔNG TRÍCH DẪN GIẢI THÍCH CHI TIẾT THẨM QUYỀN]:
      - [Tên chức danh 1]
      - [Tên chức danh 2]
 
-     **5. KIẾN NGHỊ:** Trình Chủ tịch UBND cấp xã hoặc Trưởng Công an cấp xã (đối với cơ sở do UBND xã quản lý) hoặc Đội trưởng thuộc Phòng PC07 (đối với cơ sở do PC07 quản lý) ký quyết định xử phạt.
+     **5. KIẾN NGHỊ:** Chọn một trong các chức danh có đủ thẩm quyền đã liệt kê ở Mục 4 để kiến nghị ký quyết định xử phạt (thường chọn người có thẩm quyền phù hợp với cấp quản lý của cơ sở). **Tô đậm tên chức danh được kiến nghị.**
   
 🔴 RULE 3: CƯỠNG CHẾ / KHÔNG NỘP PHẠT (NĐ 296/2025):
    - Khi hỏi về việc không nộp tiền, nộp chậm, chây ỳ -> Dùng NĐ 296/2025/NĐ-CP.
@@ -261,8 +261,12 @@ function cleanAIResponse(text: string): string {
 export async function streamMessageWithSearch(
   messages: Message[],
   userKnowledge: KnowledgeItem[],
-  onChunk: (text: string) => void
+  onChunk: (text: string) => void,
+  abortSignal?: AbortSignal
 ) {
+  // Check abort signal at the start
+  if (abortSignal?.aborted) return { sources: [] };
+
   const availableKeys = getAvailableKeys();
   if (availableKeys.length === 0) {
     onChunk("Lỗi: Hệ thống chưa được cấu hình API Key. Vui lòng kiểm tra lại cài đặt Vercel.");
@@ -299,7 +303,8 @@ export async function streamMessageWithSearch(
       .replace("{{FILE_LIST}}", fileList)
       .replace("{{USER_QUERY}}", userQuery);
 
-  const tryRouter = async (retries = 2, failedKeys: string[] = []) => {
+    const tryRouter = async (retries = 2, failedKeys: string[] = []) => {
+      if (abortSignal?.aborted) return null;
       const instance = getAIInstance(failedKeys);
       if (!instance || retries < 0) return null;
 
@@ -327,6 +332,8 @@ export async function streamMessageWithSearch(
     }
   }
 
+  if (abortSignal?.aborted) return { sources: [] };
+
   if (selectedKnowledge.length === 0 && userKnowledge.length > 0) {
     selectedKnowledge = userKnowledge;
   }
@@ -350,6 +357,7 @@ export async function streamMessageWithSearch(
 
   // Bước 2: Streaming Response với cơ chế luân phiên Key nếu gặp lỗi
   const executeStream = async (retries = 3, usedKeys: string[] = []) => {
+    if (abortSignal?.aborted) return { sources: [] };
     const instance = getAIInstance(usedKeys);
     if (!instance) {
       if (usedKeys.length > 0 && retries > 0) {
@@ -375,6 +383,7 @@ export async function streamMessageWithSearch(
 
       let fullText = "";
       for await (const chunk of stream) {
+        if (abortSignal?.aborted) break;
         const chunkText = chunk.text;
         if (chunkText) {
           fullText += chunkText;
@@ -384,6 +393,7 @@ export async function streamMessageWithSearch(
 
       return { sources: selectedKnowledge.map(k => k.title) };
     } catch (error: any) {
+      if (abortSignal?.aborted) return { sources: [] };
       console.error(`Gemini Error (Key ...${instance.key.slice(-5)}):`, error);
       
       const isRateLimit = error?.message?.includes("429") || error?.message?.includes("quota") || error?.message?.includes("limit");
@@ -398,7 +408,7 @@ export async function streamMessageWithSearch(
       } else {
         // Thử lượt cuối cùng bằng Non-streaming nếu Streaming liên tục lỗi (vẫn dùng luân phiên key)
         const finalInstance = getAIInstance([]);
-        if (finalInstance) {
+        if (finalInstance && !abortSignal?.aborted) {
           try {
             const finalResult = await finalInstance.ai.models.generateContent({
               model: 'gemini-3-flash-preview',
