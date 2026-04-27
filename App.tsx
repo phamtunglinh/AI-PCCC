@@ -360,17 +360,6 @@ const App: React.FC = () => {
                     </ReactMarkdown>
                   </div>
                   
-                  {msg.sources && msg.sources.length > 0 && (
-                     <div className="mt-3 pt-2 border-t border-slate-100 flex flex-wrap gap-1.5">
-                        <span className="text-[8px] font-black uppercase text-slate-400 w-full mb-0.5">Nguồn:</span>
-                        {msg.sources.map((s, i) => (
-                          <span key={i} className="px-2 py-0.5 bg-red-50 border border-red-100 text-red-600 text-[9px] font-bold rounded-md uppercase tracking-tight">
-                            {s}
-                          </span>
-                        ))}
-                     </div>
-                  )}
-
                   <div className={`mt-2 text-[8px] font-black uppercase tracking-[0.15em] text-slate-400 flex items-center gap-1.5 ${msg.role === 'user' ? 'justify-end' : ''}`}>
                     {msg.role === 'model' && <span className="w-1 h-1 bg-red-600 rounded-full animate-pulse"></span>}
                     {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {msg.role === 'user' ? 'CÔNG DÂN' : 'PCCC'}

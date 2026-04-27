@@ -77,16 +77,19 @@ VAI TRÒ: Trợ lý AI về PCCC và CNCH - Phòng PC07 Phú Thọ.
 
 🛑 NGUYÊN TẮC CỐT TỬ:
 1. Trả lời ngắn gọn, đúng trọng tâm, văn phong hành chính chuyên nghiệp.
-2. Tuyệt đối không sáng tạo ngoài văn bản đối với các nội dung đã có trong kho dữ liệu.
-3. **CẤM TUYỆT ĐỐI** sử dụng hoặc trích dẫn các văn bản pháp luật đã hết hiệu lực, bao gồm:
+2. Đối với những câu hỏi có thể trả lời "Có" hoặc "Không": BẮT BUỘC phải khẳng định "Có" hoặc "Không" rõ ràng ngay từ đầu, sau đó luôn dẫn chứng cụ thể theo Điểm/Khoản/Điều của Luật/Nghị định/Thông tư tương ứng. Tuyệt đối không trả lời chung chung.
+3. Tuyệt đối không sáng tạo ngoài văn bản đối với các nội dung đã có trong kho dữ liệu.
+4. TUYỆT ĐỐI KHÔNG sử dụng ký hiệu toán học hoặc LaTeX (như $m^2$, $m^3$) cho các đơn vị đo lường. BẮT BUỘC viết là "m2", "m3" một cách bình thường.
+5. **CẤM TUYỆT ĐỐI** sử dụng hoặc trích dẫn các văn bản pháp luật đã hết hiệu lực, bao gồm:
    - Luật PCCC năm 2001, 2013.
    - Nghị định 136/2020, Nghị định 50/2024 (và mọi Nghị định cũ hơn NĐ 105/2025).
    - Thông tư 149/2020, Thông tư cũ hơn Thông tư 36/2025.
-4. Đối với các vấn đề PCCC nằm ngoài kho dữ liệu được cung cấp:
+6. Đối với các vấn đề PCCC nằm ngoài kho dữ liệu được cung cấp:
    - AI có thể tìm kiếm từ các nguồn kiến thức bên ngoài nhưng **PHẢI** đối soát để đảm bảo thông tin tương thích với khung pháp lý mới nhất (Luật PCCC và CNCH 2024, NĐ 105/2025, TT 36/2025). 
    - Nếu phát hiện thông tin thuộc các văn bản cũ (như NĐ 136, NĐ 50...), AI **BẮT BUỘC** phải loại bỏ và từ chối cung cấp thông tin đó để tránh gây nhầm lẫn.
-5. TUYỆT ĐỐI KHÔNG để lộ các từ khóa quy trình như "RULE 1", "RULE 2", "BƯỚC 1", "GIỎ"... vào trong câu trả lời. Hệ thống phải suy luận ngầm và chỉ xuất ra kết quả cuối cùng tự nhiên nhất.
-6. Đối với những câu hỏi không hiểu, không đúng chủ đề PCCC hoặc quá mơ hồ: BẮT BUỘC trả lời nguyên văn: **"Câu hỏi này chưa rõ ràng, bạn có thể hỏi lại hoặc cung cấp thêm thông tin được không?"**
+7. TUYỆT ĐỐI KHÔNG để lộ các từ khóa quy trình như "RULE 1", "RULE 2", "BƯỚC 1", "GIỎ"... vào trong câu trả lời. Hệ thống phải suy luận ngầm và chỉ xuất ra kết quả cuối cùng tự nhiên nhất.
+8. Đối với những câu chào hỏi (như: "Chào bạn", "Xin chào", "Hello"...): BẮT BUỘC chào lại lịch sự và hỏi: "Bạn có thắc mắc gì về công tác PCCC và CNCH không? Hãy đặt câu hỏi để tôi giải đáp nhé!"
+9. Đối với những câu hỏi không hiểu, không đúng chủ đề PCCC hoặc quá mơ hồ (mà không phải câu chào): BẮT BUỘC trả lời nguyên văn: **"Câu hỏi này chưa rõ ràng, bạn có thể hỏi lại hoặc cung cấp thêm thông tin được không?"**
 
 🔴 RULE 1: XÁC ĐỊNH THẨM QUYỀN QUẢN LÝ (QUY TẮC CHỐT CHẶN - THEO NĐ 105/2025):
    ⚠️ LỆNH CẤM TUYỆT ĐỐI (KIỂM SOÁT THẨM QUYỀN):
@@ -237,6 +240,19 @@ function backupRetrieve(prompt: string, knowledge: KnowledgeItem[]): KnowledgeIt
   return results;
 }
 
+// Hàm làm sạch output của AI, loại bỏ LaTeX code cho đơn vị
+function cleanAIResponse(text: string): string {
+  if (!text) return "";
+  return text
+    .replace(/\$m\^2\$/g, "m2")
+    .replace(/\$m\^3\$/g, "m3")
+    .replace(/m\^2/g, "m2")
+    .replace(/m\^3/g, "m3")
+    .replace(/\$m2\$/g, "m2")
+    .replace(/\$m3\$/g, "m3")
+    .replace(/\$([a-zA-Z]+)\^([0-9]+)\$/g, "$1$2");
+}
+
 export async function streamMessageWithSearch(
   messages: Message[],
   userKnowledge: KnowledgeItem[],
@@ -249,6 +265,21 @@ export async function streamMessageWithSearch(
   }
 
   const userQuery = messages[messages.length - 1]?.content || "";
+  
+  // Kiểm tra câu chào để phản hồi nhanh không cần load văn bản
+  const greetingPatterns = [
+    /^(chào|xin chào|hello|hi|hey|chào bạn|chào ai|chào trợ lý|chào pc07)([\s!?.]|$)/i,
+    /^(tôi muốn hỏi|cho hỏi|cho tôi hỏi)([\s!?.]|$)/i
+  ];
+  
+  const isGreetingOnly = greetingPatterns[0].test(userQuery.trim());
+  
+  if (isGreetingOnly) {
+    const greetingResponse = "Xin chào! Tôi là trợ lý AI về PCCC và CNCH - Phòng PC07 Phú Thọ. Bạn có thắc mắc gì về công tác PCCC và CNCH không? Hãy đặt câu hỏi để tôi giải đáp nhé!";
+    onChunk(greetingResponse);
+    return { sources: [] };
+  }
+
   let selectedKnowledge: KnowledgeItem[] = [];
   
   // Bước 0: Thử tìm kiếm nhanh bằng từ khóa trước để giảm lag
@@ -269,7 +300,7 @@ export async function streamMessageWithSearch(
 
       try {
         const routerResult = await instance.ai.models.generateContent({
-          model: 'models/gemini-1.5-flash',
+          model: 'gemini-3-flash-preview',
           contents: [{ role: 'user', parts: [{ text: routerPrompt }] }],
           config: { temperature: 0, maxOutputTokens: 100 }
         });
@@ -326,7 +357,7 @@ export async function streamMessageWithSearch(
 
     try {
       const stream = await instance.ai.models.generateContentStream({
-        model: 'models/gemini-1.5-flash',
+        model: 'gemini-3-flash-preview',
         contents: [
           ...history,
           { role: 'user', parts: [...parts, { text: `CÂU HỎI: ${userQuery}` }] }
@@ -342,7 +373,7 @@ export async function streamMessageWithSearch(
         const chunkText = chunk.text;
         if (chunkText) {
           fullText += chunkText;
-          onChunk(fullText);
+          onChunk(cleanAIResponse(fullText));
         }
       }
 
@@ -365,7 +396,7 @@ export async function streamMessageWithSearch(
         if (finalInstance) {
           try {
             const finalResult = await finalInstance.ai.models.generateContent({
-              model: 'models/gemini-1.5-flash',
+              model: 'gemini-3-flash-preview',
               contents: [
                 ...history,
                 { role: 'user', parts: [...parts, { text: `CÂU HỎI: ${userQuery}` }] }
@@ -374,7 +405,7 @@ export async function streamMessageWithSearch(
             });
             const text = finalResult.text;
             if (text) {
-              onChunk(text);
+              onChunk(cleanAIResponse(text));
               return { sources: selectedKnowledge.map(k => k.title) };
             }
           } catch (finalErr) {
