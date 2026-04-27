@@ -278,77 +278,56 @@ const App: React.FC = () => {
 
       <main id="chat-main" className={`flex-1 flex flex-col min-w-0 bg-slate-50 relative ${isEmbedded ? 'h-full' : ''}`}>
         {!isEmbedded && (
-          <header className="bg-white/95 backdrop-blur-2xl border-b border-slate-200 px-6 py-5 flex items-center justify-between sticky top-0 z-40 shadow-sm">
-            <div className="flex items-center gap-6">
+          <header className="bg-white/95 backdrop-blur-2xl border-b border-slate-200 px-3 py-0.5 flex items-center justify-between sticky top-0 z-40 shadow-sm">
+            <div className="flex items-center gap-3">
               <div 
                 id="app-logo"
-                className="flex items-center gap-5 cursor-pointer select-none group relative p-1 rounded-3xl active:scale-95 transition-transform" 
+                className="flex items-center gap-2 cursor-pointer select-none group relative p-0.5 rounded-xl active:scale-95 transition-transform" 
                 onClick={handleLogoClick}
               >
                 <div className="relative">
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-xl transition-all duration-300 ${
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-white shadow-md transition-all duration-300 ${
                     visualClickCount > 0 
                       ? 'bg-red-600 scale-110 ring-4 ring-red-100' 
                       : 'bg-gradient-to-br from-red-600 to-red-800 shadow-red-200'
                   }`}>
                     {/* Fire Badge Icon */}
                     <div className="relative">
-                       <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.99 7.99 0 0120 13a7.98 7.98 0 01-2.343 5.657z" />
                       </svg>
-                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-red-700 shadow-sm"></div>
                     </div>
                   </div>
-                  <AnimatePresence>
-                    {visualClickCount >= 3 && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="absolute -top-10 left-0 text-[10px] font-black text-red-600 animate-bounce uppercase whitespace-nowrap bg-red-50 px-2 py-1 rounded-md border border-red-100"
-                      >
-                        XÁC THỰC QUẢN TRỊ: {visualClickCount}/5
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
                 </div>
                 <div className="hidden sm:block">
-                  <h1 className="font-bold text-slate-800 text-xl tracking-tighter leading-none font-display">TRỢ LÝ ẢO PCCC</h1>
-                  <p className="text-[10px] font-black text-red-600 mt-1.5 uppercase tracking-[0.25em] flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.4)]"></span>
-                    PHÒNG PC07 PHÚ THỌ
-                  </p>
+                  <h1 className="font-bold text-slate-800 text-[11px] tracking-tight leading-none font-display uppercase">TRỢ LÝ PCCC</h1>
                 </div>
               </div>
             </div>
 
-            <div className="hidden lg:block text-right">
-               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-tight">Bản quyền thuộc về:</p>
-               <p className="text-[10px] font-bold text-slate-600">Copyright: Phạm Tùng Linh - PC07 Phú Thọ</p>
-            </div>
-            
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <button 
                 id="clear-history-btn"
                 onClick={clearHistory}
                 title="Xóa lịch sử"
-                className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all"
+                className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
               </button>
               {isAdminMode && (
-                <div id="admin-badge" className="hidden md:flex items-center gap-2 px-4 py-2 bg-red-50 border border-red-100 text-red-600 rounded-xl text-[10px] font-black uppercase tracking-widest">
+                <div id="admin-badge" className="hidden md:flex items-center gap-1.5 px-3 py-1 bg-red-50 border border-red-100 text-red-600 rounded-lg text-[9px] font-black uppercase tracking-widest">
                   <span className="w-1.5 h-1.5 bg-red-600 rounded-full shadow-[0_0_6px_rgba(239,68,68,0.3)]"></span>
-                  Bảng Quản Trị
+                  ADMIN
                 </div>
               )}
               <button 
                 id="toggle-sidebar-btn"
                 onClick={() => isAdminMode && setIsSidebarOpen(!isSidebarOpen)}
-                className={`p-3 rounded-2xl transition-all ${isAdminMode ? 'hover:bg-slate-100 text-slate-600' : 'text-transparent cursor-default'}`}
+                className={`p-2 rounded-xl transition-all ${isAdminMode ? 'hover:bg-slate-100 text-slate-600' : 'text-transparent cursor-default'}`}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
@@ -356,40 +335,45 @@ const App: React.FC = () => {
           </header>
         )}
 
-        <section id="chat-history" className={`flex-1 overflow-y-auto px-4 py-10 md:px-12 space-y-10 scrollbar-hide bg-slate-50`}>
-          <div className="max-w-4xl mx-auto space-y-12">
+        <section id="chat-history" className={`flex-1 overflow-y-auto px-3 py-4 md:px-8 space-y-4 scrollbar-hide bg-slate-50`}>
+          <div className="max-w-4xl mx-auto space-y-4">
             {messages.map((msg, idx) => (
               <motion.div 
                 key={`msg-${idx}`} 
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: 12, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ 
+                  duration: 0.3,
+                  ease: [0.16, 1, 0.3, 1],
+                  scale: { type: "spring", damping: 20, stiffness: 250 }
+                }}
                 className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`group relative max-w-[92%] md:max-w-[85%] rounded-[2.5rem] p-6 md:p-8 transition-all ${
+                <div className={`group relative max-w-[94%] md:max-w-[90%] rounded-2xl p-3 md:p-4 transition-all ${
                   msg.role === 'user' 
                     ? 'bg-sky-50 border border-sky-100 text-slate-800 rounded-tr-none shadow-sm' 
                     : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none shadow-sm'
                 }`}>
-                  <div className={`markdown-body max-w-none prose prose-p:my-2 ${msg.role === 'user' ? 'opacity-90' : 'prose-slate'}`}>
+                  <div className={`markdown-body max-w-none prose prose-p:my-1 prose-sm ${msg.role === 'user' ? 'opacity-95 text-[13px]' : 'prose-slate text-[14px]'}`}>
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                       {msg.content || (msg.role === 'model' && isStreaming && idx === messages.length - 1 ? "..." : "")}
                     </ReactMarkdown>
                   </div>
                   
                   {msg.sources && msg.sources.length > 0 && (
-                     <div className="mt-6 pt-4 border-t border-slate-100 flex flex-wrap gap-2">
-                        <span className="text-[9px] font-black uppercase text-slate-400 w-full mb-1">Căn cứ dữ liệu:</span>
+                     <div className="mt-3 pt-2 border-t border-slate-100 flex flex-wrap gap-1.5">
+                        <span className="text-[8px] font-black uppercase text-slate-400 w-full mb-0.5">Nguồn:</span>
                         {msg.sources.map((s, i) => (
-                          <span key={i} className="px-3 py-1 bg-red-50 border border-red-100 text-red-600 text-[10px] font-bold rounded-lg uppercase tracking-wider">
+                          <span key={i} className="px-2 py-0.5 bg-red-50 border border-red-100 text-red-600 text-[9px] font-bold rounded-md uppercase tracking-tight">
                             {s}
                           </span>
                         ))}
                      </div>
                   )}
 
-                  <div className={`mt-6 text-[9px] font-black uppercase tracking-[0.25em] text-slate-400 flex items-center gap-2 ${msg.role === 'user' ? 'justify-end' : ''}`}>
-                    {msg.role === 'model' && <span className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse shadow-sm"></span>}
-                    {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {msg.role === 'user' ? 'CÔNG DÂN' : 'HỆ THỐNG TRỰC'}
+                  <div className={`mt-2 text-[8px] font-black uppercase tracking-[0.15em] text-slate-400 flex items-center gap-1.5 ${msg.role === 'user' ? 'justify-end' : ''}`}>
+                    {msg.role === 'model' && <span className="w-1 h-1 bg-red-600 rounded-full animate-pulse"></span>}
+                    {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {msg.role === 'user' ? 'CÔNG DÂN' : 'PCCC'}
                   </div>
                 </div>
               </motion.div>
@@ -403,26 +387,26 @@ const App: React.FC = () => {
                   exit={{ opacity: 0 }}
                   className="flex justify-start"
                 >
-                  <div className="bg-white border border-slate-200 rounded-[2.5rem] rounded-tl-none p-8 shadow-sm">
-                    <div className="flex items-center space-x-5">
-                      <div className="flex space-x-2">
+                  <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-none p-4 shadow-sm">
+                    <div className="flex items-center space-x-3">
+                      <div className="flex space-x-1.5">
                         <motion.div 
-                          animate={{ scale: [1, 1.4, 1] }} 
+                          animate={{ scale: [1, 1.3, 1] }} 
                           transition={{ repeat: Infinity, duration: 1 }}
-                          className="w-2 h-2 bg-red-600 rounded-full shadow-[0_0_8px_rgba(220,38,38,0.4)]"
+                          className="w-1.5 h-1.5 bg-red-600 rounded-full shadow-sm"
                         />
                         <motion.div 
-                          animate={{ scale: [1, 1.4, 1] }} 
+                          animate={{ scale: [1, 1.3, 1] }} 
                           transition={{ repeat: Infinity, duration: 1, delay: 0.2 }}
-                          className="w-2 h-2 bg-red-600 rounded-full"
+                          className="w-1.5 h-1.5 bg-red-600 rounded-full"
                         />
                         <motion.div 
-                          animate={{ scale: [1, 1.4, 1] }} 
+                          animate={{ scale: [1, 1.3, 1] }} 
                           transition={{ repeat: Infinity, duration: 1, delay: 0.4 }}
-                          className="w-2 h-2 bg-red-600 rounded-full"
+                          className="w-1.5 h-1.5 bg-red-600 rounded-full"
                         />
                       </div>
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] font-display">Đang truy vấn dữ liệu...</span>
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest font-display">Đang truy vấn...</span>
                     </div>
                   </div>
                 </motion.div>
@@ -432,9 +416,9 @@ const App: React.FC = () => {
           </div>
         </section>
 
-        <footer id="chat-input-area" className={`p-6 md:p-10 bg-white/80 backdrop-blur-2xl border-t border-slate-100 sticky bottom-0`}>
+        <footer id="chat-input-area" className={`p-1.5 md:p-2 bg-white/80 backdrop-blur-2xl border-t border-slate-100 sticky bottom-0`}>
           <div className="max-w-4xl mx-auto">
-            <div className={`relative flex items-center gap-4 bg-slate-50 border border-slate-200 rounded-full p-2 pl-8 focus-within:border-red-500 focus-within:ring-4 focus-within:ring-red-50 shadow-2xl transition-all ${isStreaming ? 'opacity-50' : 'hover:border-slate-300 shadow-sm'}`}>
+            <div className={`relative flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-2xl p-0.5 pl-4 focus-within:border-red-500 shadow-sm transition-all ${isStreaming ? 'opacity-50' : 'hover:border-slate-300'}`}>
               <textarea
                 id="user-input-box"
                 ref={textareaRef}
@@ -446,44 +430,33 @@ const App: React.FC = () => {
                     handleSend();
                   }
                 }}
-                placeholder="Tra cứu thủ tục, văn bản pháp quy PCCC..."
+                placeholder="Câu hỏi PCCC..."
                 rows={1}
-                className="flex-1 resize-none border-none focus:ring-0 text-slate-800 text-[16px] py-4 bg-transparent max-h-40 font-medium placeholder:text-slate-400"
+                className="flex-1 resize-none border-none focus:ring-0 text-slate-800 text-[13px] py-1.5 bg-transparent max-h-24 font-medium placeholder:text-slate-400"
                 disabled={isStreaming}
               />
               <button
                 id="send-message-btn"
                 onClick={handleSend}
                 disabled={!input.trim() || isStreaming}
-                className={`w-14 h-14 rounded-full flex items-center justify-center transition-all ${
-                  !input.trim() || isStreaming ? 'bg-slate-100 text-slate-300' : 'bg-red-600 text-white hover:bg-red-700 shadow-[0_0_20px_rgba(185,28,28,0.2)] active:scale-95'
+                className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${
+                  !input.trim() || isStreaming ? 'bg-slate-100 text-slate-300' : 'bg-red-600 text-white hover:bg-red-700 shadow-sm active:scale-95'
                 }`}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" viewBox="0 0 20 20" fill="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
                 </svg>
               </button>
             </div>
             
-            <div className="mt-8 flex flex-col items-center gap-4">
-              <div className="flex flex-wrap justify-center gap-8">
-                 <div className="flex items-center gap-2">
-                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                   </svg>
-                   <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Dữ liệu chuẩn PC07</span>
+            <div className="mt-1 flex items-center justify-between px-2">
+              <div className="flex gap-3">
+                 <div className="flex items-center gap-1">
+                   <span className="text-[7px] text-slate-400 font-bold uppercase tracking-tight">Dữ liệu PC07</span>
                  </div>
-                 <div className="flex items-center gap-2">
-                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                   </svg>
-                   <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Trực tuyến 24/7</span>
+                 <div className="flex items-center gap-1">
+                   <span className="text-[7px] text-slate-400 font-bold uppercase tracking-tight">Tùng Linh - Phú Thọ</span>
                  </div>
-              </div>
-              
-              <div className="pt-6 border-t border-slate-100 w-full text-center">
-                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Copyright: Phạm Tùng Linh - PC07 Phú Thọ</p>
-                 <p className="text-[9px] text-slate-300">Sản phẩm trí tuệ nhân tạo chuyên biệt ngành PCCC</p>
               </div>
             </div>
           </div>

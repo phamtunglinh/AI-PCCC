@@ -206,10 +206,10 @@ function backupRetrieve(prompt: string, knowledge: KnowledgeItem[]): KnowledgeIt
   const isManage = ["trách nhiệm", "hồ sơ", "quản lý", "điều kiện", "kiểm tra", "phương án", "mẫu", "đội", "cơ sở", "bảo hiểm", "báo cáo", "thành lập", "huấn luyện", "nghiệm thu", "thẩm duyệt", "giấy"].some(kw => promptLower.includes(kw));
   
   // QCVN 10
-  const isTech10 = ["trang bị", "lắp đặt", "hệ thống", "10", "qc10", "phương tiện", "báo cháy", "chữa cháy", "đèn", "chỉ dẫn", "bình", "bơm", "sprinkler", "mặt nạ", "dây cứu", "phá dỡ", "dụng cụ", "định mức", "tính toán", "lượng nước", "m3", "bể nước"].some(kw => promptLower.includes(kw)) && !isPenalty && !promptLower.includes("phương án");
+  const isTech10 = ["trang bị", "lắp đặt", "hệ thống", "10", "qc10", "phương tiện", "báo cháy", "chữa cháy", "đèn", "chỉ dẫn", "bình", "bơm", "sprinkler", "mặt nạ", "dây cứu", "phá dỡ", "dụng cụ", "định mức", "tính toán", "lượng nước", "m3", "bể nước", "họng nước", "sprinh", "đầu phun"].some(kw => promptLower.includes(kw)) && !isPenalty && !promptLower.includes("phương án");
   
   // QCVN 06
-  let isTech06 = ["khoảng cách", "ngăn cháy", "thông gió", "hút khói", "chống cháy lan", "đường", "bãi đỗ", "vật liệu", "kích thước", "lối", "cầu thang", "hành lang", "cửa", "06", "qc06"].some(kw => promptLower.includes(kw)) && !isPenalty;
+  let isTech06 = ["khoảng cách", "ngăn cháy", "thông gió", "hút khói", "chống cháy lan", "đường", "bãi đỗ", "vật liệu", "kích thước", "lối", "cầu thang", "hành lang", "cửa", "06", "qc06", "bậc chịu lửa"].some(kw => promptLower.includes(kw)) && !isPenalty;
   
   if (promptLower.includes("thoát nạn") && !["đèn", "chỉ dẫn"].some(kw => promptLower.includes(kw))) {
     isTech06 = true;
@@ -263,21 +263,18 @@ export async function streamMessageWithSearch(
       .replace("{{FILE_LIST}}", fileList)
       .replace("{{USER_QUERY}}", userQuery);
 
-    const tryRouter = async (retries = 2, failedKeys: string[] = []) => {
+  const tryRouter = async (retries = 2, failedKeys: string[] = []) => {
       const instance = getAIInstance(failedKeys);
       if (!instance || retries < 0) return null;
 
       try {
         const routerResult = await instance.ai.models.generateContent({
-          model: 'gemini-flash-latest',
+          model: 'models/gemini-1.5-flash',
           contents: [{ role: 'user', parts: [{ text: routerPrompt }] }],
-          config: { temperature: 0 }
+          config: { temperature: 0, maxOutputTokens: 100 }
         });
         return routerResult.text?.trim() || "";
       } catch (e) {
-        console.warn(`Router failed with key ending in ...${instance.key.slice(-5)}. Retrying...`);
-        // Chờ 1 chút trước khi thử lại để tránh dính tiếp rate limit
-        await new Promise(r => setTimeout(r, 500));
         return tryRouter(retries - 1, [...failedKeys, instance.key]);
       }
     };
@@ -310,34 +307,33 @@ export async function streamMessageWithSearch(
     }
   });
 
-  const history = messages.slice(-11, -1).map(msg => ({
+  const history = messages.slice(-7, -1).map(msg => ({
     role: msg.role === 'user' ? 'user' : 'model',
     parts: [{ text: msg.content }]
   }));
 
   // Bước 2: Streaming Response với cơ chế luân phiên Key nếu gặp lỗi
-  const executeStream = async (retries = 5, usedKeys: string[] = []) => {
+  const executeStream = async (retries = 3, usedKeys: string[] = []) => {
     const instance = getAIInstance(usedKeys);
     if (!instance) {
       if (usedKeys.length > 0 && retries > 0) {
-        // Nếu đã thử hết các key mà vẫn còn lượt retry, cho phép thử lại từ đầu sau 1 khoảng nghỉ
-        await new Promise(r => setTimeout(r, 1000));
+        await new Promise(r => setTimeout(r, 800));
         return executeStream(retries - 1, []);
       }
-      onChunk("Tất cả các kết nối AI đều đang bận do lưu lượng truy cập cao. Vui lòng quay lại sau 30 giây.");
+      onChunk("Tất cả các kết nối AI đều đang bận. Vui lòng quay lại sau giây lát.");
       return { sources: [] };
     }
 
     try {
       const stream = await instance.ai.models.generateContentStream({
-        model: 'gemini-flash-latest',
+        model: 'models/gemini-1.5-flash',
         contents: [
           ...history,
           { role: 'user', parts: [...parts, { text: `CÂU HỎI: ${userQuery}` }] }
         ],
         config: {
           systemInstruction: SYSTEM_INSTRUCTION,
-          temperature: 0.2,
+          temperature: 0.1,
         },
       });
 
@@ -369,7 +365,7 @@ export async function streamMessageWithSearch(
         if (finalInstance) {
           try {
             const finalResult = await finalInstance.ai.models.generateContent({
-              model: 'gemini-flash-latest',
+              model: 'models/gemini-1.5-flash',
               contents: [
                 ...history,
                 { role: 'user', parts: [...parts, { text: `CÂU HỎI: ${userQuery}` }] }
