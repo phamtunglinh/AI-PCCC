@@ -54,7 +54,7 @@ const App: React.FC = () => {
           setMessages([
             {
               role: 'model',
-              content: 'Xin chào! Tôi là trợ lý AI về PCCC và CNCH do **Đại úy Phạm Tùng Linh - Phòng PC07 Phú Thọ** phát triển. Hãy đặt câu hỏi để tôi trả lời!',
+              content: 'Xin chào! Tôi là **Chatbot AI về PCCC - Phạm Tùng Linh PC07 Phú Thọ**. Hãy đặt câu hỏi để tôi trả lời!',
               timestamp: new Date()
             }
           ]);
@@ -300,7 +300,7 @@ const App: React.FC = () => {
                   </div>
                 </div>
                 <div className="hidden sm:block">
-                  <h1 className="font-bold text-slate-800 text-[11px] tracking-tight leading-none font-display uppercase">TRỢ LÝ PCCC</h1>
+                  <h1 className="font-bold text-slate-800 text-[11px] tracking-tight leading-none font-display uppercase">Chatbot AI về PCCC - Phạm Tùng Linh PC07 Phú Thọ</h1>
                 </div>
               </div>
             </div>
@@ -441,10 +441,7 @@ const App: React.FC = () => {
             <div className="mt-1 flex items-center justify-between px-2">
               <div className="flex gap-3">
                  <div className="flex items-center gap-1">
-                   <span className="text-[7px] text-slate-400 font-bold uppercase tracking-tight">Dữ liệu PC07</span>
-                 </div>
-                 <div className="flex items-center gap-1">
-                   <span className="text-[7px] text-slate-400 font-bold uppercase tracking-tight">Tùng Linh - Phú Thọ</span>
+                   <span className="text-[7px] text-slate-400 font-bold uppercase tracking-tight">Bản quyền thuộc về Đại úy Phạm Tùng Linh - PC07 Phú Thọ</span>
                  </div>
               </div>
             </div>

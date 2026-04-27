@@ -275,7 +275,7 @@ export async function streamMessageWithSearch(
   const isGreetingOnly = greetingPatterns[0].test(userQuery.trim());
   
   if (isGreetingOnly) {
-    const greetingResponse = "Xin chào! Tôi là trợ lý AI về PCCC và CNCH - Phòng PC07 Phú Thọ. Bạn có thắc mắc gì về công tác PCCC và CNCH không? Hãy đặt câu hỏi để tôi giải đáp nhé!";
+    const greetingResponse = "Xin chào! Tôi là Chatbot AI về PCCC - Phạm Tùng Linh PC07 Phú Thọ. Bạn có thắc mắc gì về công tác PCCC và CNCH không? Hãy đặt câu hỏi để tôi giải đáp nhé!";
     onChunk(greetingResponse);
     return { sources: [] };
   }
