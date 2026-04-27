@@ -1,5 +1,5 @@
 
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import { Message, KnowledgeItem } from "../types";
 
 // Lấy danh sách API Keys có sẵn từ môi trường
@@ -311,17 +311,18 @@ export async function streamMessageWithSearch(
       if (!instance || retries < 0) return null;
 
       try {
-        const model = instance.ai.getGenerativeModel({
-          model: 'gemini-1.5-flash',
-          generationConfig: { 
+        const routerResult = await instance.ai.models.generateContent({
+          model: 'gemini-3.1-flash-lite-preview',
+          contents: [{ role: 'user', parts: [{ text: routerPrompt }] }],
+          config: { 
             temperature: 0, 
             maxOutputTokens: 50,
             topP: 0.1,
-            topK: 1
+            topK: 1,
+            thinkingConfig: { thinkingLevel: ThinkingLevel.MINIMAL }
           }
         });
-        const routerResult = await model.generateContent(routerPrompt);
-        return routerResult.response.text()?.trim() || "";
+        return routerResult.text?.trim() || "";
       } catch (e) {
         return tryRouter(retries - 1, [...failedKeys, instance.key]);
       }
@@ -376,23 +377,23 @@ export async function streamMessageWithSearch(
     }
 
     try {
-      const stream = await instance.ai.getGenerativeModel({
-        model: 'gemini-1.5-flash',
-        systemInstruction: SYSTEM_INSTRUCTION,
-        generationConfig: {
-          temperature: 0.1,
-        }
-      }).generateContentStream({
+      const stream = await instance.ai.models.generateContentStream({
+        model: 'gemini-3-flash-preview',
         contents: [
           ...history,
           { role: 'user', parts: [...parts, { text: `CÂU HỎI: ${userQuery}` }] }
         ],
+        config: {
+          systemInstruction: SYSTEM_INSTRUCTION,
+          temperature: 0.1,
+          thinkingConfig: { thinkingLevel: ThinkingLevel.LOW }
+        },
       });
 
       let fullText = "";
-      for await (const chunk of stream.stream) {
+      for await (const chunk of stream) {
         if (abortSignal?.aborted) break;
-        const chunkText = chunk.text();
+        const chunkText = chunk.text;
         if (chunkText) {
           fullText += chunkText;
           onChunk(cleanAIResponse(fullText));
@@ -418,18 +419,19 @@ export async function streamMessageWithSearch(
         const finalInstance = getAIInstance([]);
         if (finalInstance && !abortSignal?.aborted) {
           try {
-            const finalModel = finalInstance.ai.getGenerativeModel({
-              model: 'gemini-1.5-flash',
-              systemInstruction: SYSTEM_INSTRUCTION,
-              generationConfig: { temperature: 0.2 },
-            });
-            const finalResult = await finalModel.generateContent({
+            const finalResult = await finalInstance.ai.models.generateContent({
+              model: 'gemini-3-flash-preview',
               contents: [
                 ...history,
                 { role: 'user', parts: [...parts, { text: `CÂU HỎI: ${userQuery}` }] }
               ],
+              config: { 
+                systemInstruction: SYSTEM_INSTRUCTION, 
+                temperature: 0.2,
+                thinkingConfig: { thinkingLevel: ThinkingLevel.LOW }
+              },
             });
-            const text = finalResult.response.text();
+            const text = finalResult.text;
             if (text) {
               onChunk(cleanAIResponse(text));
               return { sources: selectedKnowledge.map(k => k.title) };
