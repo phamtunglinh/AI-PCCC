@@ -297,8 +297,7 @@ const App: React.FC = () => {
                   </div>
                 </div>
                 <div>
-                  <h1 className="font-bold text-slate-900 text-sm tracking-tight leading-tight uppercase font-display text-wrap">Chat bot AI PCCC-PHạm Tùng Linh - PC07 Phú Thọ</h1>
-                  <p className="text-[10px] text-slate-500 font-medium tracking-tight">Chatbot AI PC07 Phú Thọ</p>
+                  <h1 className="font-bold text-slate-900 text-sm tracking-tight leading-tight uppercase font-display">CHATBOT AI PCCC (ver 2) - Phạm Tùng Linh PC07</h1>
                 </div>
               </div>
             </div>
