@@ -319,11 +319,11 @@ export async function streamMessageWithSearch(
 
       try {
         const routerResult = await instance.ai.models.generateContent({
-          model: 'gemini-3.1-flash-lite-preview',
+          model: 'gemini-3.1-flash-lite-preview', // Dùng bản 3.1 flash lite cực nhanh và tiết kiệm
           contents: [{ role: 'user', parts: [{ text: routerPrompt }] }],
           config: { 
             temperature: 0, 
-            maxOutputTokens: 50,
+            maxOutputTokens: 100,
             topP: 0.1,
             topK: 1,
             thinkingConfig: { thinkingLevel: ThinkingLevel.MINIMAL }

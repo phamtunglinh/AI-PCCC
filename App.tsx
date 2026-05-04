@@ -7,6 +7,7 @@ import { Message, KnowledgeItem } from './types';
 import { streamMessageWithSearch } from './services/geminiService';
 import KnowledgeManager from './components/KnowledgeManager';
 import { getFullKnowledge, saveKnowledge, removeKnowledge } from './services/storageService';
+import { SYSTEM_DOCUMENTS } from './services/systemKnowledge';
 
 const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -62,7 +63,14 @@ const App: React.FC = () => {
         }
 
         const stored = await getFullKnowledge();
-        setKnowledgeBase(stored);
+        // Ghép thêm tài liệu hệ thống nếu chưa có trong base
+        const merged = [...stored];
+        SYSTEM_DOCUMENTS.forEach(sysDoc => {
+          if (!merged.find(m => m.id === sysDoc.id)) {
+            merged.push(sysDoc as KnowledgeItem);
+          }
+        });
+        setKnowledgeBase(merged);
       } catch (e) {
         console.error("Storage load error:", e);
       }
