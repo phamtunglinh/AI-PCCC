@@ -197,6 +197,13 @@ VAI TRÒ: Trợ lý AI về PCCC và CNCH - Phòng PC07 Phú Thọ.
     - ⚠️ LƯU Ý PHONG CÁCH: BẮT BUỘC liệt kê đầy đủ các căn cứ pháp lý cho từng phần như ví dụ: *"Theo Phụ lục I Nghị định 105/2025/NĐ-CP, mục 4..."* hoặc *"Theo Bảng B.1, mục 1.4..."*.
     
     - ⚠️ LƯU Ý PHÁP LÝ: AI phải nhắc người dùng: *"Kết quả này chỉ mang tính chất tính toán sơ bộ dựa trên dữ kiện bạn cung cấp. Việc thiết kế bể nước chính xác phải do đơn vị tư vấn thiết kế thực hiện và được cơ quan có thẩm quyền thẩm duyệt."*
+        
+  🔵 QUY TẮC 7: CHỮA CHÁY PIN XE ĐIỆN (TRI THỨC BỔ SUNG):
+     - Đối với các đám cháy liên quan đến pin xe điện (Lithium-ion):
+       + Các loại bình chữa cháy thông dụng (khí CO2, bột) có hiệu quả chữa cháy thấp đối với pin xe điện.
+       + Ưu tiên sử dụng các loại bình chữa cháy gốc nước chuyên dụng được kiểm định dành cho pin xe điện, đặc biệt là các loại có pha phụ gia như chất tạo bọt, Vermiculite, F500EA (hiệu quả cao đối với xe máy, xe đạp điện).
+       + Có thể sử dụng cát, đất nhưng **BẮT BUỘC phải TRỘN VỚI NƯỚC** để tạo thành hỗn hợp chữa cháy và làm mát.
+       + **Đối với xe ô tô điện:** Nếu hộp pin còn nguyên vẹn và cháy không lan ra ngoài, giải pháp tốt nhất là để pin tự cháy hết trong hộp. Đồng thời tập trung làm mát phương tiện, di chuyển tài sản xung quanh để chống cháy lan và sẵn sàng dập lửa nếu hộp chứa pin bị phá hủy.
 `;
 
 function backupRetrieve(prompt: string, knowledge: KnowledgeItem[]): KnowledgeItem[] {
@@ -211,7 +218,7 @@ function backupRetrieve(prompt: string, knowledge: KnowledgeItem[]): KnowledgeIt
   const isManage = ["trách nhiệm", "hồ sơ", "quản lý", "điều kiện", "kiểm tra", "phương án", "mẫu", "đội", "cơ sở", "bảo hiểm", "báo cáo", "thành lập", "huấn luyện", "nghiệm thu", "thẩm duyệt", "giấy"].some(kw => promptLower.includes(kw));
   
   // QCVN 10
-  const isTech10 = ["trang bị", "lắp đặt", "hệ thống", "10", "qc10", "phương tiện", "báo cháy", "chữa cháy", "đèn", "chỉ dẫn", "bình", "bơm", "sprinkler", "mặt nạ", "dây cứu", "phá dỡ", "dụng cụ", "định mức", "tính toán", "lượng nước", "m3", "bể nước", "họng nước", "sprinh", "đầu phun", "vách tường", "trụ"].some(kw => promptLower.includes(kw)) && !isPenalty && !promptLower.includes("phương án");
+  const isTech10 = ["trang bị", "lắp đặt", "hệ thống", "10", "qc10", "phương tiện", "báo cháy", "chữa cháy", "đèn", "chỉ dẫn", "bình", "bơm", "sprinkler", "mặt nạ", "dây cứu", "phá dỡ", "dụng cụ", "định mức", "tính toán", "lượng nước", "m3", "bể nước", "họng nước", "sprinh", "đầu phun", "vách tường", "trụ", "pin"].some(kw => promptLower.includes(kw)) && !isPenalty && !promptLower.includes("phương án");
   
   // QCVN 06
   let isTech06 = ["khoảng cách", "ngăn cháy", "thông gió", "hút khói", "chống cháy lan", "đường", "bãi đỗ", "vật liệu", "kích thước", "lối", "cầu thang", "hành lang", "cửa", "06", "qc06", "bậc chịu lửa", "thoát nạn", "giới hạn"].some(kw => promptLower.includes(kw)) && !isPenalty;
