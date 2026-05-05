@@ -47,9 +47,18 @@ export const SYSTEM_DOCUMENTS = [
   {
     id: "system-tt-36-2025",
     title: "Thông tư 36/2025/TT-BCA",
-    content: `Quy định về hồ sơ quản lý, theo dõi hoạt động PCCC và các biểu mẫu hành chính.
-    - Hướng dẫn các loại giấy tờ cơ sở cần chuẩn bị: Sổ theo dõi, phương án chữa cháy cơ sở, biên bản kiểm tra bảo trì.
-    - Quy định về huấn luyện nghiệp vụ và cấp chứng nhận huấn luyện.`,
+    content: `Quy định chi tiết về hồ sơ quản lý, theo dõi hoạt động PCCC và các biểu mẫu hành chính mới nhất.
+    Một bộ hồ sơ quản lý PCCC đầy đủ cho cơ sở thường bao gồm:
+    1. Nội quy, quy định về PCCC, quyết định ban hành nội quy.
+    2. Quy trình vận hành các hệ thống thiết kế PCCC.
+    3. Quyết định thành lập đội PCCC cơ sở hoặc đội PCCC chuyên ngành.
+    4. Giấy chứng nhận huấn luyện nghiệp vụ PCCC và CNCH của các thành viên đội PCCC.
+    5. Phương án chữa cháy của cơ sở (Mẫu PC17) và Phương án CNCH đã được phê duyệt.
+    6. Hồ sơ thiết kế, văn bản thẩm duyệt thiết kế, văn bản nghiệm thu về PCCC (đối với cơ sở diện thẩm duyệt).
+    7. Sổ theo dõi công tác tuyên truyền, bồi dưỡng, huấn luyện và hoạt động của đội PCCC.
+    8. Sổ theo dõi, kiểm tra, bảo trì, bảo dưỡng định kỳ các phương tiện PCCC (bình, máy bơm, hệ thống báo cháy...).
+    9. Biên bản kiểm tra an toàn về PCCC định kỳ (6 tháng hoặc 1 năm).
+    10. Hồ sơ thống kê, báo cáo về công tác PCCC; hồ sơ vụ cháy, nổ (nếu có).`,
     mimeType: "text/plain",
     isSystem: true
   },
