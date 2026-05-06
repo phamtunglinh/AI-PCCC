@@ -46,13 +46,18 @@ function getAIInstance(excludeKeys: string[] = []) {
     }
   }
 
+  // Fallback to process.env.GEMINI_API_KEY if everything else fails
+  if (!selectedKey && process.env.GEMINI_API_KEY) {
+    selectedKey = process.env.GEMINI_API_KEY;
+  }
+
   if (!selectedKey) return null;
   
   return { ai: new GoogleGenAI({ apiKey: selectedKey }), key: selectedKey };
 }
 
 const ROUTER_INSTRUCTION = `
-Bạn là Tham mưu trưởng PCCC Phú Thọ. 
+Bạn là Trợ lý AI chuyên sâu về PCCC Phú Thọ. 
 NHIỆM VỤ: Phân tích kỹ câu hỏi và chọn các tài liệu pháp lý hỗ trợ nhất từ danh sách bên dưới.
 DẤN HIỆU CHỌN FILE:
 - Nếu hỏi về hồ sơ, quản lý -> Chọn Thông tư 36, Nghị định 105.
@@ -66,32 +71,33 @@ OUTPUT: CHỈ trả về tên file chính xác, ngăn cách bằng dấu phẩy.
 `;
 
 const SYSTEM_INSTRUCTION = `
-VAI TRÒ: Trợ lý AI cao cấp - Tham mưu trưởng PCCC & CNCH thuộc Phòng PC07 Công an tỉnh Phú Thọ.
+VAI TRÒ: Trợ lý AI cao cấp của Phòng PC07 Công an tỉnh Phú Thọ.
 NHIỆM VỤ: Phân tích, suy luận và giải đáp pháp luật dựa trên kho dữ liệu pháp quy (2024-2026).
 
+🛑 QUY TẮC CỐT LÕI:
+- CẤU TRÚC MỞ ĐẦU (BẮT BUỘC): Mọi câu trả lời chi tiết PHẢI bắt đầu bằng câu: "Chào bạn! tôi xin giải đáp thắc mác của bạn về [Tóm tắt ngắn gọn vấn đề hỏi] theo quy định pháp luật mới nhất (áp dụng cho giai đoạn 2024 - 2026) như sau:"
+- TUYỆT ĐỐI KHÔNG giới thiệu bản thân là "Tham mưu trưởng" hay "AI" một cách trực tiếp ở đầu câu.
+- ƯU TIÊN PHÁP LÝ NỘI BỘ: Luôn rà soát và trích dẫn quy định tại **Luật PCCC và CNCH 2024** đầu tiên.
+- PHẠM VI KIẾN THỨC: Nếu vấn đề KHÔNG có trong các văn bản quy phạm pháp luật được cung cấp, bạn PHẢI sử dụng công cụ tìm kiếm để đọc tài liệu từ nhiều nguồn uy tín (Cơ quan chính phủ, Báo chính thống, Hiệp hội chuyên môn), tổng hợp và trả lời một cách thông minh, logic.
+
 🛑 NGUYÊN TẮC VÀNG TRONG THAM MƯU:
-1. ƯU TIÊN LUẬT PCCC 2024 (QUY TẮC SỐ 1):
-   - Mọi câu hỏi (dù về thủ tục, kỹ thuật hay xử phạt) PHẢI bắt đầu bằng việc rà soát và trích dẫn quy định tại **Luật PCCC và CNCH 2024**.
-   - Phải nêu rõ: "Căn cứ theo Điều... Khoản... Luật PCCC và CNCH 2024 quy định: [Trích dẫn nội dung quan trọng]...".
-   - Sau đó mới dẫn chiếu sang các Nghị định (105, 106) và Thông tư (36) để làm rõ chi tiết.
+1. TƯ DUY PHÁP LÝ & HIỂU NGỮ CẢNH:
+   - ĐỌC HIỂU SÂU: Phải phân tích kỹ ngữ cảnh và ý định thực sự của người hỏi để đưa ra câu trả lời "thông minh" nhất, không chỉ máy móc liệt kê.
+   - SUY LUẬN LOGIC: Giải thích mối liên hệ giữa Luật và các tình huống thực tế. Nếu thông tin từ nhiều nguồn, hãy tổng hợp chúng thành một tư vấn thống nhất.
+   - TRÍCH DẪN TRỰC TIẾP: Sử dụng các đoạn văn bản nguyên văn khi có căn cứ pháp lý rõ ràng.
 
-2. TƯ DUY PHÁP LÝ & CHỌN LỌC:
-   - ĐỌC KỸ - SUY LUẬN LOGIC: Phân tích sự phù hợp của quy định với tình huống. Giải thích mối liên hệ giữa Luật và các văn bản dưới Luật.
-   - CHỈ trích dẫn những văn bản thực sự có thông tin liên quan. Tuyệt đối KHÔNG nhắc tên các văn bản không có dữ liệu.
-   - TRÍCH DẪN TRỰC TIẾP: Sử dụng các đoạn văn bản nguyên văn từ kho dữ liệu để đảm bảo tính pháp lý cao nhất.
+2. QUY TRÌNH HỒ SƠ QUẢN LÝ (THÔNG TƯ 36/2025/TT-BCA):
+   - Phải bám sát 10 đầu mục hồ sơ của Thông tư 36 khi được hỏi về hồ sơ cơ sở.
 
-3. QUY TRÌNH HỒ SƠ QUẢN LÝ (THÔNG TƯ 36/2025/TT-BCA):
-   - Phải bám sát 10 đầu mục hồ sơ của Thông tư 36. Giải thích rõ căn cứ từ Luật dẫn đến việc phải lập các loại hồ sơ này.
+3. QUY TRÌNH XỬ LÝ VI PHẠM & XỬ PHẠT (CẤU TRÚC 06 PHẦN - KHÔNG GHI CHỮ "BƯỚC"):
+   - **I. CĂN CỨ PHÁP LÝ:** Trích dẫn Luật 2024 + NĐ 105/TT 36.
+   - **II. HÀNH VI VI PHẠM:** Theo NĐ 106/2025.
+   - **III. MỨC PHẠT TIỀN:** Cá nhân/Tổ chức theo NĐ 106.
+   - **IV. HÌNH THỨC PHẠT BỔ SUNG & KHẮC PHỤC HẬU QUẢ.**
+   - **V. THẨM QUYỀN XỬ PHẠT:** Lọc kép chuẩn xác theo NĐ 189/2025 (6 chức danh).
+   - **VI. KIẾN NGHỊ CHỨC DANH KÝ QUYẾT ĐỊNH.**
 
-4. QUY TRÌNH XỬ LÝ VI PHẠM & XỬ PHẠT (CẤU TRÚC 06 PHẦN - KHÔNG GHI CHỮ "BƯỚC"):
-   - **I. CĂN CỨ PHÁP LÝ:** Chỉ rõ căn cứ bắt buộc phải thực hiện hành vi đó (BẮT BUỘC TRÍCH LUẬT 2024 + NĐ 105/TT 36). Giải thích tại sao hành vi này là vi phạm.
-   - **II. HÀNH VI VI PHẠM:** Xác định đúng tên hành vi vi phạm được quy định trong Nghị định 106/2025/NĐ-CP.
-   - **III. MỨC PHẠT TIỀN:** Cá nhân/Tổ chức theo đúng quy định tại NĐ 106.
-   - **IV. HÌNH THỨC PHẠT BỔ SUNG & KHẮC PHỤC HẬU QUẢ:** Nêu rõ các biện pháp (nếu có) theo NĐ 106.
-   - **V. THẨM QUYỀN XỬ PHẠT:** Thực hiện lọc kép chuẩn xác theo NĐ 189/2025 (Chỉ xét 6 chức danh đã quy định).
-   - **VI. KIẾN NGHỊ CHỨC DANH KÝ QUYẾT ĐỊNH:** Đề xuất chức danh phù hợp nhất.
-
-5. PHONG CÁCH & TRÌNH BÀY:
+4. PHONG CÁCH & TRÌNH BÀY:
    - Văn phong Trịnh trọng - Hành chính - Chuyên nghiệp.
    - In đậm các từ khóa, mốc thời gian, số tiền và tên văn bản.
    - KẾT LUẬN: "Đề nghị các cơ sở liên hệ trực tiếp phòng Cảnh sát PCCC và CNCH Công an tỉnh Phú Thọ để được hướng dẫn chuyên sâu."
@@ -114,26 +120,27 @@ export async function streamMessageWithSearch(
   const userQuery = messages[messages.length - 1]?.content || "";
   
   if (userQuery.length < 20 && /^(chào|hi|hello|xin chào|bạn là ai)/i.test(userQuery.trim())) {
-    onChunk("Xin chào! Tôi là Trợ lý AI về PCCC Phú Thọ. Tôi có thể giúp gì cho bạn?");
+    onChunk("Chào bạn! Tôi có thể giúp gì cho bạn về các quy định PCCC và CNCH tại tỉnh Phú Thọ theo quy định mới nhất giai đoạn 2024 - 2026?");
     return { sources: [] };
   }
 
   let selectedKnowledge: KnowledgeItem[] = [];
   
-  if (userKnowledge.length > 0) {
+  // OPTIMIZATION: If we have few documents, include all of them to skip the routing latency
+  if (userKnowledge.length <= 3) {
+    selectedKnowledge = userKnowledge;
+  } else if (userKnowledge.length > 0) {
     try {
       const fileList = userKnowledge.map(k => k.title).join(", ");
       const routerPrompt = ROUTER_INSTRUCTION.replace("{{FILE_LIST}}", fileList).replace("{{USER_QUERY}}", userQuery);
 
       const instance = getAIInstance();
       if (instance) {
+        // Use standard flash for ultra-fast routing
         const result = await instance.ai.models.generateContent({
-          model: 'gemini-3.1-flash-lite-preview',
+          model: "gemini-3.1-flash-lite-preview",
           contents: [{ role: 'user', parts: [{ text: routerPrompt }] }],
-          config: { 
-            temperature: 0,
-            thinkingConfig: { thinkingLevel: ThinkingLevel.MINIMAL }
-          }
+          config: { temperature: 0 }
         });
         
         const output = result.text?.trim() || "";
@@ -190,16 +197,17 @@ NHIỆM VỤ QUAN TRỌNG NHẤT CỦA BẠN:
 1. ĐỌC KỸ TOÀN BỘ tài liệu được đính kèm (Luật, Nghị định, Thông tư...).
 2. ƯU TIÊN LUẬT: Tìm quy định tại LUẬT PCCC VÀ CNCH 2024 trước tiên để làm căn cứ gốc.
 3. TRÍCH DẪN NGUYÊN VĂN: Trích dẫn chính xác nội dung từ Điều, Khoản của Luật hoặc Nghị định vào câu trả lời để tạo sự tin cậy tuyệt đối.
-4. SUY LUẬN & GIẢI ĐÁP: Dựa trên dữ liệu pháp lý để đưa ra câu trả lời chi tiết, logic.
-5. CHỌN LỌC: Tuyệt đối không nhắc tới các văn bản không chứa thông tin về câu hỏi này. TẬP TRUNG TỐI ĐA vào các văn bản có dữ liệu thực tế.` }
+4. TÌM KIẾM & TỔNG HỢP (KHI CẦN): Nếu thông tin không có trong tài liệu đính kèm, hãy sử dụng công cụ tìm kiếm trực tuyến để tra cứu từ các nguồn uy tín, tổng hợp và giải đáp một cách thông minh, rành mạch.
+5. SUY LUẬN & GIẢI ĐÁP: Dựa trên dữ liệu pháp lý và kiến thức tìm kiếm được để đưa ra câu trả lời chi tiết, logic nhất.
+6. CHỌN LỌC: Tập trung tối đa vào các dữ liệu thực tế và chính xác.` }
             ] 
           }
         ],
+        tools: [{ googleSearch: {} }],
         config: {
           systemInstruction: SYSTEM_INSTRUCTION,
-          temperature: 0,
-          topP: 0.9,
-          thinkingConfig: { thinkingLevel: ThinkingLevel.LOW }
+          temperature: 0.1,
+          topP: 0.95,
         },
       });
 
