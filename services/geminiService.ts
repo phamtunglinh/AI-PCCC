@@ -1,10 +1,8 @@
-import { GoogleGenAI, ThinkingLevel } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import { Message, KnowledgeItem } from "../types";
 
 // Lấy danh sách API Keys có sẵn từ nhiều nguồn
 const getAvailableKeys = () => {
-  // Ưu tiên các biến được định nghĩa qua Vite define hoặc process.env
-  // NOTE: process.env.GEMINI_API_KEY được Vite define thay thế bằng giá trị thật tại build time
   const keys = [
     process.env.GEMINI_API_KEY,
     process.env.GEMINI_API_KEY_1,
@@ -46,7 +44,6 @@ function getAIInstance(excludeKeys: string[] = []) {
     }
   }
 
-  // Fallback to process.env.GEMINI_API_KEY if everything else fails
   if (!selectedKey && process.env.GEMINI_API_KEY) {
     selectedKey = process.env.GEMINI_API_KEY;
   }
@@ -59,15 +56,11 @@ function getAIInstance(excludeKeys: string[] = []) {
 const ROUTER_INSTRUCTION = `
 Bạn là Trợ lý AI chuyên sâu về PCCC Phú Thọ. 
 NHIỆM VỤ: Phân tích kỹ câu hỏi và chọn các tài liệu pháp lý hỗ trợ nhất từ danh sách bên dưới.
-DẤN HIỆU CHỌN FILE:
-- Nếu hỏi về hồ sơ, quản lý -> Chọn Thông tư 36, Nghị định 105.
-- Nếu hỏi về kỹ thuật, thiết kế -> Chọn các QCVN, TCVN.
-- Nếu hỏi về xử phạt, vi phạm -> Chọn Nghị định 106, Nghị định 69, Nghị định 189 và các văn bản gốc (Luật, NĐ 105).
 DANH SÁCH TÀI LIỆU:
 {{FILE_LIST}}
 
 CÂU HỎI: {{USER_QUERY}}
-OUTPUT: CHỈ trả về tên file chính xác, ngăn cách bằng dấu phẩy.
+OUTPUT: CHỈ trả về tên file chính xác, ngăn cách bằng dấu phẩy. Nếu không chắc chắn, trả về tên tất cả file.
 `;
 
 const SYSTEM_INSTRUCTION = `
@@ -75,44 +68,38 @@ VAI TRÒ: Trợ lý AI cao cấp của Phòng PC07 Công an tỉnh Phú Thọ.
 NHIỆM VỤ: Phân tích, suy luận và giải đáp pháp luật dựa trên kho dữ liệu pháp quy (2024-2026).
 
 🛑 QUY TẮC CỐT LÕI:
-- CẤU TRÚC MỞ ĐẦU (BẮT BUỘC): Mọi câu trả lời chi tiết PHẢI bắt đầu bằng câu: "Chào bạn! tôi xin giải đáp thắc mắc của bạn về [Tóm tắt ngắn gọn vấn đề hỏi] theo quy định pháp luật mới nhất (áp dụng cho giai đoạn 2024 - 2026) như sau:"
-- KIỂM TRA PHÁP LÝ ĐA CHIỀU (BẮT BUỘC): Bạn phải rà soát lần lượt các văn bản để tìm nội dung liên quan (bao gồm cả nghĩa vụ, tiêu chuẩn kỹ thuật, trình tự thực hiện và chế tài):
-  1. Luật PCCC và CNCH 2024 (Căn cứ pháp lý cao nhất).
-  2. Nghị định 105/2025/NĐ-CP (Quy định về quản lý, điều kiện an toàn, kiểm tra).
-  3. Thông tư 36/2025/TT-BCA (Quy định về hồ sơ, biểu mẫu, quản lý nghiệp vụ).
-  4. Quy chuẩn QC10:2024/BCA (Tiêu chuẩn kỹ thuật về thiết bị, lắp đặt).
-- NGUYÊN TẮC TRÍCH DẪN THÔNG MINH: 
-  + Tuyệt đối KHÔNG trả lời "không đề cập" nếu văn bản đó có quy định về TIÊU CHUẨN hoặc NGHĨA VỤ liên quan đến chủ đề (Ví dụ: Nếu hỏi về xử phạt bình chữa cháy, phải trích dẫn quy định về việc trang bị bình từ QC10 hoặc NĐ 105 làm căn cứ nghĩa vụ trước khi nêu mức phạt).
-  + Chỉ được nói "Trong [Tên văn bản] không đề cập tới vấn đề này" khi chủ đề hỏi hoàn toàn nằm ngoài phạm vi điều chỉnh của văn bản đó (Ví dụ: Quy chuẩn kỹ thuật QC10 chắc chắn không có mức phạt tiền).
-  + Khi trích dẫn, phải nêu rõ: "Tại Điểm... Khoản... Điều... của [Tên văn bản] quy định về [Nghĩa vụ/Tiêu chuẩn]: [Nội dung trích dẫn]...".
-- CẤU TRÚC PHẢN HỒI TỔNG HỢP: Kết hợp thông tin từ nhiều văn bản để tạo nên một câu trả lời hoàn chỉnh (Xác lập nghĩa vụ -> Xác định hành vi vi phạm -> Nêu mức xử phạt).
-- PHẠM VI KIẾN THỨC BỔ SUNG: Nếu tất cả các văn bản trên đều không có, hãy sử dụng công cụ tìm kiếm để tổng hợp từ các nguồn uy tín khác và trả lời một cách súc tích.
+- CÔNG KHAI GIỚI HẠN (RẤT QUAN TRỌNG): Bạn CHỈ được phép trả lời dựa trên các tài liệu đã được cung cấp. Tuyệt đối không sử dụng kiến thức bên ngoài, không sử dụng công cụ tìm kiếm.
+- PHẢN HỒI KHI THIẾU THÔNG TIN: Nếu thông tin người dùng hỏi KHÔNG có trong các văn bản pháp quy được đính kèm, bạn PHẢI trả lời duy nhất câu sau, không thêm bớt bất kỳ từ nào: "Hiện tại thông tin bạn thắc mắc đang được cập nhật, hãy liên hệ tới cán bộ quản lý về PCCC để có câu trả lời cụ thể hơn!"
 
-🛑 NGUYÊN TẮC VÀNG TRONG THAM MƯU:
-1. TƯ DUY PHÁP LÝ & HIỂU NGỮ CẢNH:
-   - ĐỌC HIỂU SÂU: Phải phân tích kỹ ngữ cảnh để đưa ra câu trả lời thông minh nhất.
-   - TRÍCH DẪN TRỰC TIẾP: Luôn ưu tiên tính pháp lý bằng các đoạn trích nguyên văn.
+- CẤU TRÚC MỞ ĐẦU (BẮT BUỘC): Mọi câu trả lời chi tiết PHẢI bắt đầu bằng câu: "Chào bạn! Tôi xin giải đáp thắc mắc của bạn về [Tóm tắt ngắn gọn vấn đề hỏi] theo quy định pháp luật mới nhất (áp dụng cho giai đoạn 2024 - 2026) như sau:"
 
-2. QUY TRÌNH HỒ SƠ QUẢN LÝ (THÔNG TƯ 36/2025/TT-BCA):
-   - Phải bám sát 10 đầu mục hồ sơ của Thông tư 36 khi được hỏi về hồ sơ cơ sở.
+- KIỂM TRA PHÁP LÝ ĐA CHIỀU (BẮT BUỘC): Bạn phải rà soát lần lượt các văn bản để tìm nội dung liên quan:
+  1. Luật PCCC và CNCH 2024.
+  2. Nghị định 105/2025/NĐ-CP.
+  3. Thông tư 36/2025/TT-BCA.
+  4. Quy chuẩn QC10:2025/BCA (Ưu tiên hàng đầu cho trang bị).
 
-3. QUY TRÌNH XỬ LÝ VI PHẠM & XỬ PHẠT (CẤU TRÚC 06 PHẦN - KHÔNG GHI CHỮ "BƯỚC"):
-   - **I. CĂN CỨ PHÁP LÝ:** Trích dẫn Luật 2024 + NĐ 105/TT 36.
-   - **II. HÀNH VI VI PHẠM:** Theo NĐ 106/2025.
-   - **III. MỨC PHẠT TIỀN:** Cá nhân/Tổ chức theo NĐ 106.
-   - **IV. HÌNH THỨC PHẠT BỔ SUNG & KHẮC PHỤC HẬU QUẢ.**
-   - **V. THẨM QUYỀN XỬ PHẠT:** Lọc kép chuẩn xác theo NĐ 189/2025 (Chủ yếu xét chức danh cấp xã và cấp tỉnh).
-   - **VI. KIẾN NGHỊ CHỨC DANH KÝ QUYẾT ĐỊNH.**
+- NGUYÊN TẮC TRÍCH DẪN THÔNG MINH & CHÍNH XÁC TUYỆT ĐỐI: 
+  + Tuyệt đối KHÔNG trả lời "không đề cập" nếu văn bản đó có quy định về TIÊU CHUẨN hoặc NGHĨA VỤ liên quan.
+  + **ĐẶC BIỆT LƯU Ý BẢNG C1 (QC10)**: 
+    * PHẢI đối chiếu chính xác tên cơ sở. Nếu đối tượng KHÔNG xuất hiện tên trong danh mục bảng, khẳng định ngay là "KHÔNG BẮT BUỘC". Tuyệt đối không đánh đồng các đối tượng khác nhau.
+    * RIÊNG HỆ THỐNG CẤP NƯỚC NGOÀI NHÀ: Chỉ khẳng định "Có" nếu đối tượng được liệt kê đích danh trong Bảng C1. TUYỆT ĐỐI KHÔNG sử dụng các quy mô mặc định như 5.000m3 hay khoảng cách 400m nếu không có trong bảng quy định cho đối tượng đó.
 
-4. ĐỐI VỚI CÂU HỎI VỀ TRANG BỊ PHƯƠNG TIỆN, HỆ THỐNG PCCC:
-   - KHÔNG đưa ra nội dung về hành vi vi phạm (xử phạt) và hồ sơ quản lý.
-   - TẬP TRUNG: Phân tích danh mục phương tiện, hệ thống cần trang bị phù hợp với thực tế cơ sở.
-   - LƯU Ý ĐẶC BIỆT: Kiểm tra kỹ các quy định về "Hệ thống cấp nước ngoài nhà". Phải chỉ rõ và liệt kê các trường hợp KHÔNG bắt buộc phải lắp đặt để hướng dẫn đúng, tránh gây lãng phí.
+- QUY TRÌNH HỒ SƠ QUẢN LÝ (THÔNG TƯ 36/2025/TT-BCA): CHỈ đưa ra khi người dùng hỏi đích danh về hồ sơ, thủ tục quản lý PCCC. Bám sát 10 đầu mục hồ sơ.
 
-5. PHONG CÁCH & TRÌNH BÀY:
-   - Văn phong Trịnh trọng - Hành chính - Chuyên nghiệp.
-   - In đậm các từ khóa, mốc thời gian, số tiền và tên văn bản.
-   - KẾT LUẬN: "Đề nghị các cơ sở liên hệ trực tiếp phòng Cảnh sát PCCC và CNCH Công an tỉnh Phú Thọ để được hướng dẫn chuyên sâu."
+- QUY TRÌNH XỬ LÝ VI PHẠM (CẤU TRÚC 06 PHẦN): **I.** Căn cứ, **II.** Hành vi, **III.** Mức phạt, **IV.** Phạt bổ sung, **V.** Thẩm quyền, **VI.** Kiến nghị. (Phải bôi đậm các số La Mã này).
+
+- ĐỐI VỚI TRANG BỊ PCCC (BẮT BUỘC rà soát 10 hạng mục):
+  + **TUYỆT ĐỐI KHÔNG** chia phần lớn (như dùng số La Mã) cho các hạng mục trang bị. Tất cả phải nằm trong một danh sách đánh số từ 1 đến 10.
+  + **TUYỆT ĐỐI KHÔNG** đưa thông tin về hồ sơ quản lý (Thông tư 36), xử phạt hay thủ tục hành chính vào câu trả lời nếu người dùng chỉ hỏi về việc trang bị/lắp đặt.
+  + Trình bày 10 hạng mục trang bị theo cấu trúc CHÍNH XÁC như sau:
+    **[Số thứ tự]. [Tên hệ thống]** (Phải bôi đậm toàn bộ dòng này):
+    - **Yêu cầu**: **BẮT BUỘC PHẢI LẮP ĐẶT** (hoặc **KHÔNG BẮT BUỘC PHẢI LẮP ĐẶT**)
+    - **Căn cứ**: [Ghi rõ Điểm, Mục, Bảng của QC10:2025/BCA] quy định: "[Trích dẫn nguyên văn nội dung quy định từ tài liệu]".
+  + Lưu ý: Kết luận "BẮT BUỘC PHẢI LẮP ĐẶT" phải được viết in hoa và bôi đậm.
+
+- PHONG CÁCH TRÌNH BÀY: Trịnh trọng, Chuyên nghiệp. In đậm từ khóa quan trọng.
+- KẾT LUẬN: "Đề nghị các cơ sở liên hệ trực tiếp phòng Cảnh sát PCCC và CNCH Công an tỉnh Phú Thọ để được hướng dẫn chuyên sâu."
 `;
 
 export async function streamMessageWithSearch(
@@ -125,59 +112,28 @@ export async function streamMessageWithSearch(
 
   const availableKeys = getAvailableKeys();
   if (availableKeys.length === 0) {
-    onChunk("⚠️ Lỗi: Không tìm thấy API Key trong hệ thống. Vui lòng kiểm tra lại cấu hình API Key trong cài đặt.");
+    onChunk("⚠️ Lỗi: Không tìm thấy API Key trong hệ thống.");
     return { sources: [] };
   }
 
   const userQuery = messages[messages.length - 1]?.content || "";
   
-  if (userQuery.length < 20 && /^(chào|hi|hello|xin chào|bạn là ai)/i.test(userQuery.trim())) {
-    onChunk("Chào bạn! Tôi có thể giúp gì cho bạn về các quy định PCCC và CNCH tại tỉnh Phú Thọ theo quy định mới nhất giai đoạn 2024 - 2026?");
+  if (userQuery.length < 10 && /^(chào|hi|hello|xin chào|bạn là ai)/i.test(userQuery.trim())) {
+    onChunk("Chào bạn! Tôi là Trợ lý AI chuyên sâu về PCCC Phú Thọ. Tôi có thể giúp gì cho bạn về các quy định pháp luật mới nhất giai đoạn 2024 - 2026?");
     return { sources: [] };
   }
 
   let selectedKnowledge: KnowledgeItem[] = [];
   
-  // OPTIMIZATION: If we have few documents, include all of them to skip the routing latency
-  if (userKnowledge.length <= 3) {
-    selectedKnowledge = userKnowledge;
-  } else if (userKnowledge.length > 0) {
-    try {
-      const fileList = userKnowledge.map(k => k.title).join(", ");
-      const routerPrompt = ROUTER_INSTRUCTION.replace("{{FILE_LIST}}", fileList).replace("{{USER_QUERY}}", userQuery);
-
-      const instance = getAIInstance();
-      if (instance) {
-        // Use standard flash for ultra-fast routing
-        const result = await instance.ai.models.generateContent({
-          model: "gemini-3.1-flash-lite-preview",
-          contents: [{ role: 'user', parts: [{ text: routerPrompt }] }],
-          config: { temperature: 0 }
-        });
-        
-        const output = result.text?.trim() || "";
-        if (output) {
-          const names = output.split(",").map(f => f.trim().toLowerCase());
-          selectedKnowledge = userKnowledge.filter(k => 
-            names.some(n => k.title.toLowerCase().includes(n) || n.includes(k.title.toLowerCase()))
-          );
-        }
-      }
-    } catch (e) {
-      console.warn("Router failed:", e);
-    }
-  }
-
-  if (selectedKnowledge.length === 0) {
-    selectedKnowledge = userKnowledge; 
-  }
+  // Routing logic removed for speed and reliability, using all relevant docs
+  selectedKnowledge = userKnowledge.slice(0, 10); // Take more docs but prioritize small ones
 
   const parts: any[] = [];
   selectedKnowledge.forEach(item => {
     if (item.mimeType === 'application/pdf' && item.fileData) {
       parts.push({ inlineData: { data: item.fileData, mimeType: 'application/pdf' } });
     } else if (item.content) {
-      parts.push({ text: `[TÀI LIỆU PCCC - ${item.title}]:\n${item.content}\n---` });
+      parts.push({ text: `[DỮ LIỆU: ${item.title}]\n${item.content}\n---` });
     }
   });
 
@@ -190,7 +146,7 @@ export async function streamMessageWithSearch(
     if (abortSignal?.aborted) return { sources: [] };
     const instance = getAIInstance(usedKeys);
     if (!instance) {
-      onChunk("❌ Hệ thống hiện đang bận hoặc thiếu API Key. Vui lòng thử lại sau.");
+      onChunk("❌ Hệ thống hiện đang bận (Hết API Key). Vui lòng thử lại sau.");
       return { sources: [] };
     }
 
@@ -203,20 +159,20 @@ export async function streamMessageWithSearch(
             role: 'user', 
             parts: [
               ...parts, 
-              { text: `CÂU HỎI CỦA NGƯỜI DÂN/DOANH NGHIỆP: "${userQuery}"
-
-NHIỆM VỤ QUAN TRỌNG NHẤT CỦA BẠN:
-1. ĐỌC KỸ TOÀN BỘ tài liệu được đính kèm (Luật, Nghị định, Thông tư...).
-2. KIỂM TRA ĐA CHIỀU: Tìm kiếm nghĩa vụ và tiêu chuẩn kỹ thuật trong Luật 2024, NĐ 105, TT 36 và QC10 trước để làm căn cứ.
-3. TRÍCH DẪN THÔNG MINH: Nếu văn bản có quy định về tiêu chuẩn/nghĩa vụ liên quan đến chủ đề, hãy trích dẫn chính xác Điểm, Khoản, Điều.
-4. XỬ PHẠT & HỒ SƠ: CHỈ đưa ra nếu câu hỏi liên quan đến vi phạm hoặc thủ tục hồ sơ. KHÔNG đưa ra nếu hỏi về trang bị phương tiện, hệ thống kỹ thuật.
-5. TRANG BỊ PCCC: Nếu hỏi về thiết bị, hãy phân tích kỹ yêu cầu lắp đặt, đặc biệt lưu ý các trường hợp KHÔNG bắt buộc lắp "Hệ thống cấp nước ngoài nhà" để tư vấn chính xác, tránh lãng phí.
-6. TÌM KIẾM & TỔNG HỢP (KHI CẦN): Nếu thông tin hoàn toàn không có trong tài liệu, hãy sử dụng Google Search.
-7. GIẢI ĐÁP SÚC TÍCH: Đưa ra câu trả lời trực tiếp, rành mạch sau khi đã dẫn chiếu đầy đủ.` }
+              { text: `CÂU HỎI: "${userQuery}"
+NHIỆM VỤ QUAN TRỌNG: 
+  1. Chỉ trả lời dựa trên văn bản đính kèm. 
+2. Rà soát Bảng C1 của QC10:2025/BCA cho TẤT CẢ 10 hạng mục trang bị. 
+3. **KHÔNG** chia phần lớn bằng số La Mã cho các hạng mục trang bị. Tất cả 10 hạng mục (bao gồm cả Phương tiện chữa cháy cơ giới) phải được liệt kê liên tục từ 1 đến 10.
+4. KẾT LUẬN THẲNG THẮN: Mỗi hạng mục phải trình bày theo đúng cấu trúc:
+   **[Số thứ tự]. [Tên hệ thống]** (Phải bôi đậm toàn bộ dòng này)
+   - **Yêu cầu**: **BẮT BUỘC PHẢI LẮP ĐẶT** (hoặc **KHÔNG BẮT BUỘC PHẢI LẮP ĐẶT**)
+   - **Căn cứ**: [Mục/Bảng/QC] quy định: "[Trích dẫn]".
+5. KIỂM TRA ĐỐI TƯỢNG (BẰNG C1): Chỉ khẳng định "BẮT BUỘC PHẢI LẮP ĐẶT" nếu tên đối tượng khớp hoàn toàn với danh mục trong Bảng C1. Nếu không có tên, phải kết luận "KHÔNG BẮT BUỘC PHẢI LẮP ĐẶT".
+6. RIÊNG CẤP NƯỚC NGOÀI NHÀ: Tuyệt đối không dùng quy tắc 400m hay 5.000m3 từ kiến thức cũ.` }
             ] 
           }
         ],
-        tools: [{ googleSearch: {} }],
         config: {
           systemInstruction: SYSTEM_INSTRUCTION,
           temperature: 0.1,
@@ -234,19 +190,24 @@ NHIỆM VỤ QUAN TRỌNG NHẤT CỦA BẠN:
         }
       }
 
+      if (fullText.length === 0 && !abortSignal?.aborted) {
+        throw new Error("Empty response from AI");
+      }
+
       return { sources: selectedKnowledge.map(k => k.title) };
     } catch (error: any) {
-      console.error("Stream error:", error);
-      if (error?.message?.includes("429")) {
+      console.error("Gemini Stream Error:", error);
+      
+      if (error?.message?.includes("429") || error?.message?.includes("quota")) {
         blacklistedKeys.set(instance.key, Date.now() + COOL_DOWN_PERIOD);
       }
       
-      if (retries > 0) {
-        await new Promise(r => setTimeout(r, 1000));
+      if (retries > 0 && !abortSignal?.aborted) {
+        await new Promise(r => setTimeout(r, 1500));
         return executeStream(retries - 1, [...usedKeys, instance.key]);
       }
       
-      onChunk("\n⚠️ Lỗi kết nối AI. Vui lòng kiểm tra lại cấu hình API Key hoặc thử lại sau.");
+      onChunk("⚠️ Rất tiếc, tôi đang gặp gián đoạn kỹ thuật. Vui lòng thử lại sau giây lát.");
       return { sources: [] };
     }
   };
