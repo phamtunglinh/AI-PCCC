@@ -6,6 +6,7 @@ const getAvailableKeys = () => {
   const keys = [
     // Vite / Client-side (Static at build time)
     import.meta.env.VITE_GEMINI_API_KEY,
+    import.meta.env.VITE_GEMINI_API_KEY_1,
     import.meta.env.VITE_GEMINI_API_KEY_2,
     import.meta.env.VITE_GEMINI_API_KEY_3,
     import.meta.env.VITE_GEMINI_API_KEY_4,
@@ -143,6 +144,10 @@ export async function streamMessageWithSearch(
     try {
       instance = getAIInstance(usedKeys);
       const parts = selectedKnowledge.map(k => ({ text: `[DỮ LIỆU: ${k.title}]\n${k.content || ""}\n---` }));
+      
+      // Trích xuất 4 ký tự cuối để debug nếu lỗi
+      const keySnippet = instance.key.slice(-4);
+      onChunk(`🔄 (Sử dụng key ...${keySnippet})\n\n`);
       
       const model = instance.ai.getGenerativeModel({
         model: "gemini-1.5-flash",
