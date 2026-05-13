@@ -4,20 +4,17 @@ import { Message, KnowledgeItem } from "../types";
 // Lấy danh sách API Keys có sẵn từ nhiều nguồn
 const getAvailableKeys = () => {
   const keys = [
-    process?.env?.GEMINI_API_KEY,
-    process?.env?.GEMINI_API_KEY_1,
-    process?.env?.GEMINI_API_KEY_2,
-    process?.env?.GEMINI_API_KEY_3,
-    process?.env?.GEMINI_API_KEY_4,
-    process?.env?.GEMINI_API_KEY_5,
-    // Truy cập trực tiếp để Vite thực hiện Static Replacement khi build
+    // Vite / Client-side (Static at build time)
     import.meta.env.VITE_GEMINI_API_KEY,
     import.meta.env.VITE_GEMINI_API_KEY_1,
     import.meta.env.VITE_GEMINI_API_KEY_2,
     import.meta.env.VITE_GEMINI_API_KEY_3,
     import.meta.env.VITE_GEMINI_API_KEY_4,
     import.meta.env.VITE_GEMINI_API_KEY_5,
-  ].filter((key): key is string => typeof key === 'string' && key.trim() !== "");
+    // Node.js / Runtime (for local dev or some cloud environments)
+    (globalThis as any).process?.env?.GEMINI_API_KEY,
+    (globalThis as any).process?.env?.VITE_GEMINI_API_KEY,
+  ].filter((key): key is string => typeof key === 'string' && key.trim() !== "" && key !== "undefined");
   
   return Array.from(new Set(keys));
 };
@@ -217,10 +214,12 @@ export async function streamMessageWithSearch(
       const instance = getAIInstance();
       if (instance) {
         // ... routing logic ...
-        const responsePromise = instance.ai.models.generateContent({
-          model: "gemini-3-flash-preview",
+        const responsePromise = instance.ai.getGenerativeModel({
+          model: "gemini-1.5-flash",
+          systemInstruction: "Bạn là router thông minh. Chỉ trả về tên file."
+        }).generateContent({
           contents: [{ role: 'user', parts: [{ text: routerPrompt }] }],
-          config: { temperature: 0 }
+          generationConfig: { temperature: 0 }
         });
 
         const timeoutPromise = new Promise<null>((_, reject) => setTimeout(() => reject(new Error("Timeout")), 4000));
@@ -283,7 +282,7 @@ export async function streamMessageWithSearch(
 
     try {
       const stream = await instance.ai.models.generateContentStream({
-        model: 'gemini-3-flash-preview',
+        model: 'gemini-1.5-flash',
         contents: [
           ...history,
           { 
@@ -378,7 +377,10 @@ NHIỆM VỤ QUAN TRỌNG:
         return executeStream(retries - 1, instance ? [...usedKeys, instance.key] : usedKeys);
       }
       
-      onChunk(`🔴 **Lỗi kỹ thuật:** ${errorMsg}\n\n*Gợi ý: Nếu bạn vừa cấu hình API Key, hãy thử Redeploy lại trang web để áp dụng thay đổi.*`);
+      onChunk(`🔴 **Lỗi kết nối:** ${errorMsg}\n\n**Mã API lỗi:** \`...${instance?.key.slice(-4) || '???'}\`\n\n### 🛠 CÁC BƯỚC KHẮC PHỤC TRIỆT ĐỂ:
+1. **Kiểm tra API Key:** Đảm bảo mã API trên Vercel/Cloudflare đã chính xác và còn hạn dùng.
+2. **QUAN TRỌNG - REDEPLOY:** Bạn PHẢI vào trang quản trị Vercel/Cloudflare, chọn **Redeploy** (Triển khai lại) bản mới nhất. Các biến môi trường \`VITE_\` sẽ không hoạt động nếu không được build lại.
+3. **Thử làm mới trang (F5):** Đôi khi cache trình duyệt giữ phiên bản cũ.`);
       return { sources: [] };
     }
   };
