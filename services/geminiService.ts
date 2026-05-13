@@ -113,7 +113,7 @@ export async function streamMessageWithSearch(
       const routerPrompt = ROUTER_INSTRUCTION.replace("{{FILE_LIST}}", userKnowledge.map(k => k.title).join(", ")).replace("{{USER_QUERY}}", userQuery);
       
       const model = instance.ai.getGenerativeModel({ 
-        model: "gemini-1.5-flash-latest",
+        model: "gemini-1.5-flash",
         generationConfig: { temperature: 0 }
       });
       
@@ -145,7 +145,7 @@ export async function streamMessageWithSearch(
       const parts = selectedKnowledge.map(k => ({ text: `[DỮ LIỆU: ${k.title}]\n${k.content || ""}\n---` }));
       
       const model = instance.ai.getGenerativeModel({
-        model: "gemini-1.5-flash-latest",
+        model: "gemini-1.5-flash",
         systemInstruction: SYSTEM_INSTRUCTION
       });
 
