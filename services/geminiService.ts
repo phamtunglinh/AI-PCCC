@@ -353,17 +353,28 @@ NHIỆM VỤ QUAN TRỌNG:
       return { sources: selectedKnowledge.map(k => k.title) };
     } catch (error: any) {
       console.error("Gemini Stream Error:", error);
+      const errorMsg = error?.message || String(error);
       
-      if (error?.message?.includes("429") || error?.message?.includes("quota")) {
-        blacklistedKeys.set(instance.key, Date.now() + COOL_DOWN_PERIOD);
+      if (errorMsg === "API_KEY_MISSING") {
+        onChunk("⚠️ **Lỗi cấu hình:** Không tìm thấy mã API Gemini. Vui lòng thêm `VITE_GEMINI_API_KEY` vào biến môi trường và **Redeploy** lại trang web.");
+        return { sources: [] };
+      }
+
+      if (errorMsg.includes("429") || errorMsg.includes("quota")) {
+        if (instance) blacklistedKeys.set(instance.key, Date.now() + COOL_DOWN_PERIOD);
+        if (retries > 0 && !abortSignal?.aborted) {
+          onChunk("🔄 Đang chuyển sang API Key dự phòng... (Lỗi giới hạn lượt dùng)");
+          await new Promise(r => setTimeout(r, 1000));
+          return executeStream(retries - 1, instance ? [...usedKeys, instance.key] : usedKeys);
+        }
       }
       
-      if (retries > 0 && !abortSignal?.aborted) {
-        await new Promise(r => setTimeout(r, 1500));
-        return executeStream(retries - 1, [...usedKeys, instance.key]);
+      if (retries > 1 && !abortSignal?.aborted && !errorMsg.includes("400")) {
+        await new Promise(r => setTimeout(r, 2000));
+        return executeStream(retries - 1, instance ? [...usedKeys, instance.key] : usedKeys);
       }
       
-      onChunk("⚠️ Rất tiếc, tôi đang gặp gián đoạn kỹ thuật. Vui lòng thử lại sau giây lát.");
+      onChunk(`🔴 **Lỗi kỹ thuật:** ${errorMsg}\n\n*Gợi ý: Nếu bạn vừa cấu hình API Key, hãy thử Redeploy lại trang web để áp dụng thay đổi.*`);
       return { sources: [] };
     }
   };
