@@ -228,6 +228,8 @@ const App: React.FC = () => {
         console.log("Stream aborted");
       } else {
         console.error("Chat Error:", err);
+        const isKeyMissing = (err as any).message === "API_KEY_MISSING";
+        
         setMessages(prev => {
           if (prev.length === 0) return prev;
           const newMsgs = [...prev];
@@ -235,7 +237,9 @@ const App: React.FC = () => {
           if (newMsgs[lastIdx].role === 'model') {
             newMsgs[lastIdx] = { 
               ...newMsgs[lastIdx], 
-              content: "Xin lỗi, tôi gặp chút gián đoạn kỹ thuật. Vui lòng thử lại sau hoặc làm mới trang." 
+              content: isKeyMissing 
+                ? "⚠️ **Lỗi triển khai:** Bạn chưa cấu hình mã API Gemini trên Vercel/Cloudflare. Vui lòng thêm biến môi trường `GEMINI_API_KEY` vào cài đặt của trang web và thử lại."
+                : "🔴 Rất tiếc, tôi đang gặp gián đoạn kỹ thuật. Vui lòng thử lại sau giây lát hoặc làm mới trang." 
             };
           }
           return newMsgs;

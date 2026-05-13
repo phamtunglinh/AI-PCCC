@@ -3,13 +3,20 @@ import { Message, KnowledgeItem } from "../types";
 
 // Lấy danh sách API Keys có sẵn từ nhiều nguồn
 const getAvailableKeys = () => {
+  const env = (import.meta as any).env || {};
   const keys = [
-    process.env.GEMINI_API_KEY,
-    process.env.GEMINI_API_KEY_1,
-    process.env.GEMINI_API_KEY_2,
-    process.env.GEMINI_API_KEY_3,
-    process.env.GEMINI_API_KEY_4,
-    process.env.GEMINI_API_KEY_5,
+    process?.env?.GEMINI_API_KEY,
+    process?.env?.GEMINI_API_KEY_1,
+    process?.env?.GEMINI_API_KEY_2,
+    process?.env?.GEMINI_API_KEY_3,
+    process?.env?.GEMINI_API_KEY_4,
+    process?.env?.GEMINI_API_KEY_5,
+    env.VITE_GEMINI_API_KEY,
+    env.VITE_GEMINI_API_KEY_1,
+    env.VITE_GEMINI_API_KEY_2,
+    env.VITE_GEMINI_API_KEY_3,
+    env.VITE_GEMINI_API_KEY_4,
+    env.VITE_GEMINI_API_KEY_5,
   ].filter((key): key is string => typeof key === 'string' && key.trim() !== "");
   
   return Array.from(new Set(keys));
@@ -48,7 +55,9 @@ function getAIInstance(excludeKeys: string[] = []) {
     selectedKey = process.env.GEMINI_API_KEY;
   }
 
-  if (!selectedKey) return null;
+  if (!selectedKey) {
+    throw new Error("API_KEY_MISSING");
+  }
   
   return { ai: new GoogleGenAI({ apiKey: selectedKey }), key: selectedKey };
 }
