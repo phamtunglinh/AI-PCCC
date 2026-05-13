@@ -3,7 +3,6 @@ import { Message, KnowledgeItem } from "../types";
 
 // Lấy danh sách API Keys có sẵn từ nhiều nguồn
 const getAvailableKeys = () => {
-  const env = (import.meta as any).env || {};
   const keys = [
     process?.env?.GEMINI_API_KEY,
     process?.env?.GEMINI_API_KEY_1,
@@ -11,12 +10,13 @@ const getAvailableKeys = () => {
     process?.env?.GEMINI_API_KEY_3,
     process?.env?.GEMINI_API_KEY_4,
     process?.env?.GEMINI_API_KEY_5,
-    env.VITE_GEMINI_API_KEY,
-    env.VITE_GEMINI_API_KEY_1,
-    env.VITE_GEMINI_API_KEY_2,
-    env.VITE_GEMINI_API_KEY_3,
-    env.VITE_GEMINI_API_KEY_4,
-    env.VITE_GEMINI_API_KEY_5,
+    // Truy cập trực tiếp để Vite thực hiện Static Replacement khi build
+    import.meta.env.VITE_GEMINI_API_KEY,
+    import.meta.env.VITE_GEMINI_API_KEY_1,
+    import.meta.env.VITE_GEMINI_API_KEY_2,
+    import.meta.env.VITE_GEMINI_API_KEY_3,
+    import.meta.env.VITE_GEMINI_API_KEY_4,
+    import.meta.env.VITE_GEMINI_API_KEY_5,
   ].filter((key): key is string => typeof key === 'string' && key.trim() !== "");
   
   return Array.from(new Set(keys));
@@ -112,16 +112,20 @@ Bạn phải vận hành như một chuyên gia pháp lý thực thụ. Khi nh�
      + Gara, Tàu điện ngầm: QCVN 10 + QCVN 13/2018, QCVN 08/2018.
 
 3. QUY TẮC ĐỊNH DANH HÌNH HỌC (THINKING GEOMETRY):
-   - CHIỀU CAO PCCC: Tính từ mặt đất đến sàn tầng cao nhất có người (loại trừ tầng kỹ thuật/mái nếu không có người/vật liệu cháy và có ngăn cháy).
-   - TẦNG LỬNG (KHÔNG TÍNH VÀO SỐ TẦNG): 
-     + Nhà ở kết hợp sxkd: Diện tích lửng <= 65% diện tích tầng dưới.
-     + Nhà kho, sản xuất: Diện tích lửng <= 40% diện tích tầng dưới.
-     + Các loại khác: Chỉ làm khu kỹ thuật, <= 10% diện tích tầng dưới và <= 300 m2.
-   - KHU VỰC ẨM ƯỚT (MIỄN BÁO CHÁY/CHỮA CHÁY TỰ ĐỘNG): Độ ẩm > 75% (ở 12-24°C) hoặc > 60% (ở > 24°C).
+   - CHIỀU CAO PCCC (Điều 1.4.23 QCVN 10): Tính từ mặt đất đến sàn tầng cao nhất có người (không tính tầng kỹ thuật/mái nếu chỉ bao che gian máy/tháng máy/bể nước và không có người/vật liệu cháy).
+   - TẦNG LỬNG (Mục 3.1.2 QCVN 10): Mỗi công trình chỉ được 1 tầng lửng không tính vào số tầng nếu:
+     + Nhà ở riêng lẻ kết hợp sxkd: Diện tích lửng <= 65% diện tích sàn tầng dưới.
+     + Nhà sản xuất, kho: Diện tích lửng <= 40% diện tích sàn tầng dưới.
+     + Loại khác: Chỉ dùng làm khu kỹ thuật, <= 10% diện tích sàn tầng dưới và <= 300 m2.
+   - TẦNG TUM: Không tính số tầng nếu diện tích mái tum <= 30% diện tích sàn mái.
+   - KHU VỰC ẨM ƯỚT (MIỄN BÁO CHÁY/CHỮA CHÁY TỰ ĐỘNG - Điều 1.4.27): Độ ẩm > 75% (ở 12-24°C) hoặc > 60% (ở > 24°C) do quy trình hoạt động tạo ra hơi nước/nước phun.
 
 4. QUY TẮC PHÂN LOẠI HỖN HỢP:
    - Ngưỡng 70%: Nếu một công năng chiếm > 70% diện tích, áp dụng quy định theo công năng đó. Nếu không (mỗi công năng <= 70%), áp dụng quy định "Nhà hỗn hợp" (Mục 21 Bảng A.1).
-   - Nhà ở riêng lẻ kết hợp sxkd: Nếu diện tích sxkd từ 30% - 70% -> áp dụng như Nhà hỗn hợp. Nếu > 70% -> áp dụng theo công năng sxkd.
+   - Nhà ở riêng lẻ kết hợp sxkd: 
+     + Nếu diện tích sxkd từ 30% - 70% -> áp dụng như Nhà hỗn hợp.
+     + Nếu diện tích sxkd > 70% -> áp dụng theo công năng sxkd.
+     + Nếu dưới 30% -> áp dụng mục 1 hoặc 2 Bảng A.1.
 
 🛑 NGUYÊN TẮC CỐT TỬ:
 1. Trả lời ngắn gọn, đúng trọng tâm, văn phong hành chính chuyên nghiệp.
