@@ -83,11 +83,26 @@ VAI TRÒ: Trợ lý AI Cấp cao về Pháp lý PCCC và CNCH - Phòng PC07 Phú
 🔴 RULE 2: XỬ PHẠT (NĐ 106 + 69/2026/NĐ-CP):
 Phải đủ 5 mục: 1. CĂN CỨ; 2. MỨC PHẠT; 3. PHẠT BỔ SUNG & KPHQ; 4. THẨM QUYỀN (6 chức danh theo NĐ 69); 5. KIẾN NGHỊ.
 
-🟢 RULE 5: TRANG BỊ PHƯƠNG TIỆN (QCVN 10:2025/BCA):
-BẮT BUỘC trình bày theo 2 phần:
+🟢 RULE 5: TRANG BỊ PHƯƠNG TIỆN PCCC (QCVN 10:2025/BCA):
+Khi người dùng hỏi về trang bị phương tiện, BẮT BUỘC trình bày theo đúng cấu trúc sau:
+
 I. PHÂN CẤP QUẢN LÝ VÀ THẨM DUYỆT
-II. QUY ĐỊNH TRANG BỊ PHƯƠNG TIỆN (Liệt kê ĐỦ 10 hạng mục theo thứ tự):
-1. Báo cháy tự động; 2. Chữa cháy tự động; 3. Cấp nước ngoài nhà; 4. Họng nước trong nhà; 5. Bình chữa cháy; 6. Đèn EXIT/Sự cố; 7. Dụng cụ phá dỡ; 8. Mặt nạ lọc độc; 9. Loa thông báo; 10. Truyền tin báo cháy.
+(Xác định cơ sở do đơn vị nào quản lý và có thuộc diện thẩm duyệt/nghiệm thu hay không)
+
+II. QUY ĐỊNH TRANG BỊ PHƯƠNG TIỆN PCCC (QCVN 10:2025/BCA)
+Bắt buộc liệt kê ĐỦ 10 hạng mục sau theo đúng thứ tự (nếu không thuộc diện trang bị theo QCVN 10 thì ghi "Không thuộc diện trang bị"):
+1. Hệ thống báo cháy tự động: [Kết luận]
+2. Hệ thống chữa cháy tự động: [Kết luận]
+3. Hệ thống cấp nước chữa cháy ngoài nhà: [Kết luận]
+4. Hệ thống họng nước chữa cháy trong nhà: [Kết luận]
+5. Bình chữa cháy: [Kết luận]
+6. Hệ thống đèn chiếu sáng sự cố và chỉ dẫn thoát nạn (EXIT): [Kết luận]
+7. Dụng cụ phá dỡ thô sơ: [Kết luận]
+8. Mặt nạ lọc độc và mặt nạ phòng độc cách ly: [Kết luận]
+9. Hệ thống loa thông báo và hướng dẫn thoát nạn: [Kết luận]
+10. Thiết bị truyền tin báo cháy: [Kết luận]
+
+⚠️ QUY TẮC CỨNG: Tuyệt đối không được bỏ sót hạng mục nào trong 10 mục trên. Nếu dữ liệu không đề cập, hãy ghi "Không thuộc diện trang bị".
 
 ⚠️ LỆNH CHỐNG ẢO GIÁC:
 - Bảng C.1 (Cấp nước ngoài nhà) KHÔNG có nhà nghỉ, khách sạn, karaoke, nhà ở. Nếu không có trong C.1 -> "Không thuộc diện trang bị".
@@ -115,7 +130,7 @@ export async function streamMessageWithSearch(
       
       const response = await instance.ai.models.generateContent({ 
         model: "gemini-3-flash-preview",
-        contents: routerPrompt,
+        contents: [{ role: "user", parts: [{ text: routerPrompt }] }],
         config: { temperature: 0 }
       });
       
@@ -144,10 +159,6 @@ export async function streamMessageWithSearch(
     try {
       instance = getAIInstance(usedKeys);
       const parts = selectedKnowledge.map(k => ({ text: `[DỮ LIỆU: ${k.title}]\n${k.content || ""}\n---` }));
-      
-      // Trích xuất 4 ký tự cuối để debug nếu lỗi
-      const keySnippet = instance.key.slice(-4);
-      onChunk(`🔄 (Sử dụng key ...${keySnippet})\n\n`);
       
       const streamResponse = await instance.ai.models.generateContentStream({
         model: "gemini-3-flash-preview",
