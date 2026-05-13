@@ -213,11 +213,12 @@ export async function streamMessageWithSearch(
 
       const instance = getAIInstance();
       if (instance) {
-        // ... routing logic ...
-        const responsePromise = instance.ai.getGenerativeModel({
-          model: "gemini-1.5-flash",
-          systemInstruction: "Bạn là router thông minh. Chỉ trả về tên file."
-        }).generateContent({
+        const model = instance.ai.getGenerativeModel({
+          model: "gemini-1.5-flash-latest",
+          systemInstruction: "Bạn là router thông minh. Chỉ trả về tên file văn bản phù hợp nhất với câu hỏi người dùng. Nếu không có file nào khớp hoàn toàn, hãy trả về danh sách các file quan trọng nhất liên quan đến PCCC."
+        });
+
+        const responsePromise = model.generateContent({
           contents: [{ role: 'user', parts: [{ text: routerPrompt }] }],
           generationConfig: { temperature: 0 }
         });
@@ -226,8 +227,9 @@ export async function streamMessageWithSearch(
         
         const result = await Promise.race([responsePromise, timeoutPromise]);
         
-        if (result && (result as any).text) {
-          const output = (result as any).text.trim();
+        if (result) {
+          const response = (result as any).response;
+          const output = (await response).text().trim();
           const names = output.split(",").map((f: string) => f.trim().toLowerCase());
           selectedKnowledge = userKnowledge.filter(k => 
             names.some((n: string) => 
@@ -281,8 +283,12 @@ export async function streamMessageWithSearch(
     }
 
     try {
-      const stream = await instance.ai.models.generateContentStream({
-        model: 'gemini-1.5-flash',
+      const model = instance.ai.getGenerativeModel({
+        model: 'gemini-1.5-flash-latest',
+        systemInstruction: SYSTEM_INSTRUCTION,
+      });
+
+      const streamResult = await model.generateContentStream({
         contents: [
           ...history,
           { 
@@ -332,17 +338,16 @@ NHIỆM VỤ QUAN TRỌNG:
             ] 
           }
         ],
-        config: {
-          systemInstruction: SYSTEM_INSTRUCTION,
+        generationConfig: {
           temperature: 0.1,
           topP: 0.95,
         },
       });
 
       let fullText = "";
-      for await (const chunk of stream) {
+      for await (const chunk of streamResult.stream) {
         if (abortSignal?.aborted) break;
-        const chunkText = chunk.text;
+        const chunkText = chunk.text();
         if (chunkText) {
           fullText += chunkText;
           onChunk(fullText);
