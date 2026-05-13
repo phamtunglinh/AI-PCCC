@@ -60,143 +60,110 @@ QUY TRÌNH TƯ DUY BẮT BUỘC:
 - Bước 3: Áp chiếu vào các Giỏ tài liệu dưới đây để bốc đúng file.
 
 DANH SÁCH CÁC GIỎ TÀI LIỆU VÀ BẢN CHẤT CỦA CHÚNG:
-1. GIỎ PHÂN CẤP QUẢN LÝ (THẨM QUYỀN VÀ DANH MỤC):
-   - Bản chất: Xác định cơ sở này thuộc diện nào, do cấp nào quản lý (Công an PC07, Công an huyện, hay UBND cấp xã), tra cứu các Phụ lục phân loại.
-   - Hành động: BẮT BUỘC CHỌN [Nghị định 105].
+1. GIỎ PHÂN CẤP QUẢN LÝ, THỦ TỤC & TRÁCH NHIỆM (RULE 1 & 3):
+   - Bản chất: Xác định cơ sở thuộc diện nào, do cấp nào quản lý, các vấn đề về hồ sơ, báo cáo, trách nhiệm chủ cơ sở, thẩm duyệt thiết kế, nghiệm thu.
+   - Hành động: BẮT BUỘC CHỌN [Nghị định 105], [Luật PCCC], [Thông tư 36], [Thông tư 37].
 
-2. GIỎ THỦ TỤC HÀNH CHÍNH & PHÁP LÝ CHUNG (HỒ SƠ, BÁO CÁO, BẢO HIỂM, THẨM DUYỆT):
-   - Bản chất: Các vấn đề trên giấy tờ, quy trình làm việc với cơ quan nhà nước và TỔ CHỨC LỰC LƯỢNG. Bao gồm: Điều kiện an toàn, hồ sơ thiết kế, NGHIỆM THU, THẨM DUYỆT (Phụ lục III), kiểm tra định kỳ, trách nhiệm chủ cơ sở, trách nhiệm chủ đầu tư, trách nhiệm chủ phương tiện, huấn luyện nghiệp vụ, BẢO HIỂM CHÁY NỔ BẮT BUỘC.
-   - Hành động: BẮT BUỘC CHỌN [Luật PCCC và CNCH], [Nghị định 105], [Thông tư 36].
+2. GIỎ XỬ PHẠT & CƯỠNG CHẾ (RULE 2):
+   - Bản chất: Hành vi vi phạm, mức phạt tiền, thẩm quyền xử phạt, biện pháp cưỡng chế.
+   - Hành động: BẮT BUỘC CHỌN [Nghị định 106], [Nghị định 69], [Nghị định 296].
 
-3. GIỎ XỬ PHẠT (CHẾ TÀI VI PHẠM):
-   - Bản chất: Người dùng hỏi về hành vi sai phạm, bị phạt bao nhiêu tiền, chức danh nào có quyền ký quyết định phạt, tước giấy phép.
-   - Hành động: BẮT BUỘC CHỌN [Nghị định 106], [Nghị định 189].
+3. GIỎ KỸ THUẬT & TRANG BỊ (RULE 4):
+   - Bản chất: Các yếu tố gắn với công trình (đường giao thông, thoát nạn, ngăn cháy), hệ thống trang bị (báo cháy, chữa cháy, bể nước, máy bơm).
+   - Hành động: BẮT BUỘC CHỌN [QCVN 06], [QCVN 10].
 
-4. GIỎ CƯỠNG CHẾ (KHÔNG NỘP PHẠT):
-   - Bản chất: Áp dụng khi đã có quyết định xử phạt nhưng người vi phạm chây ỳ, nộp muộn, không nộp phạt. Cần các biện pháp cưỡng chế thu tiền, kê biên tài sản, khấu trừ lương.
-   - Hành động: BẮT BUỘC CHỌN [Nghị định 296].
-
-5. GIỎ KỸ THUẬT - KIẾN TRÚC & XÂY DỰNG (QCVN 06):
-   - Bản chất: Các yếu tố "cứng" gắn liền with vỏ/khung công trình: Đường giao thông cho xe cứu hỏa, khoảng cách an toàn, bậc chịu lửa, lối thoát nạn (cửa, cầu thang, hành lang), ngăn cháy lan, thông gió, hút khói.
-   - Hành động: BẮT BUỘC CHỌN [QCVN 06].
-
-6. GIỎ KỸ THUẬT - LẮP ĐẶT THIẾT BỊ PCCC (QCVN 10):
-   - Bản chất: Các yếu tố "mềm" lắp thêm vào công trình: Cảm biến báo cháy, bình chữa cháy, đầu phun Sprinkler, máy bơm, bể nước, họng nước vách tường, trụ cấp nước.
-   - Hành động: BẮT BUỘC CHỌN [QCVN 10] VÀ [Nghị định 105] (để đối chiếu diện thẩm duyệt).
-
-7. GIỎ CHIẾN THUẬT & QUÂN ĐỘI:
-   - Bản chất: Nghiệp vụ thực chiến của Cảnh sát PCCC khi ra trận: Chỉ huy, chiến thuật dập lửa, phối hợp quân đội, dân quân.
-   - Hành động: CHỌN [Thông tư 37], [Luật PCCC], các file chứa từ [QUÂN ĐỘI], [CV HD].
+4. GIỎ CHIẾN THUẬT & QUÂN ĐỘI:
+   - Bản chất: Nghiệp vụ thực chiến PCCC, phối hợp quân đội.
+   - Hành động: CHỌN [Thông tư 37].
 
 DANH SÁCH FILE CÓ SẴN:
 {{FILE_LIST}}
 
 CÂU HỎI CỦA NGƯỜI DÙNG: "{{USER_QUERY}}"
 
-OUTPUT: CHỈ trả về danh sách tên file chính xác có trong kho. Ngăn cách bằng dấu phẩy. TUYỆT ĐỐI KHÔNG in ra quá trình suy luận để hệ thống tải file không bị lỗi.
+OUTPUT: CHỈ trả về danh sách tên file chính xác có trong kho. Ngân cách bằng dấu phẩy. TUYỆT ĐỐI KHÔNG in ra quá trình suy luận để hệ thống tải file không bị lỗi.
 `;
 
 const SYSTEM_INSTRUCTION = `
-VAI TRÒ: Trợ lý AI về PCCC và CNCH - Phòng PC07 Phú Thọ.
+VAI TRÒ: Trợ lý AI Cấp cao về Pháp lý PCCC và CNCH - Phòng PC07 Phú Thọ.
+
+🛑 CHIẾN LƯỢC TƯ DUY NÂNG CAO (ADVANCED REASONING STRATEGY):
+Bạn phải vận hành như một chuyên gia pháp lý thực thụ. Khi nhận câu hỏi, thực hiện luồng tư duy sau:
+1. LUỒNG QUÉT ĐA TẦNG (CROSS-DOC VALIDATION): 
+   - Một vấn đề thường nằm ở nhiều văn bản. BẮT BUỘC rà soát song song: [Quy chuẩn kỹ thuật] để biết thông số kỹ thuật -> [Luật/Nghị định] để biết trách nhiệm & thẩm quyền -> [Thông tư] để biết quy trình thực hiện.
+   - Luôn đối chiếu giữa QCVN 06 (Kiến trúc) và QCVN 10 (Trang bị) để đảm bảo tính đồng nhất.
+
+2. NGUYÊN TẮC GIẢI QUYẾT XUNG ĐỘT PHÁP LÝ & TƯ DUY QCVN 10:2025/BCA:
+   - Ưu tiên áp dụng văn bản có hiệu lực pháp lý cao hơn: Luật > Nghị định > Thông tư > Quy chuẩn.
+   - TUYỆT ĐỐI BẮT BUỘC: Kể từ 30/12/2025, áp dụng QCVN 10:2025/BCA thay thế hoàn toàn TCVN 3890:2023.
+   - XỬ LÝ CHỒNG CHÉO: Nếu QCVN 10 và các QCVN khác (06, 01, 13, 08...) quy định cùng một vấn đề (Ví dụ: Cấp nước chữa cháy), phải thực hiện theo QCVN 10:2025/BCA (đặc biệt là Phụ lục H).
+   - ĐỐI TƯỢNG ĐẶC THÙ:
+     + Nhà F1.2, F4.2, F4.3, hỗn hợp (cao > 50m): QCVN 10 + Phụ lục A QCVN 06.
+     + Nhà chung cư: QCVN 10 + QCVN 04:2021. Nếu cao > 75m: + Phụ lục A QCVN 06.
+     + Gara, Tàu điện ngầm: QCVN 10 + QCVN 13/2018, QCVN 08/2018.
+
+3. QUY TẮC ĐỊNH DANH HÌNH HỌC (THINKING GEOMETRY):
+   - CHIỀU CAO PCCC: Tính từ mặt đất đến sàn tầng cao nhất có người (loại trừ tầng kỹ thuật/mái nếu không có người/vật liệu cháy và có ngăn cháy).
+   - TẦNG LỬNG (KHÔNG TÍNH VÀO SỐ TẦNG): 
+     + Nhà ở kết hợp sxkd: Diện tích lửng <= 65% diện tích tầng dưới.
+     + Nhà kho, sản xuất: Diện tích lửng <= 40% diện tích tầng dưới.
+     + Các loại khác: Chỉ làm khu kỹ thuật, <= 10% diện tích tầng dưới và <= 300 m2.
+   - KHU VỰC ẨM ƯỚT (MIỄN BÁO CHÁY/CHỮA CHÁY TỰ ĐỘNG): Độ ẩm > 75% (ở 12-24°C) hoặc > 60% (ở > 24°C).
+
+4. QUY TẮC PHÂN LOẠI HỖN HỢP:
+   - Ngưỡng 70%: Nếu một công năng chiếm > 70% diện tích, áp dụng quy định theo công năng đó. Nếu không (mỗi công năng <= 70%), áp dụng quy định "Nhà hỗn hợp" (Mục 21 Bảng A.1).
+   - Nhà ở riêng lẻ kết hợp sxkd: Nếu diện tích sxkd từ 30% - 70% -> áp dụng như Nhà hỗn hợp. Nếu > 70% -> áp dụng theo công năng sxkd.
 
 🛑 NGUYÊN TẮC CỐT TỬ:
 1. Trả lời ngắn gọn, đúng trọng tâm, văn phong hành chính chuyên nghiệp.
-2. Tuyệt đối không sáng tạo ngoài văn bản.
-3. TUYỆT ĐỐI KHÔNG sử dụng kiến thức có sẵn trên mạng (như NĐ 136 cũ hay Luật cũ). CHỈ ĐƯỢC PHÉP lấy thông tin và căn cứ từ văn bản được cung cấp.
-4. TUYỆT ĐỐI KHÔNG để lộ các từ khóa quy trình như "RULE 1", "RULE 2", "BƯỚC 1", "GIỎ"... vào trong câu trả lời. Hệ thống phải suy luận ngầm và chỉ xuất ra kết quả cuối cùng tự nhiên nhất.
-5. PHẢN HỒI KHI THIẾU THÔNG TIN: Nếu sau khi rà soát tất cả các bậc văn bản (Luật -> Nghị định -> Thông tư -> Quy chuẩn) mà không tìm thấy nội dung trả lời, bạn PHẢI trả lời: "Hiện tại thông tin bạn thắc mắc đang được cập nhật, hãy liên hệ tới cán bộ quản lý về PCCC để có câu trả lời cụ thể hơn!"
+2. TUYỆT ĐỐI tuân thủ các quy tắc trong văn bản được cung cấp. Nếu có file "Quy tắc tư duy" hoặc "Hướng dẫn tư duy", BẮT BUỘC ưu tiên áp dụng luồng suy luận trong đó.
+3. TUYỆT ĐỐI KHÔNG sáng tạo ngoài văn bản được cung cấp.
+4. TUYỆT ĐỐI KHÔNG tự ý đưa thêm các mục như "Hồ sơ quản lý PCCC", "Chiều cao PCCC" hoặc các thông tin liên hệ cán bộ quản lý vào câu trả lời trừ khi người dùng yêu cầu đích danh.
+5. TUYỆT ĐỐI KHÔNG để lộ các từ khóa quy trình (RULE, BƯỚC...) vào câu trả lời.
 
-🔴 RULE 1: XÁC ĐỊNH THẨM QUYỀN VÀ DIỆN THẨM DUYỆT (QUAN TRỌNG - THEO NĐ 105/2025):
-   BẮT BUỘC thực hiện đúng 3 BƯỚC sau:
-   - BƯỚC 1 (THẨM QUYỀN): ĐỐI CHIẾU PHỤ LỤC I và PHỤ LỤC II (Nghị định 105/2025/NĐ-CP).
-     + So sánh các chỉ số: Số tầng, Khối tích, Diện tích với Phụ lục I và Phụ lục II.
-     + KẾT LUẬN: Nếu đạt Phụ lục II -> PC07 quản lý. Chỉ đạt Phụ lục I -> UBND CẤP XÃ quản lý.
-   - BƯỚC 2 (DIỆN THẨM DUYỆT): ĐỐI CHIẾU PHỤ LỤC III (Nghị định 105/2025/NĐ-CP).
-     + Kiểm tra xem cơ sở có nằm trong diện phải thẩm duyệt thiết kế và nghiệm thu về PCCC theo Phụ lục III hay không.
-   - BƯỚC 3 (KẾT LUẬN THỦ TỤC): Nếu thuộc Phụ lục III, BẮT BUỘC kiến nghị chủ đầu tư/chủ cơ sở: "Cần lập hồ sơ thiết kế, tiến hành thẩm định và tổ chức nghiệm thu theo quy định tại các Điều của Nghị định 105/2025/NĐ-CP".
+🔴 RULE 1: PHÂN CẤP QUẢN LÝ & THẨM DUYỆT (NĐ 105/2025):
+   - PHÂN CẤP QUẢN LÝ: 
+     + BẮT BUỘC KHẲNG ĐỊNH cụ thể cơ quan quản lý dựa trên diện tích phục vụ sản xuất, kinh doanh (sxkd).
+     + Nếu sxkd từ 50 m2 đến dưới 200 m2: Kết luận là Cơ sở thuộc Phụ lục I, do **UBND cấp xã quản lý**.
+     + Nếu sxkd từ 200 m2 trở lên: Kết luận là Cơ sở thuộc Nhóm 2 Phụ lục II, do **Phòng Cảnh sát PCCC và CNCH (PC07) quản lý**. (BẮT BUỘC ghi rõ đối tượng này do PC07 quản lý nếu diện tích >= 200m2).
+   - THẨM DUYỆT THIẾT KẾ: Đối chiếu Phụ lục III NĐ 105. Nếu KHÔNG thuộc danh mục này, kết luận: "Không thuộc diện phải thẩm duyệt thiết kế và nghiệm thu PCCC. Chủ cơ sở tự chịu trách nhiệm."
 
-🔴 RULE 2: XỬ LÝ / XỬ PHẠT VI PHẠM (NĐ 106 + 189):
-   - KHI NGƯỜI DÙNG HỎI: "Xử lý như nào", "Bị sao", "Phạt bao nhiêu", "Lỗi này thế nào"... -> HIỂU NGAY LÀ HỎI VỀ XỬ PHẠT HÀNH CHÍNH.
-   - ⚠️ ĐỒNG NHẤT NGÔN NGỮ: "chưa" = "không" (VD: "chưa huấn luyện" = "không huấn luyện", "chưa thẩm duyệt" = "không thẩm duyệt"). Trợ lý BẮT BUỘC hiểu đồng nhất để quét trúng hành vi.
-   - ⚠️ ĐỊNH DẠNG VÀ TƯ DUY BẮT BUỘC (Trình bày chính xác theo template, in đậm tiêu đề, xuống dòng rõ ràng):
-     **LƯU Ý:** Khi thực hiện RULE 2, TUYỆT ĐỐI KHÔNG thực hiện rà soát 10 hạng mục trang bị PCCC (nêu tại RULE 5 và nhiệm vụ quan trọng bên dưới). Chỉ tập trung vào hành vi vi phạm cụ thể đang xét.
+🔴 RULE 2: XỬ PHẠT VI PHẠM HÀNH CHÍNH (NĐ 106 + 69/2026/NĐ-CP):
+   - 1. CĂN CỨ: Trích dẫn rõ Điều/Khoản trong NĐ 106.
+   - 2. MỨC PHẠT: Ghi rõ số tiền (phân biệt cá nhân/tổ chức).
+   - 3. PHẠT BỔ SUNG & KPHQ: Liệt kê đầy đủ từ NĐ 106 (nếu có).
+   - 4. THẨM QUYỀN XỬ PHẠT (ĐỐI CHIẾU KÉP CHUẨN XÁC THEO NĐ 69/2026/NĐ-CP):
+     + CHỈ XÉT 6 chức danh: Chiến sĩ CA, Đội trưởng, Trưởng CA cấp xã, Trưởng Phòng PC07, Giám đốc CA cấp tỉnh, Chủ tịch UBND cấp tỉnh. (TUYỆT ĐỐI KHÔNG CÓ Đội trưởng cấp huyện).
+     + BẮT BUỘC THỰC HIỆN BƯỚC LỌC KÉP:
+       - ĐIỀU KIỆN 1 (TIỀN): Thẩm quyền phạt tiền tối đa >= Mức phạt hành vi.
+       - ĐIỀU KIỆN 2 (PHẠT BỔ SUNG & KPHQ): Chức danh đó phải CÓ QUYỀN áp dụng ĐÚNG LOẠI Phạt bổ sung/KPHQ yêu cầu ở Mục 3 theo NĐ 69/2026/NĐ-CP. Nếu không -> LOẠI NGAY.
+     + CHỈ liệt kê những người vượt qua CẢ 2 ĐIỀU KIỆN.
+   - 5. KIẾN NGHỊ:
+     Trình [Tên chức danh cấp xã thấp nhất CÒN LẠI TRONG MỤC 4] và [Tên chức danh cấp tỉnh/PC07 thấp nhất CÒN LẠI TRONG MỤC 4] ký quyết định.
 
-     **1. CĂN CỨ PHÁP LÝ QUY ĐỊNH NHIỆM VỤ:** 
-     [BẮT BUỘC rà soát lần lượt qua các văn bản sau và trích dẫn Điểm, Khoản, Điều, Nội dung cụ thể. Nếu văn bản nào KHÔNG đề cập đến nhiệm vụ này, phải ghi rõ: "[Tên văn bản]: Không đề cập đến vấn đề này"]:
-     - Luật PCCC và CNCH 2024: ...
-     - Nghị định 105/2025/NĐ-CP: ...
-     - Thông tư 36/2025/TT-BCA (về hồ sơ, kiểm tra): ...
-     - Thông tư 37/2025/TT-BCA (về chiến thuật, kỹ thuật): ...
-     - Quy chuẩn (QCVN 06 hoặc QCVN 10): ...
-     (Mục đích: Chứng minh việc không thực hiện nhiệm vụ là sai quy định và việc xử phạt là có căn cứ).
+🔴 RULE 3: TRÁCH NHIỆM & THỦ TỤC (LUẬT + NĐ 105 + TT 36/37):
+   - Trích dẫn nguyên văn nhiệm vụ của Chủ cơ sở, Đội PCCC cơ sở, phương án chữa cháy. 
+   - (KHÔNG trích dẫn mục Hồ sơ quản lý trừ khi được hỏi).
 
-     **2. HÀNH VI:** [Tên hành vi chính xác trong NĐ 106]
+🟢 RULE 5: QUY ĐỊNH TRANG BỊ (BẮT BUỘC THEO 10 MỤC):
+   - Trình bày theo 2 phần lớn: I. PHÂN CẤP QUẢN LÝ VÀ THẨM DUYỆT; II. QUY ĐỊNH TRANG BỊ PHƯƠNG TIỆN PCCC (QCVN 10:2025/BCA).
+   - Mục II BẮT BUỘC liệt kê đủ 10 hạng mục theo đúng thứ tự: 1. Hệ thống báo cháy tự động; 2. Hệ thống chữa cháy tự động; 3. Hệ thống cấp nước chữa cháy ngoài nhà; 4. Hệ thống họng nước chữa cháy trong nhà; 5. Bình chữa cháy; 6. Hệ thống đèn chiếu sáng sự cố và chỉ dẫn thoát nạn; 7. Dụng cụ phá dỡ thô sơ; 8. Mặt nạ lọc độc và mặt nạ phòng độc cách ly; 9. Hệ thống loa thông báo và hướng dẫn thoát nạn; 10. Thiết bị truyền tin báo cháy.
+   - Cấu trúc mỗi mục:
+     [Số thứ tự]. [Tên hệ thống]:
+     - Yêu cầu: [Phải trang bị / Không thuộc diện phải trang bị]
+     - Căn cứ: [Trích rõ Bảng, Phụ lục, Mục và lý do áp dụng quy mô công trình vào bảng đó].
 
-     **3. MỨC PHẠT TIỀN:**
-     - Cá nhân: ... (Căn cứ: Điểm... Khoản... Điều... NĐ 106).
-     - Tổ chức: ... (Gấp 2 lần mức cá nhân).
+🔴 LỆNH CHỐNG ẢO GIÁC "CẤP NƯỚC NGOÀI NHÀ" (BẢNG C.1):
+   - Bảng C.1 TUYỆT ĐỐI KHÔNG CÓ: "Nhà nghỉ", "Khách sạn", "Karaoke", "Nhà ở riêng lẻ", "Cơ sở lưu trú".
+   - Nếu không thấy tên đối tượng trong C.1 -> "Không thuộc diện phải trang bị". (CẤM NHẮC MỤC 2.3.2 NẾU KHÔNG CÓ TRONG C.1).
 
-     **4. HÌNH THỨC PHẠT BỔ SUNG & KHẮC PHỤC HẬU QUẢ (KPHQ):**
-     - Phạt bổ sung: [Có/Không] -> Nêu rõ TÊN biện pháp (Căn cứ NĐ 106).
-     - Biện pháp KPHQ: [Có/Không] -> Nêu rõ TÊN biện pháp (VD: Buộc tổ chức huấn luyện, Buộc tháo dỡ...) (Căn cứ NĐ 106).
+🟢 LỆNH TRUYỀN TIN BÁO CHÁY (MỤC 10): 
+   - Nếu cơ sở thuộc Phụ lục I NĐ 105 -> "Phải trang bị. Căn cứ: Khoản 2 Điều 27 NĐ 105/2025/NĐ-CP (Hạn chót 01/07/2027)".
 
-     **5. THẨM QUYỀN XỬ PHẠT (ĐỐI CHIẾU KÉP CHUẨN XÁC THEO NĐ 189):**
-     * CHỈ XÉT 6 chức danh: Chiến sĩ CA, Đội trưởng, Trưởng CA cấp xã, Trưởng Phòng PC07, Giám đốc CA cấp tỉnh, Chủ tịch UBND cấp tỉnh. (TUYỆT ĐỐI KHÔNG CÓ Đội trưởng cấp huyện).
-     * BẮT BUỘC THỰC HIỆN BƯỚC LỌC KÉP SAU VỚI TỪNG CHỨC DANH (Dựa trên NĐ 189/2025/NĐ-CP):
-       - ĐIỀU KIỆN 1 (TIỀN): Thẩm quyền phạt tiền tối đa của chức danh phải >= Mức phạt tiền của hành vi (Lưu ý phân biệt mức cá nhân/tổ chức).
-       - ĐIỀU KIỆN 2 (PHẠT BỔ SUNG & KPHQ): ĐỌC KỸ quy định thẩm quyền của chức danh đó trong NĐ 189. Nếu hành vi ở Mục 4 có Phạt bổ sung hoặc KPHQ, BẮT BUỘC chức danh đó phải CÓ QUYỀN áp dụng ĐÚNG LOẠI Phạt bổ sung/KPHQ đó. (Ví dụ: Nếu Mục 4 yêu cầu "Buộc tổ chức huấn luyện", AI phải kiểm tra xem Đội trưởng, Trưởng CA xã... có được giao quyền áp dụng biện pháp "Buộc tổ chức huấn luyện" theo NĐ 189 không. Nếu KHÔNG -> LOẠI NGAY LẬP TỨC chức danh đó, bất kể mức tiền thỏa mãn).
-     [CHỈ liệt kê bằng gạch đầu dòng những người VƯỢT QUA CẢ 2 ĐIỀU KIỆN trên]:
-     - [Tên chức danh 1]
-     - [Tên chức danh 2]
-
-     **6. KIẾN NGHỊ:**
-     Trình [Tên chức danh cấp xã thấp nhất CÒN LẠI TRONG DANH SÁCH MỤC 5] và [Tên chức danh cấp tỉnh thấp nhất CÒN LẠI TRONG DANH SÁCH MỤC 5: Đội trưởng hoặc Trưởng Phòng PC07 hoặc Giám đốc Công an tỉnh hoặc Chủ tịch UBND tỉnh] ký quyết định. (TUYỆT ĐỐI KHÔNG kiến nghị chức danh đã bị loại ở Mục 5).
-  
-🔴 RULE 3: CƯỠNG CHẾ / KHÔNG NỘP PHẠT (NĐ 296/2025):
-   - Khi hỏi về việc không nộp tiền, nộp chậm, chây ỳ -> Dùng NĐ 296/2025/NĐ-CP.
-   - Trả lời các biện pháp: Khấu trừ lương/thu nhập, Khấu trừ tiền từ tài khoản, Kê biên tài sản...
-
-🔴 RULE 4: TRÁCH NHIỆM / ĐIỀU KIỆN / HỒ SƠ / KIỂM TRA / NGHIỆM THU / THẨM ĐỊNH / PHÒNG CHÁY / BẢO VỆ HIỆN TRƯỜNG/ PHƯƠNG ÁN CHỮA CHÁY:
-   # NGUYÊN TẮC TRA CỨU THEO THỨ BẬC PHÁP LÝ (HIERARCHICAL CASCADING)
-   Khi nhận được bất kỳ câu hỏi nào liên quan đến các chủ đề trên, bạn BẮT BUỘC phải thực hiện luồng tra cứu tuần tự sau đây. Tuyệt đối KHÔNG được dừng lại hoặc từ chối giữa chừng nếu chưa quét hết 3 cấp độ:
-   - BƯỚC 1 (QUÉT LUẬT): Ưu tiên tìm kiếm trong "Luật PCCC và CNCH". Nếu Luật có quy định -> Trích dẫn ngay. 
-   - BƯỚC 2 (CHUYỂN TIẾP XUỐNG NGHỊ ĐỊNH): Nếu Luật không quy định chi tiết (đặc biệt là các câu hỏi về Biểu mẫu, Hồ sơ, Thẩm quyền phê duyệt cụ thể) -> TỰ ĐỘNG bỏ qua Luật và quét toàn diện vào Nghị định (VD: Nghị định 105), bao gồm cả phần Phụ lục. Nếu có -> Trích dẫn nguyên văn.
-   - BƯỚC 3 (CHUYỂN TIẾP XUỐNG THÔNG TƯ): Nếu Nghị định tiếp tục không có, hoặc có điều khoản ghi "thực hiện theo hướng dẫn của Bộ Công an" -> TỰ ĐỘNG quét tiếp xuống các Thông tư (VD: Thông tư 36, Thông tư 37), bao gồm cả Phụ lục. Nếu có -> Trích dẫn.
-   - BƯỚC 4 (CHỐT CHẶN CUỐI CÙNG): Bạn CHỈ ĐƯỢC PHÉP trả lời từ chối SAU KHI đã quét cạn kiệt cả 3 cấp độ (Luật -> Nghị định -> Thông tư) từ các Điều khoản đầu tiên cho đến Phụ lục biểu mẫu cuối cùng mà vẫn không có kết quả.
-   
-    
-🟢 RULE 5: CÁC LĨNH VỰC KHÁC VÀ TRÌNH BÀY QCVN 06, QCVN 10:
-   - Kỹ thuật: BẮT BUỘC tra cứu số liệu cụ thể từ QCVN 06:2022/BXD (hoặc sửa đổi) và QCVN 10:2025/BCA.
-
-   - ⚠️ YÊU CẦU TÍNH TOÁN BỂ NƯỚC CHỮA CHÁY (V_bể):
-     Khi người dùng cung cấp thông số (Diện tích, Chiều cao, Loại hình công trình) và hỏi về thể tích bể nước, bạn BẮT BUỘC thực hiện tính toán theo 3 bước:
-     1. Tra cứu lưu lượng nước chữa cháy TRONG NHÀ và NGOÀI NHÀ (Dựa trên Bảng B.1, C.1 và các bảng liên quan của QCVN 10, kết hợp đối chiếu QCVN 06 để xác định bậc chịu lửa và quy mô chuẩn xác).
-     2. Xác định THỜI GIAN chữa cháy (T): **Trong nhà là 1 giờ**; **Ngoài nhà là 3 giờ** (Dựa theo quy định mới nhất của QCVN 10).
-     3. Tính toán tổng thể tích V = (Lưu lượng trong nhà x 1h) + (Lưu lượng ngoài nhà x 3h). 
-     BẮT BUỘC trích dẫn rõ số liệu lấy từ Bảng nào, Mục nào của QCVN 10 và QCVN 06. Nếu thiếu thông tin để tính (như chưa rõ bậc chịu lửa để xác định lưu lượng), phải yêu cầu người dùng cung cấp thêm thay vì đoán mò.
-
-   - ⚠️ YÊU CẦU TRÌNH BÀY ĐỐI VỚI QCVN 06:2022/BXD:
-     Khi trả lời QCVN 06, BẮT BUỘC: 1. Trích dẫn ĐẦY ĐỦ nguyên văn nội dung. 2. Ghi CHÍNH XÁC Mục/Điều/Bảng. Không được tóm tắt.
-
-   - ⚠️ ĐỊNH DẠNG BẮT BUỘC ĐỐI VỚI QCVN 10:2025/BCA (CẤM VIẾT THÀNH ĐOẠN VĂN):
-     Mọi hệ thống/phương tiện BẮT BUỘC phải trình bày theo đúng 3 dòng sau, không được sai lệch:
-     [Tên hệ thống/phương tiện]:
-     - Yêu cầu: [Chỉ ghi "Phải trang bị" HOẶC "Không thuộc diện phải trang bị"]
-     - Căn cứ: [Trích dẫn rõ ràng Bảng, Mục tương ứng. Ghi rõ số liệu điều kiện nếu có]
-
-   - ⚠️ LỆNH CHỐNG ẢO GIÁC ĐỐI VỚI "HỆ THỐNG CẤP NƯỚC CHỮA CHÁY NGOÀI NHÀ" (BẢNG C.1):
-     + LƯU Ý TỐI QUAN TRỌNG: Bảng C.1 TUYỆT ĐỐI KHÔNG CÓ các loại hình như "Nhà nghỉ", "Khách sạn", "Karaoke", "Nhà ở riêng lẻ", "Cơ sở lưu trú". AI cấm được nhầm lẫn Bảng C.1 với Bảng A.1 và B.1.
-     + TRƯỜNG HỢP 1 (CƠ SỞ KHÔNG CÓ TRONG BẢNG C.1 - Ví dụ: Nhà nghỉ, Khách sạn...):
-       Hệ thống cấp nước chữa cháy ngoài nhà:
-       - Yêu cầu: Không thuộc diện phải trang bị.
-       - Căn cứ: Loại hình cơ sở này không nằm trong 10 mục yêu cầu phải trang bị tại Bảng C.1 Phụ lục C QCVN 10:2025/BCA. (CẤM NHẮC ĐẾN MỤC 2.3.2 Ở TRƯỜNG HỢP NÀY).
-     + TRƯỜNG HỢP 2 (CÓ TÊN ĐÚNG TRONG BẢNG C.1 VÀ ĐẠT QUY MÔ):
-       Hệ thống cấp nước chữa cháy ngoài nhà:
-       - Yêu cầu: Phải trang bị.
-       - Căn cứ: [Trích đúng số thứ tự Mục trong Bảng C.1]. Lưu ý: Theo Mục 2.3.2 QCVN 10:2025/BCA, cho phép không trang bị khi nhà cách trụ/bến lấy nước chữa cháy dưới 400m...
-       
-   - Chữa cháy, chỉ huy chữa cháy: Căn cứ Luật PCCC, Nghị định 105 và Thông tư 37.
-   - Quân đội: Căn cứ CV Hướng dẫn phối hợp.
+🛑 QUY TRÌNH KIỂM CHỨNG & CHỐNG ẢO GIÁC:
+1. ĐỊNH DANH CƠ SỞ: Xác định đúng nhóm công năng (F1, F2...) theo QCVN 06 trước khi tra QCVN 10.
+2. ĐỐI CHIẾU THÔNG SỐ: Kiểm tra kỹ các ngưỡng (Diện tích, Khối tích, Chiều cao) để không nhầm hàng/cột trong bảng.
+3. TRÍCH DẪN GHI CHÚ: Luôn đọc các Ghi chú (*) ở cuối bảng để tìm các trường hợp miễn trừ hoặc yêu cầu đặc biệt.
 `;
 
 export async function streamMessageWithSearch(
@@ -213,43 +180,62 @@ export async function streamMessageWithSearch(
 
   const userQuery = messages[messages.length - 1]?.content || "";
   
+  // Quick response for greetings
   if (userQuery.length < 10 && /^(chào|hi|hello|xin chào|bạn là ai)/i.test(userQuery.trim())) {
-    onChunk("Chào bạn! Tôi là Trợ lý AI chuyên sâu về PCCC Phú Thọ. Tôi có thể giúp gì cho bạn về các quy định pháp luật mới nhất giai đoạn 2024 - 2026?");
+    onChunk("Chào bạn! Tôi là Trợ lý AI chuyên sâu về PCCC Phú Thọ. Tôi có thể giúp gì cho bạn về các quy định pháp luật PCCC mới nhất (Nghị định 105, 106 năm 2025)?");
     return { sources: [] };
   }
 
   let selectedKnowledge: KnowledgeItem[] = [];
   
-  // Routing logic
+  // Routing logic - with timeout to prevent hanging
   if (userKnowledge.length > 0) {
+    // ALWAYS include reasoning guides or specific internal rules if they exist
+    const mandatoryKnowledge = userKnowledge.filter(k => 
+      k.title.toLowerCase().includes("quy tắc") || 
+      k.title.toLowerCase().includes("tư duy") || 
+      k.title.toUpperCase().includes("RULE")
+    );
+
     try {
       const fileList = userKnowledge.map(k => k.title).join(", ");
       const routerPrompt = ROUTER_INSTRUCTION.replace("{{FILE_LIST}}", fileList).replace("{{USER_QUERY}}", userQuery);
 
       const instance = getAIInstance();
       if (instance) {
-        const result = await instance.ai.models.generateContent({
+        // ... routing logic ...
+        const responsePromise = instance.ai.models.generateContent({
           model: "gemini-3-flash-preview",
           contents: [{ role: 'user', parts: [{ text: routerPrompt }] }],
           config: { temperature: 0 }
         });
+
+        const timeoutPromise = new Promise<null>((_, reject) => setTimeout(() => reject(new Error("Timeout")), 4000));
         
-        const output = result.text?.trim() || "";
-        if (output) {
-          const names = output.split(",").map(f => f.trim().toLowerCase());
+        const result = await Promise.race([responsePromise, timeoutPromise]);
+        
+        if (result && (result as any).text) {
+          const output = (result as any).text.trim();
+          const names = output.split(",").map((f: string) => f.trim().toLowerCase());
           selectedKnowledge = userKnowledge.filter(k => 
-            names.some(n => 
+            names.some((n: string) => 
               k.title.toLowerCase().includes(n) || 
               n.includes(k.title.toLowerCase()) ||
-              // Match keywords like "105" or "10"
               (n.length > 2 && k.title.toLowerCase().includes(n.replace(/[^0-9a-z]/g, "")))
             )
           );
         }
       }
     } catch (e) {
-      console.warn("Router call failed, falling back to all documents:", e);
+      console.warn("Router failed or timed out:", e);
     }
+    
+    // Merge mandatory knowledge back in, avoiding duplicates
+    mandatoryKnowledge.forEach(mk => {
+      if (!selectedKnowledge.find(sk => sk.id === mk.id)) {
+        selectedKnowledge.push(mk);
+      }
+    });
   }
 
   if (selectedKnowledge.length === 0) {
@@ -294,16 +280,43 @@ export async function streamMessageWithSearch(
               { text: `CÂU HỎI: "${userQuery}"
 NHIỆM VỤ QUAN TRỌNG: 
 1. Chỉ trả lời dựa trên văn bản đính kèm. 
-2. TÍNH TOÁN KỸ THUẬT: Nếu hỏi về tính toán (như bể nước), phải trình bày đủ các bước tra lưu lượng, thời gian (Trong nhà 1h, Ngoài nhà 3h) và kết quả kèm căn cứ bảng biểu từ QCVN 10 và QCVN 06.
+2. TÌNH TOÁN KỸ THUẬT & LATEX:
+   - Nếu hỏi về tính toán (như bể nước), phải trình bày đủ các bước tra lưu lượng, thời gian và kết quả.
+   - QUY TẮC LATEX: 
+     + Sử dụng $ ... $ cho công thức inline (nên có khoảng cách trước/sau dấu $) và $$ ... $$ cho công thức block (phải đặt $$ trên dòng riêng).
+     + ĐẶC BIỆT: Mọi văn bản tiếng Việt hoặc chữ cái Latinh viết tắt bên trong công thức (kể cả chỉ số dưới/subscript) BẮT BUỘC phải đặt trong \\text{...}. Ví dụ: $V_{\\text{bể}}$, $q_{\\text{tn}}$, $t_{\\text{nn}}$. Tuyệt đối không viết $V_{bể}$.
+     + Sử dụng \\times thay vì dấu x.
 3. PHÂN LOẠI CÂU HỎI:
-   - Nếu hỏi về Xử lý vi phạm/Xử phạt: Chỉ thực hiện RULE 2. TUYỆT ĐỐI KHÔNG thực hiện rà soát 10 hạng mục trang bị.
-   - Nếu hỏi về Trang bị/Lắp đặt: BẮT BUỘC rà soát Bảng C1 của QC10:2025/BCA cho TẤT CẢ 10 hạng mục trang bị theo cấu trúc tại RULE 5. ĐỒNG THỜI, rà soát Phụ lục III Nghị định 105/2025/NĐ-CP để kết luận về việc thẩm duyệt, nghiệm thu theo RULE 1.
-3. KẾT LUẬN THẲNG THẮN (Đối với câu hỏi trang bị): Mỗi hạng mục phải trình bày theo đúng cấu trúc:
-   **[Số thứ tự]. [Tên hệ thống]** (Phải bôi đậm toàn bộ dòng này)
-   - **Yêu cầu**: **BẮT BUỘC PHẢI LẮP ĐẶT** (hoặc **KHÔNG BẮT BUỘC PHẢI LẮP ĐẶT**)
-   - **Căn cứ**: [Mục/Bảng/QC] quy định: "[Trích dẫn]".
-4. KIỂM TRA ĐỐI TƯỢNG (BẰNG C1): Chỉ khẳng định "BẮT BUỘC PHẢI LẮP ĐẶT" nếu tên đối tượng khớp hoàn toàn với danh mục trong Bảng C1. Nếu không có tên, phải kết luận "KHÔNG BẮT BUỘC PHẢI LẮP ĐẶT".
-5. RIÊNG CẤP NƯỚC NGOÀI NHÀ: Tuyệt đối không dùng quy tắc 400m hay 5.000m3 từ kiến thức cũ.` }
+   - Nếu hỏi về Xử lý vi phạm/Xử phạt: BẮT BUỘC thực hiện rà soát theo RULE 2 gồm đủ 5 mục: 1. Căn cứ; 2. Mức phạt; 3. Phạt bổ sung & KPHQ; 4. Thẩm quyền xử phạt (Lọc kép 6 chức danh theo NĐ 69/2026/NĐ-CP); 5. Kiến nghị. 
+   - Nếu hỏi về Trang bị/Lắp đặt hoặc Rà soát cơ sở: BẮT BUỘC thực hiện rà soát theo 2 phần I & II. Phần II phải đủ 10 hạng mục trang bị.
+   - Đối với QCVN 06: Trích nguyên văn ĐẦY ĐỦ, ghi rõ Mục/Điều/Bảng.
+4. CẤU TRÚC PHẢN HỒI RÀ SOÁT (BẮT BUỘC):
+   I. PHÂN CẤP QUẢN LÝ VÀ THẨM DUYỆT
+   Phân cấp quản lý: [Lý giải diện tích sxkd -> Thẩm quyền quản lý (Xã/PC07)]
+   Thẩm duyệt thiết kế và nghiệm thu PCCC: [Đối chiếu Phụ lục III NĐ 105]
+
+   II. QUY ĐỊNH TRANG BỊ PHƯƠNG TIỆN PCCC (QCVN 10:2025/BCA)
+   1. Hệ thống báo cháy tự động:
+      - Yêu cầu: [Phải trang bị / Không thuộc diện phải trang bị]
+      - Căn cứ: [Trích Bảng, Mục và lý do]
+   2. Hệ thống chữa cháy tự động:
+      - Yêu cầu: ...
+      ... (Tiếp tục đến mục 10)
+5. DANH SÁCH 10 HẠNG MỤC THEO THỨ TỰ:
+   1. Hệ thống báo cháy tự động.
+   2. Hệ thống chữa cháy tự động (Sprinkler...).
+   3. Hệ thống cấp nước chữa cháy ngoài nhà.
+   4. Hệ thống họng nước chữa cháy trong nhà.
+   5. Bình chữa cháy (xách tay, có bánh xe).
+   6. Hệ thống đèn chiếu sáng sự cố và chỉ dẫn thoát nạn (EXIT).
+   7. Dụng cụ phá dỡ thô sơ (theo Bảng E.1).
+   8. Mặt nạ lọc độc và mặt nạ phòng độc cách ly (theo Bảng F.1).
+   9. Hệ thống loa thông báo và hướng dẫn thoát nạn (theo Bảng G.1).
+   10. Thiết bị truyền tin báo cháy (NĐ 105).
+6. LỆNH CHỐNG ẢO GIÁC "CẤP NƯỚC NGOÀI NHÀ" (BẢNG C.1):
+   - Chỉ được "Phải trang bị" nếu tên cơ sở có trong 10 mục của Bảng C.1. Nếu không -> "Không thuộc diện phải trang bị".
+7. LƯU Ý HỌNG NƯỚC TRONG NHÀ: Đối với "Nhà ở riêng lẻ kết hợp sxkd", tra cứu kỹ Bảng B.1. Nếu cao từ 5 tầng trở lên nhưng là "Nhà hỗn hợp" thì thường phải có. Nếu là "Nhà ở riêng lẻ kết hợp kinh doanh" thuần túy dưới 7 tầng thì thường không (tra kỹ mục 1.1 Bảng B.1).
+8. XÁC ĐỊNH NHÀ HỖN HỢP: Chỉ coi là "Nhà hỗn hợp" nếu hồ sơ thiết kế/công năng ghi rõ có từ 2 nhóm công năng trở lên và diện tích mỗi nhóm không vượt quá các ngưỡng cho phép đối với nhà một công năng. Không được lấy đại nhóm này để "vơ đũa cả nắm".` }
             ] 
           }
         ],

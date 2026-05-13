@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import * as mammoth from 'mammoth';
 import { KnowledgeItem } from '../types';
 
 interface KnowledgeManagerProps {
@@ -12,6 +13,29 @@ const KnowledgeManager: React.FC<KnowledgeManagerProps> = ({ onAdd, knowledgeBas
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+
+  const [isManualInput, setIsManualInput] = useState(false);
+  const [manualTitle, setManualTitle] = useState('');
+  const [manualContent, setManualContent] = useState('');
+
+  const handleManualAdd = () => {
+    if (!manualTitle.trim() || !manualContent.trim()) {
+      alert("Vui lòng nhập cả tiêu đề và nội dung.");
+      return;
+    }
+    
+    onAdd({
+      id: Math.random().toString(36).substr(2, 9),
+      title: manualTitle.trim(),
+      content: manualContent.trim(),
+      mimeType: 'text/plain',
+      size: manualContent.length
+    });
+    
+    setManualTitle('');
+    setManualContent('');
+    setIsManualInput(false);
+  };
 
   const processFile = async (file: File) => {
     if (file.size === 0) return;
@@ -43,11 +67,8 @@ const KnowledgeManager: React.FC<KnowledgeManagerProps> = ({ onAdd, knowledgeBas
         }
       } else if (fileNameLower.endsWith('.docx')) {
         try {
-          if (!window.mammoth) {
-            throw new Error("Thư viện xử lý Word chưa được tải.");
-          }
           const arrayBuffer = await file.arrayBuffer();
-          const result = await window.mammoth.extractRawText({ arrayBuffer });
+          const result = await mammoth.extractRawText({ arrayBuffer });
           
           if (!result || result.value === undefined) {
             throw new Error("Không thể trích xuất nội dung từ file Word.");
@@ -130,39 +151,79 @@ const KnowledgeManager: React.FC<KnowledgeManagerProps> = ({ onAdd, knowledgeBas
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide">
-        <label 
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          className={`relative group flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-dashed transition-all cursor-pointer ${
-          isUploading ? 'bg-red-50 border-red-200 animate-pulse' : 'bg-slate-50 border-slate-200 hover:border-red-500 hover:bg-red-50/50'
-        }`}>
-          <input 
-            type="file" 
-            className="hidden" 
-            accept=".pdf,.docx" 
-            multiple 
-            onChange={(e) => e.target.files && processFiles(e.target.files)} 
-            disabled={isUploading} 
-          />
-          <div className="text-center group-active:scale-95 transition-transform">
-            {isUploading ? (
-              <div className="flex flex-col items-center gap-2">
-                <div className="w-8 h-8 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
-                <span className="text-[10px] font-black text-red-600 uppercase tracking-widest">{uploadProgress}</span>
-              </div>
-            ) : (
-              <>
-                <div className="w-10 h-10 bg-white text-slate-400 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:bg-red-600 group-hover:text-white transition-all shadow-sm">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                </div>
-                <span className="text-xs font-bold block text-slate-700 uppercase">Nạp tài liệu</span>
-                <span className="text-[8px] text-slate-400 mt-1 block font-black uppercase tracking-wider">PDF & DOCX (Nhiều file)</span>
-              </>
-            )}
+        <div className="flex gap-2">
+          <button 
+            onClick={() => setIsManualInput(false)}
+            className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded-xl transition-all border ${!isManualInput ? 'bg-red-600 text-white border-red-600 shadow-md shadow-red-100' : 'bg-slate-50 text-slate-400 border-slate-200'}`}
+          >
+            Nạp file
+          </button>
+          <button 
+            onClick={() => setIsManualInput(true)}
+            className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded-xl transition-all border ${isManualInput ? 'bg-red-600 text-white border-red-600 shadow-md shadow-red-100' : 'bg-slate-50 text-slate-400 border-slate-200'}`}
+          >
+            Nhập tay
+          </button>
+        </div>
+
+        {isManualInput ? (
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+            <input 
+              type="text" 
+              placeholder="Tiêu đề quy tắc (Vd: Luật suy luận)" 
+              value={manualTitle}
+              onChange={(e) => setManualTitle(e.target.value)}
+              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-[11px] focus:ring-2 focus:ring-red-50 focus:border-red-500 outline-none"
+            />
+            <textarea 
+              placeholder="Dán nội dung quy tắc dài tại đây..." 
+              value={manualContent}
+              onChange={(e) => setManualContent(e.target.value)}
+              rows={6}
+              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-[11px] focus:ring-2 focus:ring-red-50 focus:border-red-500 outline-none resize-none"
+            />
+            <button 
+              onClick={handleManualAdd}
+              className="w-full py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-black transition-all"
+            >
+              Lưu vào bộ nhớ
+            </button>
           </div>
-        </label>
+        ) : (
+          <label 
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            className={`relative group flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-dashed transition-all cursor-pointer ${
+            isUploading ? 'bg-red-50 border-red-200 animate-pulse' : 'bg-slate-50 border-slate-200 hover:border-red-500 hover:bg-red-50/50'
+          }`}>
+            <input 
+              type="file" 
+              className="hidden" 
+              accept=".pdf,.docx" 
+              multiple 
+              onChange={(e) => e.target.files && processFiles(e.target.files)} 
+              disabled={isUploading} 
+            />
+            <div className="text-center group-active:scale-95 transition-transform">
+              {isUploading ? (
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-8 h-8 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-[10px] font-black text-red-600 uppercase tracking-widest">{uploadProgress}</span>
+                </div>
+              ) : (
+                <>
+                  <div className="w-10 h-10 bg-white text-slate-400 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:bg-red-600 group-hover:text-white transition-all shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                  </div>
+                  <span className="text-xs font-bold block text-slate-700 uppercase">Kéo thả hoặc Chọn file</span>
+                  <span className="text-[8px] text-slate-400 mt-1 block font-black uppercase tracking-wider">PDF & DOCX (Nhiều file)</span>
+                </>
+              )}
+            </div>
+          </label>
+        )}
 
         <div className="space-y-4">
           <div className="relative group">

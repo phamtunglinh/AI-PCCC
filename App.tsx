@@ -2,6 +2,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import { motion, AnimatePresence } from 'motion/react';
 import { Message, KnowledgeItem } from './types';
 import { streamMessageWithSearch } from './services/geminiService';
@@ -31,14 +33,34 @@ const App: React.FC = () => {
   const [visualClickCount, setVisualClickCount] = useState(0);
   const clickCountRef = useRef(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const chatEndRef = useRef<HTMLDivElement>(null);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Kiểm tra nếu đang ở chế độ nhúng (URL có ?embed=true)
-  const isEmbedded = new URLSearchParams(window.location.search).get('embed') === 'true';
+  const isEmbedded = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('embed') === 'true';
 
-  const scrollToBottom = () => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const handleScroll = () => {
+    if (scrollContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+      setShowScrollButton(scrollHeight - scrollTop - clientHeight > 300);
+    }
   };
+
+  const scrollToBottom = (behavior: ScrollBehavior = 'auto') => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({ top: scrollContainerRef.current.scrollHeight, behavior });
+    }
+  };
+
+  // Improved scroll effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!showScrollButton) {
+        scrollToBottom(isStreaming ? 'auto' : 'smooth');
+      }
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [messages, isStreaming]);
 
   // Load knowledge and messages
   useEffect(() => {
@@ -97,10 +119,6 @@ const App: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, isStreaming]);
-
   const handleLogoClick = (e: React.MouseEvent) => {
     if (isEmbedded) return;
     e.stopPropagation();
@@ -157,29 +175,36 @@ const App: React.FC = () => {
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, userMsg]);
+    const modelMsg: Message = {
+      role: 'model',
+      content: '',
+      timestamp: new Date()
+    };
+
+    // Update messages in a single state change to avoid race conditions
+    setMessages(prev => [...prev, userMsg, modelMsg]);
     setInput('');
     setIsStreaming(true);
 
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
-    const modelMsg: Message = {
-      role: 'model',
-      content: '',
-      timestamp: new Date()
-    };
-    
-    setMessages(prev => [...prev, modelMsg]);
-
     try {
+      // Use the functional update history for the service call as well
+      const conversationHistory = [...messages, userMsg];
+
       const result = await streamMessageWithSearch(
-        [...messages, userMsg], 
+        conversationHistory, 
         knowledgeBase,
         (chunkText) => {
+          if (!chunkText) return;
           setMessages(prev => {
+            if (prev.length === 0) return prev;
             const newMsgs = [...prev];
-            newMsgs[newMsgs.length - 1].content = chunkText;
+            const lastIdx = newMsgs.length - 1;
+            if (newMsgs[lastIdx].role === 'model') {
+              newMsgs[lastIdx] = { ...newMsgs[lastIdx], content: chunkText };
+            }
             return newMsgs;
           });
         },
@@ -188,8 +213,12 @@ const App: React.FC = () => {
       
       if (!controller.signal.aborted) {
         setMessages(prev => {
+          if (prev.length === 0) return prev;
           const newMsgs = [...prev];
-          newMsgs[newMsgs.length - 1].sources = result.sources;
+          const lastIdx = newMsgs.length - 1;
+          if (newMsgs[lastIdx].role === 'model') {
+            newMsgs[lastIdx] = { ...newMsgs[lastIdx], sources: result.sources };
+          }
           return newMsgs;
         });
       }
@@ -198,10 +227,17 @@ const App: React.FC = () => {
       if ((err as any).name === 'AbortError') {
         console.log("Stream aborted");
       } else {
-        console.error(err);
+        console.error("Chat Error:", err);
         setMessages(prev => {
+          if (prev.length === 0) return prev;
           const newMsgs = [...prev];
-          newMsgs[newMsgs.length - 1].content = "Xin lỗi, tôi gặp chút gián đoạn. Vui lòng thử lại sau.";
+          const lastIdx = newMsgs.length - 1;
+          if (newMsgs[lastIdx].role === 'model') {
+            newMsgs[lastIdx] = { 
+              ...newMsgs[lastIdx], 
+              content: "Xin lỗi, tôi gặp chút gián đoạn kỹ thuật. Vui lòng thử lại sau hoặc làm mới trang." 
+            };
+          }
           return newMsgs;
         });
       }
@@ -215,7 +251,7 @@ const App: React.FC = () => {
 
 
   return (
-    <div id="app-root" className={`flex h-screen overflow-hidden font-sans relative ${isEmbedded ? 'bg-white' : 'bg-[#f8fafc]'}`}>
+    <div id="app-root" className={`flex flex-col lg:flex-row h-screen h-[100dvh] overflow-hidden font-sans relative ${isEmbedded ? 'bg-white' : 'bg-[#f8fafc]'}`}>
       
       <AnimatePresence>
         {showPasswordOverlay && (
@@ -271,7 +307,12 @@ const App: React.FC = () => {
         )}
       </AnimatePresence>
 
-      <div className={`fixed inset-y-0 left-0 transform ${isAdminMode && isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:translate-x-0 transition-all duration-300 ease-out z-[100] ${isAdminMode ? 'w-80 lg:w-[400px]' : 'w-0 overflow-hidden'} flex-shrink-0 shadow-xl border-r border-slate-200 bg-white`}>
+      <div 
+        className={`fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[90] lg:hidden transition-opacity duration-300 ${isAdminMode && isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        onClick={() => setIsSidebarOpen(false)}
+      />
+
+      <div className={`fixed inset-y-0 left-0 transform ${isAdminMode && isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:translate-x-0 transition-all duration-300 ease-out z-[100] ${isAdminMode ? 'w-[280px] sm:w-80' : 'w-0 overflow-hidden'} flex-shrink-0 shadow-2xl lg:shadow-none border-r border-slate-200 bg-white`}>
         <div className="h-full flex flex-col">
           <KnowledgeManager 
             onAdd={(item) => {
@@ -306,38 +347,39 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      <main id="chat-main" className={`flex-1 flex flex-col min-w-0 bg-[#fdfdfd] relative ${isEmbedded ? 'h-full' : ''}`}>
+      <main id="chat-main" className="flex-1 flex flex-col min-w-0 bg-slate-50 relative overflow-hidden">
         {!isEmbedded && (
-          <header className="bg-white/80 backdrop-blur-md border-b border-slate-200 px-6 py-3 flex items-center justify-between sticky top-0 z-40">
-            <div className="flex items-center gap-4">
+          <header className="h-14 bg-white/95 backdrop-blur-xl border-b border-slate-200 flex items-center justify-between px-4 md:px-6 flex-none z-50 shadow-sm">
+            <div className="flex items-center gap-3">
               <div 
                 id="app-logo"
                 className="flex items-center gap-3 cursor-pointer select-none group" 
                 onClick={handleLogoClick}
               >
                 <div className="relative">
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-white transition-all duration-300 ${
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white transition-all duration-500 transform ${
                     visualClickCount > 0 
-                      ? 'bg-red-600 scale-105' 
-                      : 'bg-red-600 shadow-md shadow-red-100'
+                      ? 'bg-red-600 rotate-12 scale-110 shadow-xl' 
+                      : 'bg-red-600 shadow-sm shadow-red-200'
                   }`}>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.99 7.99 0 0120 13a7.98 7.98 0 01-2.343 5.657z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.99 7.99 0 0120 13a7.98 7.98 0 01-2.343 5.657z" />
                     </svg>
                   </div>
                 </div>
                 <div>
-                  <h1 className="font-bold text-slate-900 text-sm tracking-tight leading-tight uppercase font-display">CHATBOT AI PCCC (ver 2) - Phạm Tùng Linh PC07</h1>
+                  <h1 className="text-sm md:text-base font-display font-black tracking-tight text-slate-900 leading-none">PCCC PHÚ THỌ <span className="text-red-600">AI</span></h1>
+                  <p className="text-[8px] md:text-[9px] font-bold text-slate-400 mt-0.5 uppercase tracking-widest hidden md:block">TƯ VẤN PHÁP LUẬT (Ver 2.5)</p>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <button 
                 id="clear-history-btn"
                 onClick={clearHistory}
                 title="Làm mới cuộc hội thoại"
-                className="flex items-center gap-2 px-3 py-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all text-[11px] font-semibold border border-transparent hover:border-red-100"
+                className="flex items-center gap-2 px-2.5 py-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all text-[10px] font-bold border border-transparent hover:border-red-100 uppercase tracking-tight"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -360,79 +402,79 @@ const App: React.FC = () => {
           </header>
         )}
 
-        <section id="chat-history" className="flex-1 overflow-y-auto px-4 py-8 md:px-12 space-y-8 scrollbar-hide">
-          <div className="max-w-3xl mx-auto space-y-8">
+        <section 
+          id="chat-history" 
+          ref={scrollContainerRef}
+          onScroll={handleScroll}
+          className="flex-1 min-h-0 overflow-y-auto px-3 py-4 md:px-6 space-y-4 scrollbar-hide bg-slate-50/50 relative"
+        >
+          <div className="max-w-4xl mx-auto space-y-6">
             {messages.map((msg, idx) => (
               <motion.div 
                 key={`msg-${idx}`} 
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                transition={{ duration: 0.35 }}
+                className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`max-w-[92%] md:max-w-[85%] rounded-[1.5rem] p-5 transition-all msg-bubble-shadow ${
-                  msg.role === 'user' 
-                    ? 'bg-blue-500 text-white rounded-br-none' 
-                    : 'bg-white border border-slate-100 text-slate-900 rounded-bl-none'
-                }`}>
-                  <div className={`markdown-body max-w-none text-[15px] leading-relaxed ${msg.role === 'user' ? 'prose-invert font-semibold' : 'prose-slate'}`}>
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {msg.content || (msg.role === 'model' && isStreaming && idx === messages.length - 1 ? "..." : "")}
-                    </ReactMarkdown>
+                <div className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} max-w-[95%] md:max-w-[85%]`}>
+                  <div className={`p-4 md:p-5 rounded-2xl shadow-sm border transition-all ${
+                    msg.role === 'user' 
+                      ? 'bg-slate-800 border-slate-700 text-white rounded-tr-none' 
+                      : 'bg-white border-slate-200 text-slate-800 rounded-tl-none'
+                  }`}>
+                    <div className={`markdown-body max-w-none text-[13.5px] md:text-[14.5px] leading-relaxed ${msg.role === 'user' ? 'prose-invert font-medium' : 'prose-slate'}`}>
+                      {(!msg.content && msg.role === 'model' && isStreaming && idx === messages.length - 1) ? (
+                        <div className="flex gap-1.5 py-1.5">
+                          <span className="w-2 h-2 bg-red-600 rounded-full animate-bounce" />
+                          <span className="w-2 h-2 bg-red-600 rounded-full animate-bounce delay-150" />
+                          <span className="w-2 h-2 bg-red-600 rounded-full animate-bounce delay-300" />
+                        </div>
+                      ) : (
+                        <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeKatex]}>
+                          {msg.content || ""}
+                        </ReactMarkdown>
+                      )}
+                    </div>
+                    
+
                   </div>
                   
-                  <div className={`mt-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider ${msg.role === 'user' ? 'text-slate-400 justify-end' : 'text-slate-400'}`}>
+                  <div className={`mt-2 flex items-center gap-2 text-[9px] font-bold uppercase tracking-wider ${msg.role === 'user' ? 'text-slate-400' : 'text-slate-400'}`}>
                     {msg.role === 'model' && (
-                      <div className="flex gap-1.5 mr-1">
-                        <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
-                        <span className="text-slate-500">Chat bot AI</span>
+                      <div className="flex items-center gap-1.5 opacity-80">
+                        <div className="w-1.5 h-1.5 bg-red-600 rounded-full shadow-[0_0_8px_rgba(220,38,38,0.3)]"></div>
+                        <span className="text-red-700 font-black">AI PCCC PHÚ THỌ</span>
                       </div>
                     )}
-                    <span>{msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <span className="tabular-nums opacity-60 font-medium">{msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                 </div>
               </motion.div>
             ))}
-            
-            <AnimatePresence>
-              {isStreaming && (
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="flex justify-start"
-                >
-                  <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm">
-                    <div className="flex items-center space-x-3">
-                      <div className="flex space-x-1.5">
-                        <motion.div 
-                          animate={{ opacity: [0.4, 1, 0.4] }} 
-                          transition={{ repeat: Infinity, duration: 1.5 }}
-                          className="w-1.5 h-1.5 bg-red-500 rounded-full"
-                        />
-                        <motion.div 
-                          animate={{ opacity: [0.4, 1, 0.4] }} 
-                          transition={{ repeat: Infinity, duration: 1.5, delay: 0.3 }}
-                          className="w-1.5 h-1.5 bg-red-500 rounded-full"
-                        />
-                        <motion.div 
-                          animate={{ opacity: [0.4, 1, 0.4] }} 
-                          transition={{ repeat: Infinity, duration: 1.5, delay: 0.6 }}
-                          className="w-1.5 h-1.5 bg-red-500 rounded-full"
-                        />
-                      </div>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Đang kiểm chứng pháp lý...</span>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            <div ref={chatEndRef} />
+            <div className="h-4 w-full" />
           </div>
+
+          <AnimatePresence>
+            {showScrollButton && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8, y: 10 }}
+                onClick={() => scrollToBottom('smooth')}
+                className="fixed bottom-24 right-6 md:right-10 w-10 h-10 flex items-center justify-center bg-white border border-slate-200 rounded-full shadow-lg text-slate-600 hover:text-red-600 hover:border-red-100 transition-all z-50 group"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 transform group-hover:translate-y-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+              </motion.button>
+            )}
+          </AnimatePresence>
         </section>
 
-        <footer id="chat-input-area" className="p-3 md:p-4 bg-gradient-to-t from-white via-white/95 to-transparent sticky bottom-0">
-          <div className="max-w-3xl mx-auto">
-            <div className={`relative flex items-center bg-white border border-slate-200 rounded-[2rem] p-1.5 pr-1.5 shadow-lg focus-within:border-red-600 transition-all ${isStreaming ? 'opacity-70' : 'hover:border-slate-300'}`}>
+        <footer id="chat-input-area" className="flex-none p-2 md:p-3 bg-white border-t border-slate-200 z-40">
+          <div className="max-w-4xl mx-auto">
+            <div className={`relative flex items-center bg-white border border-slate-300 rounded-[1.25rem] p-1 pr-1 shadow-sm focus-within:border-red-600 focus-within:ring-2 focus-within:ring-red-50 transition-all ${isStreaming ? 'opacity-70' : ''}`}>
               <textarea
                 id="user-input-box"
                 ref={textareaRef}
@@ -444,16 +486,16 @@ const App: React.FC = () => {
                     handleSend();
                   }
                 }}
-                placeholder="Nhập câu hỏi cần tư vấn về PCCC..."
+                placeholder="Hỏi về PCCC..."
                 rows={1}
-                className="flex-1 resize-none border-none focus:ring-0 text-slate-900 text-[14px] md:text-[15px] py-1.5 pl-4 pr-1 bg-transparent max-h-32 font-medium placeholder:text-slate-400"
+                className="flex-1 bg-transparent px-3 py-2 text-[14px] outline-none resize-none max-h-48 scrollbar-hide text-slate-800 placeholder:text-slate-400 font-medium"
                 disabled={isStreaming}
               />
               {isStreaming ? (
                 <button
                   id="stop-generation-btn"
                   onClick={handleStop}
-                  className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-900 text-white hover:bg-slate-800 shadow-md active:scale-95 transition-all"
+                  className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-900 text-white hover:bg-slate-800 shadow-md active:scale-95 transition-all flex-shrink-0"
                   title="Dừng tạo câu trả lời"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -465,21 +507,21 @@ const App: React.FC = () => {
                   id="send-message-btn"
                   onClick={handleSend}
                   disabled={!input.trim()}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                    !input.trim() ? 'bg-slate-100 text-slate-300' : 'bg-red-600 text-white hover:bg-red-700 shadow-md shadow-red-100 active:scale-95'
+                  className={`w-10 h-10 flex items-center justify-center rounded-full transition-all flex-shrink-0 ${
+                    !input.trim() ? 'bg-slate-100 text-slate-300' : 'bg-red-600 text-white hover:bg-red-700 shadow-md shadow-red-200 active:scale-95'
                   }`}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                   </svg>
                 </button>
               )}
             </div>
             
-            <div className="mt-2.5 flex flex-col sm:flex-row items-center justify-between gap-2 px-4">
-              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider text-center sm:text-left">Bản quyền thuộc về Đại úy Phạm Tùng Linh - PC07 Phú Thọ</span>
+            <div className="mt-2 flex flex-col sm:flex-row items-center justify-between gap-1 px-4">
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider text-center sm:text-left opacity-60">© Đại úy Phạm Tùng Linh - PC07 Phú Thọ</span>
               <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
                 <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Hệ thống sẵn sàng</span>
               </div>
             </div>

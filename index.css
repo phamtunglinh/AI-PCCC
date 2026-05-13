@@ -1,6 +1,5 @@
 @import "tailwindcss";
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap&subset=vietnamese,latin-ext');
+@import url('https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css');
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -20,18 +19,29 @@ body {
   color: var(--pccc-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
 .markdown-body {
   line-height: 1.6;
+  font-family: inherit;
+  word-wrap: break-word;
+}
+
+.markdown-body p {
+  color: #374151;
+  margin-bottom: 0.75rem;
+}
+
+.markdown-body p:last-child {
+  margin-bottom: 0;
 }
 
 .markdown-body strong {
-  color: inherit;
   font-weight: 700;
 }
 
-/* Chỉ đổi màu đỏ cho tiêu đề và nội dung nhấn mạnh trong tin nhắn model */
+/* Red accent for model bubble only */
 .markdown-body.prose-slate h1, 
 .markdown-body.prose-slate h2, 
 .markdown-body.prose-slate h3,
@@ -39,55 +49,148 @@ body {
   color: var(--pccc-red);
 }
 
-.markdown-body strong {
-  font-weight: 800;
+.markdown-body h1 {
+  font-size: 1.25rem;
+  font-family: var(--font-display);
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+  border-bottom: 1px solid rgba(204, 42, 42, 0.1);
+  padding-bottom: 0.25rem;
 }
 
-.markdown-body h1 { font-size: 1.25rem; }
-.markdown-body h2 { font-size: 1.1rem; }
-.markdown-body h3 { font-size: 1rem; }
-
-.markdown-body p {
-  color: #374151;
-  margin-bottom: 1rem;
+.markdown-body h2 {
+  font-size: 1.15rem;
+  font-family: var(--font-display);
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
 }
 
-/* Đảm bảo chữ trắng trong khung tin nhắn người dùng */
-.markdown-body.prose-invert p,
-.markdown-body.prose-invert li,
-.markdown-body.prose-invert strong,
-.markdown-body.prose-invert span,
+.markdown-body h3 {
+  font-size: 1.05rem;
+  font-family: var(--font-display);
+  margin-top: 1rem;
+  margin-bottom: 0.4rem;
+  font-weight: 700;
+}
+
 .markdown-body.prose-invert h1,
 .markdown-body.prose-invert h2,
-.markdown-body.prose-invert h3 {
+.markdown-body.prose-invert h3,
+.markdown-body.prose-invert p,
+.markdown-body.prose-invert li,
+.markdown-body.prose-invert ul,
+.markdown-body.prose-invert ol,
+.markdown-body.prose-invert strong,
+.markdown-body.prose-invert pre,
+.markdown-body.prose-invert code,
+.markdown-body.prose-invert blockquote {
   color: #ffffff !important;
 }
 
 .markdown-body ul, .markdown-body ol {
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   padding-left: 1.25rem;
   color: #374151;
 }
 
 .markdown-body li {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .markdown-body ul { list-style-type: disc; }
 .markdown-body ol { list-style-type: decimal; }
 
+.markdown-body pre {
+  background-color: #f1f5f9;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+  border: 1px solid #e2e8f0;
+}
+
+.markdown-body code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.85rem;
+  background-color: rgba(226, 232, 240, 0.4);
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.375rem;
+  color: #1e293b;
+}
+
+.markdown-body pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+.markdown-body.prose-invert code {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  font-size: 0.8rem;
+  background: white;
+  border-radius: 8px;
+  overflow-x: auto;
+  display: block;
+  border: 1px solid #e2e8f0;
+}
+
+/* Safe area insets for mobile */
+@supports (padding: env(safe-area-inset-bottom)) {
+  #chat-input-area {
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  }
+}
+
+.markdown-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+@media (max-width: 640px) {
+  .markdown-body h1 { font-size: 1.15rem; }
+  .markdown-body h2 { font-size: 1.05rem; }
+  .markdown-body h3 { font-size: 1rem; }
+  .markdown-body { font-size: 13px; }
+}
+
+.markdown-body th {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  font-weight: 700;
+}
+
+.markdown-body td {
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem 0.75rem;
+}
+
+.markdown-body tr:nth-child(even) {
+  background: #f8fafc;
+}
+
 .markdown-body blockquote {
-  margin: 0.5rem 0;
+  margin: 0.75rem 0;
   padding: 0.5rem 1rem;
   border-left: 4px solid var(--pccc-red);
-  background-color: #fff5f5;
-  border-radius: 0 4px 4px 0;
-  font-style: normal;
+  background-color: rgba(204, 42, 42, 0.03);
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
 }
 
 .markdown-body blockquote p {
   margin-bottom: 0;
-  font-weight: 800;
+  font-weight: 600;
   color: #111827;
 }
 
@@ -95,5 +198,37 @@ body {
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
 .msg-bubble-shadow {
-  box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.msg-bubble-hover {
+  transition: transform 0.15s ease;
+}
+
+.msg-bubble-hover:hover {
+  transform: translateY(-1px);
+}
+
+/* KaTeX Math Styling */
+.katex-display {
+  margin: 0.75rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5rem 0;
+  background: rgba(204, 42, 42, 0.015);
+  border-radius: 8px;
+}
+
+.katex {
+  font-size: 1.05em !important;
+  text-rendering: optimizeLegibility;
+  font-family: inherit !important;
+}
+
+.katex .mtight, .katex .mord, .katex .mtext {
+  font-family: var(--font-sans) !important;
+}
+
+.katex .mathit {
+  font-family: "KaTeX_Math", italic !important;
 }
