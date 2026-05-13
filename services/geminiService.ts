@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Message, KnowledgeItem } from "../types";
 
 // Lấy danh sách API Keys có sẵn từ nhiều nguồn
@@ -47,7 +47,7 @@ function getAIInstance(excludeKeys: string[] = []) {
     throw new Error("API_KEY_MISSING");
   }
   
-  return { ai: new GoogleGenAI({ apiKey: selectedKey }), key: selectedKey };
+  return { ai: new GoogleGenerativeAI(selectedKey), key: selectedKey };
 }
 
 const ROUTER_INSTRUCTION = `
