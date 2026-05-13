@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import { Message, KnowledgeItem } from "../types";
 
 // Lấy danh sách API Keys có sẵn từ nhiều nguồn
@@ -48,7 +48,7 @@ function getAIInstance(excludeKeys: string[] = []) {
     throw new Error("API_KEY_MISSING");
   }
   
-  return { ai: new GoogleGenerativeAI(selectedKey), key: selectedKey };
+  return { ai: new GoogleGenAI({ apiKey: selectedKey }), key: selectedKey };
 }
 
 const ROUTER_INSTRUCTION = `
@@ -113,13 +113,13 @@ export async function streamMessageWithSearch(
     if (userKnowledge.length > 0) {
       const routerPrompt = ROUTER_INSTRUCTION.replace("{{FILE_LIST}}", userKnowledge.map(k => k.title).join(", ")).replace("{{USER_QUERY}}", userQuery);
       
-      const model = instance.ai.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
-        generationConfig: { temperature: 0 }
+      const response = await instance.ai.models.generateContent({ 
+        model: "gemini-3-flash-preview",
+        contents: routerPrompt,
+        config: { temperature: 0 }
       });
       
-      const result = await model.generateContent(routerPrompt);
-      const output = result.response.text().trim();
+      const output = response.text?.trim() || "";
       const names = output.split(",").map(n => n.trim().toLowerCase());
       
       selectedKnowledge = userKnowledge.filter(k => 
@@ -134,7 +134,7 @@ export async function streamMessageWithSearch(
     selectedKnowledge = userKnowledge.slice(0, 5);
   }
 
-  const history = messages.slice(-5, -1).map(msg => ({
+  const contents = messages.slice(-5, -1).map(msg => ({
     role: msg.role === 'user' ? 'user' : 'model',
     parts: [{ text: msg.content }]
   }));
@@ -149,23 +149,22 @@ export async function streamMessageWithSearch(
       const keySnippet = instance.key.slice(-4);
       onChunk(`🔄 (Sử dụng key ...${keySnippet})\n\n`);
       
-      const model = instance.ai.getGenerativeModel({
-        model: "gemini-1.5-flash",
-        systemInstruction: SYSTEM_INSTRUCTION
-      });
-
-      const streamResult = await model.generateContentStream({
+      const streamResponse = await instance.ai.models.generateContentStream({
+        model: "gemini-3-flash-preview",
         contents: [
-          ...history,
+          ...contents,
           { role: 'user', parts: [...parts, { text: userQuery }] }
         ],
-        generationConfig: { temperature: 0.1 }
+        config: { 
+          systemInstruction: SYSTEM_INSTRUCTION,
+          temperature: 0.1 
+        }
       });
 
       let fullText = "";
-      for await (const chunk of streamResult.stream) {
+      for await (const chunk of streamResponse) {
         if (abortSignal?.aborted) break;
-        const chunkText = chunk.text();
+        const chunkText = chunk.text;
         if (chunkText) {
           fullText += chunkText;
           onChunk(fullText);
