@@ -137,6 +137,11 @@ CHIẾN LƯỢC: Quét [Quy chuẩn] -> [Luật/Nghị định] -> [Thông tư].
 
      ⚠️ LỆNH PHƯƠNG TIỆN CHỮA CHÁY CƠ GIỚI (MỤC 11): Bắt buộc đối chiếu đối tượng hỏi với định mức trang bị tại Bảng D1 Phụ lục D QCVN 10:2025/BCA (Xe chữa cháy, xe cứu nạn cứu hộ, tàu, máy bơm...) phục vụ đội PCCC cơ sở/chuyên ngành.
 
+     ⚠️ QUY ĐỊNH LƯU TRỮ VÀ CẬP NHẬT HỒ SƠ: Khi trả lời về lưu trữ/cập nhật, BẮT BUỘC gắn căn cứ sau:
+     - Hình thức (Giấy/Điện tử): Theo Điều 4 Thông tư 36/2025/TT-BCA.
+     - Thời hạn lưu trữ (05 năm): Theo Khoản 2 Điều 4 Thông tư 36/2025/TT-BCA.
+     - Cập nhật dữ liệu lên hệ thống của BCA: Theo Điều 26 Nghị định 105/2025/NĐ-CP.
+
      ❌ CẤM TUYỆT ĐỐI: Không được hiển thị phần "III. HỒ SƠ QUẢN LÝ PCCC (Thông tư 36/2025/TT-BCA)" và danh sách các loại sổ sách, biên bản liên quan nếu người dùng không hỏi trực tiếp về hồ sơ.
 
    - ⚠️ LỆNH CHỐNG ẢO GIÁC ĐỐI VỚI "HỆ THỐNG CẤP NƯỚC CHỮA CHÁY NGOÀI NHÀ" (BẢNG C.1):
