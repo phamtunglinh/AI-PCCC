@@ -52,15 +52,23 @@ const App: React.FC = () => {
     }
   };
 
-  // Improved scroll effect
+  // Optimized scroll effect for smoother tracking
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!showScrollButton) {
-        scrollToBottom(isStreaming ? 'auto' : 'smooth');
-      }
-    }, 50);
-    return () => clearTimeout(timer);
-  }, [messages, isStreaming]);
+    if (isStreaming && !showScrollButton) {
+      // Use requestAnimationFrame for smoother scroll in streaming mode
+      const frame = requestAnimationFrame(() => {
+        scrollToBottom('auto');
+      });
+      return () => cancelAnimationFrame(frame);
+    } else if (!isStreaming && messages.length > 0) {
+      const timer = setTimeout(() => {
+        if (!showScrollButton) {
+          scrollToBottom('smooth');
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [messages, isStreaming, showScrollButton]);
 
   // Load knowledge and messages
   useEffect(() => {
@@ -312,45 +320,103 @@ const App: React.FC = () => {
         )}
       </AnimatePresence>
 
-      <div 
-        className={`fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[90] lg:hidden transition-opacity duration-300 ${isAdminMode && isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-        onClick={() => setIsSidebarOpen(false)}
-      />
+      <AnimatePresence>
+        {isAdminMode && isSidebarOpen && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[90] lg:hidden"
+              onClick={() => setIsSidebarOpen(false)}
+            />
+            <motion.div 
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed inset-y-0 left-0 z-[100] w-[280px] sm:w-80 shadow-2xl border-r border-slate-200 bg-white"
+            >
+              <div className="h-full flex flex-col">
+                <KnowledgeManager 
+                  onAdd={(item) => {
+                    setKnowledgeBase(prev => [...prev, item]);
+                    saveKnowledge(item);
+                  }} 
+                  knowledgeBase={knowledgeBase} 
+                  onDelete={(id) => {
+                    setKnowledgeBase(prev => prev.filter(i => i.id !== id));
+                    removeKnowledge(id);
+                  }} 
+                />
+                <div className="p-4 bg-slate-50 border-t border-slate-200 space-y-2">
+                  <button 
+                    id="copy-embed-btn"
+                    onClick={copyEmbedCode}
+                    className="w-full py-3 bg-white hover:bg-slate-50 text-slate-700 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all border border-slate-200 flex items-center justify-center gap-2"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Sử dụng mã nhúng
+                  </button>
+                  <button 
+                    id="close-admin-btn"
+                    onClick={() => { setIsAdminMode(false); setIsSidebarOpen(false); }}
+                    className="w-full py-3 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all"
+                  >
+                    Thoát Quản trị
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
-      <div className={`fixed inset-y-0 left-0 transform ${isAdminMode && isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:translate-x-0 transition-all duration-300 ease-out z-[100] ${isAdminMode ? 'w-[280px] sm:w-80' : 'w-0 overflow-hidden'} flex-shrink-0 shadow-2xl lg:shadow-none border-r border-slate-200 bg-white`}>
-        <div className="h-full flex flex-col">
-          <KnowledgeManager 
-            onAdd={(item) => {
-              setKnowledgeBase(prev => [...prev, item]);
-              saveKnowledge(item);
-            }} 
-            knowledgeBase={knowledgeBase} 
-            onDelete={(id) => {
-              setKnowledgeBase(prev => prev.filter(i => i.id !== id));
-              removeKnowledge(id);
-            }} 
-          />
-          <div className="p-4 bg-slate-50 border-t border-slate-200 space-y-2">
-            <button 
-              id="copy-embed-btn"
-              onClick={copyEmbedCode}
-              className="w-full py-3 bg-white hover:bg-slate-50 text-slate-700 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all border border-slate-200 flex items-center justify-center gap-2"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
-              Sử dụng mã nhúng
-            </button>
-            <button 
-              id="close-admin-btn"
-              onClick={() => { setIsAdminMode(false); setIsSidebarOpen(false); }}
-              className="w-full py-3 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all"
-            >
-              Thoát Quản trị
-            </button>
-          </div>
-        </div>
-      </div>
+      <AnimatePresence mode="popLayout">
+        {isAdminMode && (
+          <motion.div 
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: 320, opacity: 1 }}
+            exit={{ width: 0, opacity: 0 }}
+            className="hidden lg:flex flex-none border-r border-slate-200 bg-white overflow-hidden"
+          >
+            <div className="w-[320px] flex flex-col h-full">
+              <KnowledgeManager 
+                onAdd={(item) => {
+                  setKnowledgeBase(prev => [...prev, item]);
+                  saveKnowledge(item);
+                }} 
+                knowledgeBase={knowledgeBase} 
+                onDelete={(id) => {
+                  setKnowledgeBase(prev => prev.filter(i => i.id !== id));
+                  removeKnowledge(id);
+                }} 
+              />
+              <div className="p-4 bg-slate-50 border-t border-slate-200 space-y-2">
+                <button 
+                  id="copy-embed-btn"
+                  onClick={copyEmbedCode}
+                  className="w-full py-3 bg-white hover:bg-slate-50 text-slate-700 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all border border-slate-200 flex items-center justify-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  Sử dụng mã nhúng
+                </button>
+                <button 
+                  id="close-admin-btn"
+                  onClick={() => { setIsAdminMode(false); setIsSidebarOpen(false); }}
+                  className="w-full py-3 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all"
+                >
+                  Thoát Quản trị
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <main id="chat-main" className="flex-1 flex flex-col min-w-0 bg-slate-50 relative overflow-hidden">
         {!isEmbedded && (
@@ -414,49 +480,62 @@ const App: React.FC = () => {
           className="flex-1 min-h-0 overflow-y-auto px-3 py-4 md:px-6 space-y-4 scrollbar-hide bg-slate-50/50 relative"
         >
           <div className="max-w-4xl mx-auto space-y-6">
-            {messages.map((msg, idx) => (
-              <motion.div 
-                key={`msg-${idx}`} 
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35 }}
-                className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} max-w-[95%] md:max-w-[85%]`}>
-                  <div className={`p-4 md:p-5 rounded-2xl shadow-sm border transition-all ${
-                    msg.role === 'user' 
-                      ? 'bg-slate-800 border-slate-700 text-white rounded-tr-none' 
-                      : 'bg-white border-slate-200 text-slate-800 rounded-tl-none'
-                  }`}>
-                    <div className={`markdown-body max-w-none text-[13.5px] md:text-[14.5px] leading-relaxed ${msg.role === 'user' ? 'prose-invert font-medium' : 'prose-slate'}`}>
-                      {(!msg.content && msg.role === 'model' && isStreaming && idx === messages.length - 1) ? (
-                        <div className="flex gap-1.5 py-1.5">
-                          <span className="w-2 h-2 bg-red-600 rounded-full animate-bounce" />
-                          <span className="w-2 h-2 bg-red-600 rounded-full animate-bounce delay-150" />
-                          <span className="w-2 h-2 bg-red-600 rounded-full animate-bounce delay-300" />
-                        </div>
-                      ) : (
-                        <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeKatex]}>
-                          {msg.content || ""}
-                        </ReactMarkdown>
-                      )}
-                    </div>
-                    
-
-                  </div>
-                  
-                  <div className={`mt-2 flex items-center gap-2 text-[9px] font-bold uppercase tracking-wider ${msg.role === 'user' ? 'text-slate-400' : 'text-slate-400'}`}>
-                    {msg.role === 'model' && (
-                      <div className="flex items-center gap-1.5 opacity-80">
-                        <div className="w-1.5 h-1.5 bg-red-600 rounded-full shadow-[0_0_8px_rgba(220,38,38,0.3)]"></div>
-                        <span className="text-red-700 font-black">AI PCCC PHÚ THỌ</span>
+            <AnimatePresence initial={false}>
+              {messages.map((msg, idx) => (
+                <motion.div 
+                  key={`msg-${idx}`} 
+                  layout
+                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ 
+                    type: 'spring',
+                    damping: 25,
+                    stiffness: 300,
+                    opacity: { duration: 0.2 }
+                  }}
+                  className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} max-w-[95%] md:max-w-[85%]`}>
+                    <motion.div 
+                      layout
+                      className={`p-4 md:p-5 rounded-2xl shadow-sm border ${
+                        msg.role === 'user' 
+                          ? 'bg-slate-800 border-slate-700 text-white rounded-tr-none' 
+                          : 'bg-white border-slate-200 text-slate-800 rounded-tl-none'
+                      }`}
+                    >
+                      <div className={`markdown-body max-w-none text-[13.5px] md:text-[14.5px] leading-relaxed ${msg.role === 'user' ? 'prose-invert font-medium' : 'prose-slate'}`}>
+                        {(!msg.content && msg.role === 'model' && isStreaming && idx === messages.length - 1) ? (
+                          <div className="flex gap-1.5 py-1.5">
+                            <motion.span animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 0.6 }} className="w-2 h-2 bg-red-600 rounded-full" />
+                            <motion.span animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} className="w-2 h-2 bg-red-600 rounded-full" />
+                            <motion.span animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} className="w-2 h-2 bg-red-600 rounded-full" />
+                          </div>
+                        ) : (
+                          <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeKatex]}>
+                            {msg.content || ""}
+                          </ReactMarkdown>
+                        )}
                       </div>
-                    )}
-                    <span className="tabular-nums opacity-60 font-medium">{msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    </motion.div>
+                    
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className={`mt-2 flex items-center gap-2 text-[9px] font-bold uppercase tracking-wider ${msg.role === 'user' ? 'text-slate-400' : 'text-slate-400'}`}
+                    >
+                      {msg.role === 'model' && (
+                        <div className="flex items-center gap-1.5 opacity-80">
+                          <div className="w-1.5 h-1.5 bg-red-600 rounded-full shadow-[0_0_8px_rgba(220,38,38,0.3)]"></div>
+                          <span className="text-red-700 font-black">AI PCCC PHÚ THỌ</span>
+                        </div>
+                      )}
+                      <span className="tabular-nums opacity-60 font-medium">{msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    </motion.div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              ))}
+            </AnimatePresence>
             <div className="h-4 w-full" />
           </div>
 

@@ -14,18 +14,24 @@
   --pccc-text: #1a1a1a;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background-color: var(--pccc-bg);
   color: var(--pccc-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  overflow-x: hidden;
 }
 
 .markdown-body {
   line-height: 1.6;
   font-family: inherit;
   word-wrap: break-word;
+  overflow-anchor: auto;
 }
 
 .markdown-body p {
